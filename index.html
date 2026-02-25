@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSSERVICE - Catalogo Prodotti Dinamico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    
+    <!-- PWA Meta Tags (NUOVO) -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#28a745"> <!-- Il tuo colore brand-primary -->
+    
+    <!-- Link al Manifest PWA (NUOVO) -->
+    <link rel="manifest" href="/gestionale_tsservice/manifest.json">
+
+    <style>
+        :root {
+            --brand-primary: #28a745; /* Aggiornato con il colore del tuo negozio */
+            --brand-secondary: #218838; /* Aggiornato con il tuo brand-dark */
+            --bg-body: #f7f9fc; /* Aggiornato con il tuo bg-light */
+            --bg-card: #ffffff; /* Aggiornato con il tuo bg-white */
+            --text-primary: #34495e; /* Aggiornato con il tuo text-dark */
+            --text-secondary: #7f8c8d; /* Aggiornato con il tuo text-light */
+            --shadow-light: rgba(0, 0, 0, 0.08); /* Mantenuto, compatibile con shadow-md */
+            --shadow-medium: rgba(0, 0, 0, 0.15); /* Mantenuto */
+            --shadow-strong: rgba(0, 0, 0, 0.25); /* Mantenuto */
+            --border-color: #ecf0f1; /* Aggiornato con il tuo border-color */
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --skeleton-color: #e2e2e2;
+
+            /* Colori specifici forniti dall'utente */
+            --success-color: #2ecc71; 
+            --gradient-start: #34d399; 
+            --gradient-end: #059669; 
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .header-logo {
+            padding: 20px 40px;
+            background: var(--bg-card);
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            box-shadow: 0 5px 20px var(--shadow-light);
+            margin-bottom: 25px;
+        }
+        
+        .header-logo img {
+            max-height: 70px;
+            width: auto;
+            border-radius: 8px;
+        }
+
+        .header-logo .brand-info {
+            display: flex;
+            flex-direction: column;
+            margin-left: 25px;
+        }
+        
+        .header-logo .brand-info h1 {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.2;
+        }
+        
+        .header-logo .brand-info p {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            padding: 0 40px 40px 40px;
+            box-sizing: border-box;
+            gap: 30px;
+        }
+
+        .sidebar {
+            width: 280px;
+            background-color: var(--bg-card);
+            padding: 25px;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 8px 25px var(--shadow-medium);
+            flex-shrink: 0;
+            position: sticky;
+            top: 25px;
+            height: fit-content;
+        }
+
+        .sidebar h2 {
+            font-size: 1.6em;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .sidebar h3 {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-top: 25px;
+            margin-bottom: 12px;
+        }
+
+        .filter-group .filter-item, .category-item {
+            padding: 12px 18px;
+            margin-bottom: 10px;
+            background-color: var(--bg-body);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            color: var(--text-secondary);
+            box-shadow: 0 2px 5px var(--shadow-light);
+        }
+        
+        .filter-item:hover, .category-item:hover {
+            background-color: #e0e0e0;
+            color: var(--text-primary);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px var(--shadow-medium);
+        }
+
+        .filter-item.active, .category-item.active {
+            background-color: var(--brand-primary);
+            border-color: var(--brand-primary);
+            color: #ffffff;
+            font-weight: 600;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px var(--shadow-medium);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            background-color: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 15px;
+            box-shadow: 0 4px 15px var(--shadow-light);
+        }
+        
+        .search-bar {
+            flex-grow: 1;
+            display: flex;
+            gap: 15px;
+        }
+
+        .search-bar input[type="text"] {
+            flex-grow: 1;
+            padding: 15px 20px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            font-size: 1.1em;
+            border-radius: var(--radius-md);
+            outline: none;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        .search-bar input[type="text"]:focus {
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .search-bar input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .search-bar button {
+            background-color: var(--brand-primary);
+            color: #ffffff;
+            border: none;
+            padding: 15px 30px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 4px 10px var(--shadow-light);
+        }
+
+        .search-bar button:hover {
+            background-color: var(--brand-secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px var(--shadow-medium);
+        }
+        
+        .sort-options {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sort-options label {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .sort-options select {
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background-color: var(--bg-body);
+            font-size: 1em;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .sort-options select:focus {
+            border-color: var(--brand-primary);
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        .product-card {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: 0 8px 20px var(--shadow-medium);
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            color: var(--text-primary);
+            height: 420px; /* Forced height */
+            cursor: pointer;
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px var(--shadow-strong);
+        }
+        
+        .product-card .product-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 6px 12px;
+            border-radius: 9999px;
+            font-size: 0.8em;
+            font-weight: 700;
+            color: #ffffff;
+            background-color: var(--brand-secondary);
+            z-index: 10;
+        }
+        
+        .product-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: contain;
+            background-color: var(--bg-card); /* Impostato su bianco per effetto "senza sfondo" */
+            border-bottom: 1px solid var(--border-color);
+            transition: opacity 0.5s;
+        }
+
+        .product-card img.lazy-loaded {
+            opacity: 1;
+        }
+
+        .product-info {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .product-info h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            font-size: 1.3em;
+            font-weight: 700;
+            line-height: 1.3;
+            /* Force to max 2 lines and truncate */
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-info p.price {
+            font-size: 1.6em;
+            font-weight: 700;
+            color: var(--brand-primary);
+            margin: 15px 0;
+        }
+
+        .stock-status {
+            font-weight: 600;
+            padding: 8px 15px;
+            border-radius: 9999px;
+            display: inline-block;
+            margin-top: auto;
+            align-self: flex-start;
+            font-size: 0.9em;
+        }
+
+        .stock-available {
+            background-color: var(--success-color); /* Utilizza la nuova variabile --success-color */
+            color: #ffffff;
+        }
+
+        .stock-low {
+            background-color: var(--brand-secondary);
+            color: #ffffff;
+        }
+
+        .stock-unavailable {
+            background-color: #c0392b;
+            color: #ffffff;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 60px;
+            font-size: 1.8em;
+            color: var(--text-secondary);
+        }
+        
+        /* Loading Skeleton Styles */
+        .product-card.loading {
+            pointer-events: none;
+        }
+        
+        .product-card.loading .skeleton-image,
+        .product-card.loading .skeleton-text {
+            background-color: var(--skeleton-color);
+            animation: pulse 1.5s infinite;
+            border-radius: var(--radius-md);
+        }
+        
+        .product-card.loading .skeleton-image {
+            width: 100%;
+            height: 220px;
+        }
+        
+        .product-card.loading .skeleton-text {
+            height: 1.2em;
+            margin: 10px 0;
+        }
+        
+        .product-card.loading .skeleton-text.short {
+            width: 70%;
+        }
+        
+        .product-card.loading .skeleton-text.long {
+            width: 90%;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        /* --- STILI PER LA MODALE --- */
+        .modal {
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.3s ease-in-out;
+        }
+        
+        .modal.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            box-shadow: 0 10px 40px var(--shadow-strong);
+            max-width: 800px;
+            width: 90%;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            gap: 40px;
+            box-sizing: border-box;
+        }
+        
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            color: var(--text-secondary);
+            font-size: 2.2em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+        
+        .modal-image {
+            flex: 1 1 50%;
+            max-width: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background-color: var(--bg-body);
+            border-radius: var(--radius-md);
+        }
+        
+        .modal-image img {
+            max-width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+        }
+        
+        .modal-details {
+            flex: 1 1 50%;
+            max-width: 50%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-details h2 {
+            margin-top: 0;
+            font-size: 2em;
+            font-weight: 700;
+        }
+        
+        .modal-details p {
+            margin-top: 0;
+            line-height: 1.6;
+        }
+        
+        .modal-details .price {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: var(--brand-primary);
+            margin-bottom: 20px;
+        }
+        
+        .modal-details .stock-status {
+            font-size: 1.1em;
+            padding: 10px 20px;
+            margin-top: 20px;
+        }
+
+        /* Stili per la paginazione */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 30px;
+            gap: 10px;
+        }
+        
+        .pagination button {
+            background-color: var(--brand-primary);
+            color: #ffffff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        .pagination button:disabled {
+            background-color: var(--text-secondary);
+            cursor: not-allowed;
+        }
+        
+        .pagination span {
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .container {
+                flex-direction: column;
+                padding: 0 20px 20px 20px;
+            }
+            .sidebar {
+                width: 100%;
+                margin-bottom: 20px;
+                position: static;
+            }
+            .header-logo {
+                padding: 15px 20px;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .header-logo .brand-info {
+                margin-left: 0;
+                margin-top: 15px;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-bar {
+                width: 100%;
+            }
+            .sort-options {
+                justify-content: center;
+            }
+            .modal-content {
+                flex-direction: column;
+                width: 95%;
+                max-width: 95%;
+                padding: 20px;
+            }
+            .modal-image, .modal-details {
+                max-width: 100%;
+            }
+            .modal-image img {
+                max-height: 200px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .search-bar {
+                flex-direction: column;
+                padding: 10px;
+                gap: 10px;
+            }
+            .search-bar button {
+                width: 100%;
+            }
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header-logo">
+        <img src="http://localhost/gestionale_tsservice/images/logo.png" alt="Logo di TSSERVICE">
+        <div class="brand-info">
+            <h1>TSSERVICE</h1>
+            <p>Il tuo alleato digitale, sempre al passo con te!</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <h2>Catalogo Prodotti</h2>
+            <h3>Categorie</h3>
+            <div id="category-filters">
+                <!-- Le categorie verranno generate qui -->
+                <div class="category-item active" data-filter-value="all">Tutte le Categorie</div>
+            </div>
+            <h3>Filtri</h3>
+            <div id="brand-filters" class="filter-group">
+                <h4>Marca</h4>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="controls">
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Cerca per nome, codice o categoria...">
+                    <button onclick="filterAndRenderProducts()">Cerca</button>
+                </div>
+                <div class="sort-options">
+                    <label for="sortSelect">Ordina per:</label>
+                    <select id="sortSelect" onchange="filterAndRenderProducts()">
+                        <option value="default">Predefinito</option>
+                        <option value="price-asc">Prezzo (crescente)</option>
+                        <option value="price-desc">Prezzo (decrescente)</option>
+                        <option value="name-asc">Nome (A-Z)</option>
+                        <option value="name-desc">Nome (Z-A)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="product-grid" id="productGrid"></div>
+            <div id="noResults" class="no-results" style="display: none;">Nessun prodotto trovato. Prova con un'altra ricerca.</div>
+            
+            <div class="pagination" id="pagination">
+                <button id="prevPage">Precedente</button>
+                <span id="pageInfo">Pagina 1 di 1</span>
+                <button id="nextPage">Successiva</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div class="modal-image">
+                <img id="modalProductImage" src="" alt="Immagine del prodotto">
+            </div>
+            <div class="modal-details">
+                <h2 id="modalProductName"></h2>
+                <p id="modalProductCode" class="text-secondary"></p>
+                <p id="modalProductPrice" class="price"></p>
+                <p id="modalProductDescription"></p>
+                <span id="modalStockStatus" class="stock-status"></span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost/gestionale_tsservice/api_prodotti.php'; 
+        
+        let allProducts = [];
+        let filteredProducts = [];
+        let activeCategory = 'all';
+        let activeBrands = new Set(); 
+        let currentPage = 1;
+        const productsPerPage = 20;
+
+        const productGrid = document.getElementById('productGrid');
+        const searchInput = document.getElementById('searchInput');
+        const noResultsMessage = document.getElementById('noResults');
+        const categoryFiltersContainer = document.getElementById('category-filters');
+        const brandFiltersContainer = document.getElementById('brand-filters');
+        const sortSelect = document.getElementById('sortSelect');
+        const productModal = document.getElementById('productModal');
+        const modalCloseBtn = document.querySelector('.modal-close');
+        const prevPageBtn = document.getElementById('prevPage');
+        const nextPageBtn = document.getElementById('nextPage');
+        const pageInfoSpan = document.getElementById('pageInfo');
+
+        // Funzione per creare lo scheletro di caricamento
+        function createLoadingSkeleton() {
+            return `<div class="product-card loading">
+                        <div class="skeleton-image"></div>
+                        <div class="product-info">
+                            <div class="skeleton-text long"></div>
+                            <div class="skeleton-text short"></div>
+                            <div class="skeleton-text short"></div>
+                        </div>
+                    </div>`;
+        }
+
+        // Funzione per creare una singola card di prodotto
+        function createProductCard(product) {
+            const imagePath = 'http://localhost/gestionale_tsservice/uploads/';
+            
+            let stockClass, stockText;
+            if (product.stock > 10) {
+                stockClass = 'stock-available';
+                stockText = `${product.stock} pezzi`;
+            } else if (product.stock > 0) {
+                stockClass = 'stock-low';
+                stockText = `${product.stock} pezzi`;
+            } else {
+                stockClass = 'stock-unavailable';
+                stockText = 'Non disponibile';
+            }
+            
+            const badge = product.isNew ? `<span class="product-badge">Novità</span>` : '';
+            
+            return `<div class="product-card" data-product-id="${product.id}">
+                        ${badge}
+                        <img src="" data-src="${imagePath}${product.image}" alt="${product.name}" class="lazyload">
+                        <div class="product-info">
+                            <h3>${product.name}</h3>
+                            <p class="price">€ ${product.price.toFixed(2)}</p>
+                            <span class="stock-status ${stockClass}">${stockText}</span>
+                        </div>
+                    </div>`;
+        }
+
+        // Funzione per il Lazy Loading
+        function lazyLoadImages() {
+            const lazyImages = document.querySelectorAll('.lazyload');
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.add('lazy-loaded');
+                        observer.unobserve(img);
+                    }
+                });
+            });
+            lazyImages.forEach(img => observer.observe(img));
+        }
+        
+        // Funzione per generare i filtri dinamici
+        function generateFilters() {
+            const categories = new Set(allProducts.map(p => p.category));
+            const brands = new Set(allProducts.map(p => p.brand));
+            
+            categoryFiltersContainer.innerHTML = `<div class="category-item active" data-filter-value="all">Tutte le Categorie</div>`;
+            brandFiltersContainer.innerHTML = `<h4>Marca</h4>`;
+
+            categories.forEach(cat => {
+                const item = document.createElement('div');
+                item.className = 'category-item';
+                item.dataset.filterValue = cat;
+                item.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+                categoryFiltersContainer.appendChild(item);
+            });
+            
+            brands.forEach(brand => {
+                const item = document.createElement('div');
+                item.className = 'filter-item';
+                item.dataset.filterValue = brand;
+                item.textContent = brand.charAt(0).toUpperCase() + brand.slice(1);
+                brandFiltersContainer.appendChild(item);
+            });
+        }
+        
+        // Funzione per ordinare i prodotti
+        function sortProducts(productsToSort) {
+            const sortBy = sortSelect.value;
+            const sorted = productsToSort.slice(); 
+
+            if (sortBy === 'price-asc') {
+                return sorted.sort((a, b) => a.price - b.price);
+            } else if (sortBy === 'price-desc') {
+                return sorted.sort((a, b) => b.price - a.price);
+            } else if (sortBy === 'name-asc') {
+                return sorted.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (sortBy === 'name-desc') {
+                return sorted.sort((a, b) => b.name.localeCompare(a.name));
+            } else {
+                return productsToSort;
+            }
+        }
+
+        // Funzione principale per filtrare e renderizzare
+        function filterAndRenderProducts() {
+            const query = searchInput.value.toLowerCase().trim();
+            
+            const tempFiltered = allProducts.filter(product => {
+                const categoryMatch = activeCategory === 'all' || product.category === activeCategory;
+                const brandMatch = activeBrands.size === 0 || activeBrands.has(product.brand);
+                const textMatch = product.name.toLowerCase().includes(query) || 
+                                  (product.code && product.code.toLowerCase().includes(query)) ||
+                                  (product.category && product.category.toLowerCase().includes(query)) || 
+                                  (product.brand && product.brand.toLowerCase().includes(query));
+                                  
+                return categoryMatch && brandMatch && textMatch;
+            });
+            
+            filteredProducts = sortProducts(tempFiltered);
+
+            currentPage = 1;
+            renderProducts();
+        }
+
+        // Funzione per renderizzare la griglia di prodotti
+        function renderProducts() {
+            const start = (currentPage - 1) * productsPerPage;
+            const end = start + productsPerPage;
+            const productsToRender = filteredProducts.slice(start, end);
+
+            productGrid.innerHTML = productsToRender.map(createProductCard).join('');
+            
+            if (productsToRender.length === 0) {
+                noResultsMessage.style.display = 'block';
+                document.getElementById('pagination').style.display = 'none';
+            } else {
+                noResultsMessage.style.display = 'none';
+                document.getElementById('pagination').style.display = 'flex';
+                lazyLoadImages();
+            }
+            
+            updatePaginationControls();
+        }
+
+        // Funzione per aggiornare i controlli di paginazione con il conteggio dei prodotti
+        function updatePaginationControls() {
+            const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+            const totalProductsCount = filteredProducts.length;
+            pageInfoSpan.textContent = `Pagina ${currentPage} di ${totalPages || 1} (${totalProductsCount} prodotti)`;
+            prevPageBtn.disabled = currentPage === 1;
+            nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+        }
+
+        // Funzione per mostrare la modale del prodotto
+        function showProductModal(product) {
+            const imagePath = 'http://localhost/gestionale_tsservice/uploads/';
+            
+            document.getElementById('modalProductImage').src = `${imagePath}${product.image}`;
+            document.getElementById('modalProductImage').alt = product.name;
+            document.getElementById('modalProductName').textContent = product.name;
+            document.getElementById('modalProductCode').textContent = `Codice: ${product.code}`;
+            document.getElementById('modalProductPrice').textContent = `€ ${product.price.toFixed(2)}`;
+            document.getElementById('modalProductDescription').textContent = product.description;
+            
+            const stockElement = document.getElementById('modalStockStatus');
+            stockElement.className = 'stock-status'; // Reset class
+            if (product.stock > 10) {
+                stockElement.classList.add('stock-available');
+                stockElement.textContent = `${product.stock} pezzi`;
+            } else if (product.stock > 0) {
+                stockElement.classList.add('stock-low');
+                stockElement.textContent = `${product.stock} pezzi`;
+            } else {
+                stockElement.classList.add('stock-unavailable');
+                stockElement.textContent = 'Non disponibile';
+            }
+            
+            productModal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Funzione per chiudere la modale
+        function hideProductModal() {
+            productModal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+        
+        categoryFiltersContainer.addEventListener('click', (e) => {
+            const item = e.target.closest('.category-item');
+            if (item) {
+                document.querySelectorAll('#category-filters .category-item').forEach(el => el.classList.remove('active'));
+                item.classList.add('active');
+                activeCategory = item.dataset.filterValue;
+                localStorage.setItem('activeCategory', activeCategory);
+                filterAndRenderProducts();
+            }
+        });
+        
+        brandFiltersContainer.addEventListener('click', (e) => {
+            const item = e.target.closest('.filter-item');
+            if (item) {
+                const filterValue = item.dataset.filterValue;
+                if (item.classList.contains('active')) {
+                    item.classList.remove('active');
+                    activeBrands.delete(filterValue);
+                } else {
+                    item.classList.add('active');
+                    activeBrands.add(filterValue);
+                }
+                localStorage.setItem('activeBrands', JSON.stringify(Array.from(activeBrands)));
+                filterAndRenderProducts();
+            }
+        });
+
+        searchInput.addEventListener('keyup', filterAndRenderProducts);
+        
+        productGrid.addEventListener('click', (e) => {
+            const card = e.target.closest('.product-card');
+            if (card) {
+                const productId = card.dataset.productId;
+                const product = allProducts.find(p => p.id == productId);
+                if (product) {
+                    showProductModal(product);
+                }
+            }
+        });
+        
+        prevPageBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderProducts();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+
+        nextPageBtn.addEventListener('click', () => {
+            const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderProducts();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+
+        modalCloseBtn.addEventListener('click', hideProductModal);
+        
+        window.addEventListener('click', (e) => {
+            if (e.target === productModal) {
+                hideProductModal();
+            }
+        });
+
+        function loadSavedState() {
+            const savedCategory = localStorage.getItem('activeCategory');
+            const savedBrands = localStorage.getItem('activeBrands');
+            const savedSort = localStorage.getItem('sortSelect');
+
+            if (savedCategory) activeCategory = savedCategory;
+            if (savedBrands) activeBrands = new Set(JSON.parse(savedBrands));
+            if (savedSort) sortSelect.value = savedSort;
+        }
+
+        function saveState() {
+            localStorage.setItem('activeCategory', activeCategory);
+            localStorage.setItem('activeBrands', JSON.stringify(Array.from(activeBrands)));
+            localStorage.setItem('sortSelect', sortSelect.value);
+        }
+
+        async function fetchProducts() {
+            productGrid.innerHTML = createLoadingSkeleton().repeat(productsPerPage);
+            
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error(`Errore HTTP: ${response.status} - Impossibile recuperare i dati. Controlla l'URL.`);
+                }
+                const rawProducts = await response.json();
+                
+                allProducts = rawProducts.map(p => ({
+                    ...p,
+                    isNew: Math.random() > 0.7 // Aggiunge casualmente la proprietà isNew
+                }));
+                
+                generateFilters();
+                loadSavedState();
+                
+                // Imposta la categoria attiva se salvata, altrimenti "all"
+                if (activeCategory && activeCategory !== 'all') {
+                    const activeCatItem = document.querySelector(`.category-item[data-filter-value="${activeCategory}"]`);
+                    if (activeCatItem) {
+                        document.querySelector('.category-item.active')?.classList.remove('active');
+                        activeCatItem.classList.add('active');
+                    }
+                }
+
+                // Imposta le marche attive
+                if (activeBrands.size > 0) {
+                    activeBrands.forEach(brand => {
+                        const activeBrandItem = document.querySelector(`.filter-item[data-filter-value="${brand}"]`);
+                        if (activeBrandItem) {
+                            activeBrandItem.classList.add('active');
+                        }
+                    });
+                }
+
+                filterAndRenderProducts();
+                
+            } catch (error) {
+                console.error("Si è verificato un errore:", error);
+                productGrid.innerHTML = `<div class="no-results">Impossibile caricare i prodotti. C'è stato un problema di comunicazione con il gestionale.</div>`;
+            }
+        }
+        
+        // Registrazione del Service Worker (NUOVO)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/gestionale_tsservice/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registrato con successo:', registration);
+                    })
+                    .catch(error => {
+                        console.error('Registrazione Service Worker fallita:', error);
+                    });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchProducts);
+        sortSelect.addEventListener('change', saveState);
+    </script>
+</body>
+</html>

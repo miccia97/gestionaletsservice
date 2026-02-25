@@ -1,0 +1,50 @@
+# Image files
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+*.svg
+*.ico
+*.bmp
+*.tiff
+
+# System and IDE files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.log
+
+# PHP specific
+vendor/
+composer.lock
+.env
+.env.local
+
+# Node modules (if using npm/yarn)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# OS specific
+Thumbs.db
+.AppleDouble
+.LSOverride
+
+# Cache and temporary files
+*.cache
+.tmp/
+temp/
+
+# Uploads
+uploads/*
+
+# Database files
+*.sqlite
+*.db
