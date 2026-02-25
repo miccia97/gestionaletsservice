@@ -633,21 +633,19 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
     }
     nav ul li ul.dropdown li ul.submenu {
       display: none; 
-      position: absolute; 
-      top: 100%; 
-      left: 0;
-      margin-top: 5px;
+      position: fixed; 
       background-color: var(--bg-white); 
       min-width: 200px; 
       border-radius: 8px;
       box-shadow: var(--shadow-lg); 
       padding: 8px 0; 
-      margin: 0; 
       list-style: none;
-      z-index: 1100; 
+      z-index: 2100; 
       transform-origin: top; 
       animation: scaleYIn 0.3s ease;
       overflow: visible;
+      height: auto;
+      width: auto;
     }
     @keyframes scaleXIn { from { opacity: 0; transform: scaleX(0.8); } to { opacity: 1; transform: scaleX(1); } }
     
@@ -2525,6 +2523,15 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
             dropdown.style.left = (rect.left) + 'px';
         };
         
+        const positionSubmenu = (submenuParentLi) => {
+            const submenu = submenuParentLi.querySelector(':scope > ul.submenu');
+            if (!submenu) return;
+            
+            const rect = submenuParentLi.getBoundingClientRect();
+            submenu.style.top = (rect.top) + 'px';
+            submenu.style.left = (rect.right + 10) + 'px';
+        };
+        
         dropdownToggles.forEach(toggle => {
             toggle.addEventListener('click', function(event) {
                 event.preventDefault();
@@ -2537,18 +2544,26 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
                 });
                 if (!wasActive) {
                     parentLi.classList.add('active');
-                    positionDropdown(this);
+                    if (this.closest('nav > ul')) {
+                        // È un dropdown principale
+                        positionDropdown(this);
+                    } else if (this.closest('ul.dropdown')) {
+                        // È un submenu dentro un dropdown
+                        positionSubmenu(parentLi);
+                    }
                 }
                 else parentLi.classList.remove('active');
             });
         });
         
-        // Ricalcola la posizione dei dropdown al resize
+        // Ricalcola la posizione dei dropdown e submenu al resize
         window.addEventListener('resize', () => {
-            dropdownToggles.forEach(toggle => {
-                const parentLi = toggle.parentElement;
-                if (parentLi.classList.contains('active')) {
+            document.querySelectorAll('nav .has-dropdown.active, nav .has-submenu.active').forEach(activeItem => {
+                const toggle = activeItem.querySelector(':scope > button, :scope > a');
+                if (toggle && activeItem.closest('nav > ul')) {
                     positionDropdown(toggle);
+                } else if (activeItem.closest('ul.dropdown')) {
+                    positionSubmenu(activeItem);
                 }
             });
         });
