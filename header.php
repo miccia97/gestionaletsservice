@@ -424,6 +424,7 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
       padding-top: 80px; /* Ridotto per header più compatto */
       min-height: 100vh;
       overflow-y: auto;
+      overflow-x: visible;
     }
 
     /* --- INIZIO MODIFICHE HEADER --- */
@@ -443,6 +444,7 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
       z-index: 1000;
       box-shadow: var(--shadow-md); /* Ombra più moderna */
       transition: all 0.3s ease;
+      overflow: visible !important;
     }
 
     .logo {
@@ -529,6 +531,7 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
 
     nav {
         margin-left: auto; /* Sposta la navigazione a destra */
+        overflow: visible !important;
     }
 
     nav ul {
@@ -538,12 +541,14 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
       display: flex;
       gap: 5px; /* Gap ridotto tra i pulsanti */
       height: 100%;
+      overflow: visible !important;
     }
 
     nav ul li {
       position: relative;
       display: flex; /* Allinea il contenuto verticalmente */
       align-items: center;
+      overflow: visible !important;
     }
 
     nav ul li button,
@@ -593,20 +598,21 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
     /* Stili dropdown */
     nav ul li ul.dropdown {
       display: none;
-      position: absolute;
-      top: 100%;
-      right: 0;
+      position: fixed;
       background-color: var(--bg-white);
       min-width: 220px;
       border-radius: 8px;
       box-shadow: var(--shadow-lg);
       padding: 8px 0;
-      margin-top: 10px;
       list-style: none;
-      z-index: 1000;
+      z-index: 2000;
       transform-origin: top;
       animation: scaleYIn 0.3s ease;
+      overflow: visible;
+      height: auto;
+      width: auto;
     }
+     @keyframes scaleYOut { from { opacity: 0; transform: scaleY(0.8); } to { opacity: 1; transform: scaleY(1); } }
      @keyframes scaleYIn { from { opacity: 0; transform: scaleY(0.8); } to { opacity: 1; transform: scaleY(1); } }
     
     /* MODIFICA: Rimosso :hover per la visualizzazione, ora gestito da JS con la classe .active */
@@ -626,10 +632,22 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
       margin-left: 10px; color: var(--text-light);
     }
     nav ul li ul.dropdown li ul.submenu {
-      display: none; position: absolute; top: -8px; /* Allineato con il genitore */ left: 100%;
-      background-color: var(--bg-white); min-width: 200px; border-radius: 8px;
-      box-shadow: var(--shadow-lg); padding: 8px 0; margin: 0; list-style: none;
-      z-index: 1100; transform-origin: left; animation: scaleXIn 0.3s ease;
+      display: none; 
+      position: absolute; 
+      top: 100%; 
+      left: 0;
+      margin-top: 5px;
+      background-color: var(--bg-white); 
+      min-width: 200px; 
+      border-radius: 8px;
+      box-shadow: var(--shadow-lg); 
+      padding: 8px 0; 
+      margin: 0; 
+      list-style: none;
+      z-index: 1100; 
+      transform-origin: top; 
+      animation: scaleYIn 0.3s ease;
+      overflow: visible;
     }
     @keyframes scaleXIn { from { opacity: 0; transform: scaleX(0.8); } to { opacity: 1; transform: scaleX(1); } }
     
@@ -2496,6 +2514,17 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
                 activeItem.classList.remove('active');
             });
         };
+        
+        const positionDropdown = (toggleElement) => {
+            const parentLi = toggleElement.parentElement;
+            const dropdown = parentLi.querySelector(':scope > ul.dropdown');
+            if (!dropdown) return;
+            
+            const rect = toggleElement.getBoundingClientRect();
+            dropdown.style.top = (rect.bottom + 10) + 'px';
+            dropdown.style.left = (rect.left) + 'px';
+        };
+        
         dropdownToggles.forEach(toggle => {
             toggle.addEventListener('click', function(event) {
                 event.preventDefault();
@@ -2506,8 +2535,21 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
                 parentMenu.querySelectorAll('.active').forEach(item => {
                     if (item !== parentLi) item.classList.remove('active');
                 });
-                if (!wasActive) parentLi.classList.add('active');
+                if (!wasActive) {
+                    parentLi.classList.add('active');
+                    positionDropdown(this);
+                }
                 else parentLi.classList.remove('active');
+            });
+        });
+        
+        // Ricalcola la posizione dei dropdown al resize
+        window.addEventListener('resize', () => {
+            dropdownToggles.forEach(toggle => {
+                const parentLi = toggle.parentElement;
+                if (parentLi.classList.contains('active')) {
+                    positionDropdown(toggle);
+                }
             });
         });
 
