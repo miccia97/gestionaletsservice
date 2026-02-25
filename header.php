@@ -641,8 +641,8 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
       padding: 8px 0; 
       list-style: none;
       z-index: 2100; 
-      transform-origin: top; 
-      animation: scaleYIn 0.3s ease;
+      transform-origin: left; 
+      animation: scaleXIn 0.3s ease;
       overflow: visible;
       height: auto;
       width: auto;
@@ -2527,9 +2527,16 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
             const submenu = submenuParentLi.querySelector(':scope > ul.submenu');
             if (!submenu) return;
             
-            const rect = submenuParentLi.getBoundingClientRect();
-            submenu.style.top = (rect.top) + 'px';
-            submenu.style.left = (rect.right + 10) + 'px';
+            // Trova il dropdown principale a cui appartiene questo submenu
+            const dropdown = submenuParentLi.closest('ul.dropdown');
+            if (!dropdown) return;
+            
+            const dropdownRect = dropdown.getBoundingClientRect();
+            const submenuParentRect = submenuParentLi.getBoundingClientRect();
+            
+            // Posiziona il submenu a destra del dropdown principale, allineato verticalmente con l'elemento genitore
+            submenu.style.top = (submenuParentRect.top) + 'px';
+            submenu.style.left = (dropdownRect.right + 10) + 'px';
         };
         
         dropdownToggles.forEach(toggle => {
