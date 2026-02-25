@@ -1445,41 +1445,29 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
     /* ===== TOAST NOTIFICATIONS ===== */
     .toast-container {
         position: fixed;
-        top: 100px;
+        bottom: 20px;
         right: 20px;
-        z-index: 3000;
-        pointer-events: none;
+        z-index: 99999;
     }
     .toast {
-        background-color: white;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-        padding: 1.2rem 1.5rem;
-        margin-bottom: 12px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        min-width: 300px;
-        max-width: 450px;
-        animation: slideInRight 0.4s ease-out;
-        pointer-events: auto;
-        border-left: 4px solid var(--brand-color);
+        padding: 12px 20px;
+        border-radius: 8px;
+        color: #fff;
+        background: #2ecc71;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        opacity: 0;
+        transform: translateY(20px);
+        animation: slideUp 0.4s forwards, fadeOutToast 0.4s forwards 3s;
+        font-size: 15px;
+        font-weight: 500;
+        margin-top: 10px;
     }
-    .toast.success { border-left-color: #2ecc71; }
-    .toast.error { border-left-color: #e74c3c; }
-    .toast.warning { border-left-color: #f39c12; }
-    .toast.info { border-left-color: #3498db; }
-    .toast-icon { font-size: 1.4rem; flex-shrink: 0; }
-    .toast.success .toast-icon { color: #2ecc71; }
-    .toast.error .toast-icon { color: #e74c3c; }
-    .toast.warning .toast-icon { color: #f39c12; }
-    .toast.info .toast-icon { color: #3498db; }
-    .toast-message { flex: 1; color: var(--text-dark); font-weight: 500; font-size: 1rem; }
-    .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 1.2rem; padding: 0; transition: color 0.2s ease; }
-    .toast-close:hover { color: var(--text-dark); }
-    @keyframes slideInRight { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(400px); opacity: 0; } }
-    .toast.removing { animation: slideOutRight 0.3s ease-out forwards; }
+    .toast.success { background: #2ecc71; }
+    .toast.error { background: #e74c3c; }
+    .toast.warning { background: #f39c12; color: #333; }
+    .toast.info { background: #3498db; }
+    @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeOutToast { to { opacity: 0; transform: translateY(20px); } }
 
     /* ===== CONFIRMATION MODAL ===== */
     .confirm-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); background: white; border-radius: 12px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); padding: 2rem; z-index: 3001; max-width: 400px; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
@@ -1495,19 +1483,19 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
     .confirm-actions .btn-confirm { background-color: #e74c3c; color: white; }
     .confirm-actions .btn-confirm:hover { background-color: #c0392b; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3); }
 
-    /* ===== TABELLE MODERNE ===== */
-    table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-md); }
-    table thead { background: linear-gradient(135deg, var(--brand-color) 0%, #1f8e3c 100%); color: white; }
-    table th { padding: 1.2rem; text-align: left; font-weight: 600; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; user-select: none; position: relative; white-space: nowrap; }
-    table th:hover { background-color: rgba(0, 0, 0, 0.1); }
-    table th.sortable::after { content: ' ↕'; font-size: 0.8rem; opacity: 0.6; }
-    table th.sort-asc::after { content: ' ↑'; opacity: 1; }
-    table th.sort-desc::after { content: ' ↓'; opacity: 1; }
-    table tbody tr { border-bottom: 1px solid var(--border-color); transition: background-color 0.2s ease; }
-    table tbody tr:nth-child(even) { background-color: #f9fafb; }
-    table tbody tr:hover { background-color: #f0f7ff; }
-    table tbody tr:last-child { border-bottom: none; }
-    table td { padding: 1rem 1.2rem; color: var(--text-dark); font-size: 0.95rem; }
+    /* ===== TABELLE MODERNE (solo per tabelle con classe .data-table) ===== */
+    .data-table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-md); }
+    .data-table thead { background: linear-gradient(135deg, var(--brand-color) 0%, #1f8e3c 100%); color: white; }
+    .data-table th { padding: 1.2rem; text-align: left; font-weight: 600; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; user-select: none; position: relative; white-space: nowrap; }
+    .data-table th:hover { background-color: rgba(0, 0, 0, 0.1); }
+    .data-table th.sortable::after { content: ' ↕'; font-size: 0.8rem; opacity: 0.6; }
+    .data-table th.sort-asc::after { content: ' ↑'; opacity: 1; }
+    .data-table th.sort-desc::after { content: ' ↓'; opacity: 1; }
+    .data-table tbody tr { border-bottom: 1px solid var(--border-color); transition: background-color 0.2s ease; }
+    .data-table tbody tr:nth-child(even) { background-color: #f9fafb; }
+    .data-table tbody tr:hover { background-color: #f0f7ff; }
+    .data-table tbody tr:last-child { border-bottom: none; }
+    .data-table td { padding: 1rem 1.2rem; color: var(--text-dark); font-size: 0.95rem; }
     table td.actions { display: flex; gap: 8px; justify-content: center; }
     table .action-btn { padding: 0.5rem 0.8rem; border-radius: 6px; border: none; cursor: pointer; font-size: 0.85rem; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 4px; }
     table .action-btn.edit { background-color: #3498db; color: white; }
@@ -3056,7 +3044,7 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
     });
 
     // ===== SISTEMA TOAST NOTIFICATIONS =====
-    window.showToast = function(message, type = 'success', duration = 4000) {
+    window.showToast = function(message, type = 'success') {
         let container = document.getElementById('toast-container');
         if (!container) {
             container = document.createElement('div');
@@ -3066,13 +3054,11 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         }
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
-        const iconMap = { 'success': 'fas fa-check-circle', 'error': 'fas fa-exclamation-circle', 'warning': 'fas fa-exclamation-triangle', 'info': 'fas fa-info-circle' };
-        toast.innerHTML = `<i class="toast-icon ${iconMap[type]}"></i><span class="toast-message">${message}</span><button class="toast-close" aria-label="Chiudi">&times;</button>`;
+        toast.textContent = message;
         container.appendChild(toast);
-        const removeToast = () => { toast.classList.add('removing'); setTimeout(() => toast.remove(), 300); };
-        toast.querySelector('.toast-close').addEventListener('click', removeToast);
-        if (duration > 0) setTimeout(removeToast, duration);
-        return toast;
+        toast.addEventListener('animationend', function(e) {
+            if (e.animationName === 'fadeOutToast') toast.remove();
+        });
     };
 
     // ===== CONFIRMATION DIALOG =====

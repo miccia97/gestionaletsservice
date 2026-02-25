@@ -166,7 +166,7 @@ foreach ($sottosottocategorie_raw as $subsubcat) {
 }
 
 // --- Prendi prodotti dal DB ---
-$sql = "SELECT id, nome, barcode, imei, prezzo_vendita1, prezzo_vendita2, immagine, quantita, categoria, sottocategoria, sottosottocategoria FROM prodotti ORDER BY nome ASC";
+$sql = "SELECT id, nome, barcode, imei, prezzo_vendita1, prezzo_vendita2, immagine, quantita, categoria, sottocategoria, sottosottocategoria, data_creazione FROM prodotti ORDER BY nome ASC";
 $prodotti_result = $conn->query($sql);
 ?>
 
@@ -196,8 +196,28 @@ $prodotti_result = $conn->query($sql);
       --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
       --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
       --border-radius: 8px;
+      --warning-color: #f59e0b;
     }
-    body { 
+    body {
+    
+    /* Badge Nuovo sui prodotti recenti */
+    .new-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      z-index: 10;
+      box-shadow: 0 2px 4px rgba(102, 126, 234, 0.4);
+    }
+    
+    body {
       margin: 0; 
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background-color: var(--light-bg); 
@@ -403,43 +423,81 @@ $prodotti_result = $conn->query($sql);
     .info-btn { position: absolute; top: 10px; left: 10px; width: 30px; height: 30px; border-radius: 50%; border: none; background-color: rgba(255, 255, 255, 0.8); backdrop-filter: blur(2px); cursor: pointer; color: var(--text-dark); display: flex; justify-content: center; align-items: center; z-index: 10; transition: all 0.2s ease; box-shadow: var(--shadow-sm); }
     .info-btn:hover { background-color: var(--white-bg); transform: scale(1.1); }
 
-    /* --- ANTEPRIMA CARRELLO RIVISTA --- */
-    .cart-preview { display: none; width: 340px; border: 1px solid var(--border-color); padding: 0; border-radius: var(--border-radius); background: var(--white-bg); box-shadow: var(--shadow-md); flex-direction: column; position: sticky; top: 24px; overflow: hidden; }
+    /* --- ANTEPRIMA CARRELLO MIGLIORATA --- */
+    .cart-preview { display: none; width: 340px; border: none; padding: 0; border-radius: 16px; background: var(--white-bg); box-shadow: 0 8px 30px rgba(0,0,0,0.12); flex-direction: column; position: sticky; top: 24px; overflow: hidden; }
     .cart-preview.visible { display: flex; }
-    .cart-preview h3 { margin: 0; padding: 16px; font-size: 18px; color: var(--text-dark); background-color: var(--light-bg); border-bottom: 1px solid var(--border-color); text-align: center; }
-    .cart-preview ul { flex: 1; list-style: none; padding: 20px; margin: 0; max-height: 450px; overflow-y: auto; position: relative; min-height: 150px;}
-    .cart-preview li { display: flex; align-items: center; gap: 16px; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); }
-    .cart-preview li:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-    .empty-cart-message { display: none; text-align: center; color: var(--text-light); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; }
+    .cart-preview.pulse { animation: cartPulse 0.5s ease; }
+    @keyframes cartPulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
+      50% { transform: scale(1.02); box-shadow: 0 12px 40px rgba(40, 167, 69, 0.3); }
+    }
+    .cart-header { margin: 0; padding: 18px 20px; font-size: 17px; font-weight: 600; color: white; background: linear-gradient(135deg, var(--primary-color) 0%, #1e7e34 100%); display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .cart-header svg { width: 20px; height: 20px; }
+    .cart-badge-count { background: white; color: var(--primary-color); font-size: 13px; font-weight: 700; padding: 2px 8px; border-radius: 12px; min-width: 20px; text-align: center; }
+    .cart-preview ul { flex: 1; list-style: none; padding: 16px; margin: 0; max-height: 380px; overflow-y: auto; position: relative; min-height: 120px; }
+    /* Scrollbar stilizzata */
+    .cart-preview ul::-webkit-scrollbar { width: 6px; }
+    .cart-preview ul::-webkit-scrollbar-track { background: var(--light-bg); border-radius: 3px; }
+    .cart-preview ul::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+    .cart-preview ul::-webkit-scrollbar-thumb:hover { background: var(--text-light); }
+    .cart-preview li { display: flex; align-items: center; gap: 12px; padding: 12px; margin-bottom: 10px; background: var(--light-bg); border-radius: 12px; position: relative; transition: all 0.2s ease; }
+    .cart-preview li:hover { background: #e8f5e9; }
+    .cart-preview li:last-child { margin-bottom: 0; }
+    .cart-preview li.new-item { animation: newItemPop 0.4s ease; }
+    @keyframes newItemPop {
+      0% { transform: scale(0.8); opacity: 0; }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .empty-cart-message { display: none; text-align: center; color: var(--text-light); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; padding: 20px; }
     .empty-cart-message.visible { display: block; }
-    .empty-cart-message svg { width: 48px; height: 48px; margin-bottom: 12px; stroke-width: 1.5; color: var(--border-color); }
-    .item-img { width: 60px; height: 60px; border-radius: var(--border-radius); object-fit: cover; border: 1px solid var(--border-color); flex-shrink: 0; }
-    .item-info { flex: 1; font-size: 15px; }
-    .item-info .name { font-weight: 600; margin-bottom: 6px; display: block; color: var(--text-dark); }
-    .item-info .details { font-size: 13px; color: var(--text-light); }
-    .cart-item-qty-controls { display: flex; align-items: center; gap: 6px; }
-    .cart-qty-btn { width: 28px; height: 28px; border: 1px solid var(--border-color); background: var(--white-bg); color: var(--text-light); border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: all 0.2s ease; }
-    .cart-qty-btn:hover { background-color: var(--light-bg); color: var(--text-dark); }
-    .cart-qty-input { width: 32px; text-align: center; border: 1px solid var(--border-color); border-radius: 5px; padding: 4px 0; font-size: 14px; color: var(--text-dark); }
-    .remove-btn { background: none; border: none; color: var(--text-light); cursor: pointer; transition: all 0.2s ease; padding: 0 5px; display: flex; align-items: center; }
-    .remove-btn:hover { color: var(--danger-color); }
-    .cart-summary { padding: 20px; border-top: 1px solid var(--border-color); background: var(--light-bg); }
-    .cart-total { font-weight: 700; text-align: right; font-size: 20px; color: var(--text-dark); }
-    .cart-actions { display: flex; justify-content: space-between; margin-top: 16px; gap: 10px; }
-    .cart-actions button { padding: 10px 15px; border: 1px solid transparent; border-radius: var(--border-radius); cursor: pointer; font-size: 15px; font-weight: 600; transition: all 0.2s ease; box-shadow: var(--shadow-sm); flex: 1; }
-    .go-cart-btn { background: var(--primary-color); color: var(--white-bg); }
-    .go-cart-btn:hover { background-color: var(--primary-hover); }
-    .empty-cart-btn { background: var(--white-bg); color: var(--danger-color); border-color: var(--danger-color); }
-    .empty-cart-btn:hover { background-color: var(--danger-color); color: var(--white-bg); }
+    .empty-cart-message svg { width: 56px; height: 56px; margin-bottom: 12px; stroke-width: 1.2; color: #ccc; }
+    .empty-cart-message p { font-size: 15px; margin: 0; }
+    .item-img { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); flex-shrink: 0; }
+    .item-info { flex: 1; min-width: 0; }
+    .item-info .name { font-weight: 600; font-size: 14px; display: block; color: var(--text-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+    .item-info .details { font-size: 12px; color: var(--text-light); display: block; }
+    .item-info .subtotal { font-size: 14px; font-weight: 700; color: var(--primary-color); display: block; margin-top: 4px; }
+    .cart-item-qty-controls { display: flex; align-items: center; gap: 4px; background: white; border-radius: 8px; padding: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .cart-qty-btn { width: 26px; height: 26px; border: none; background: var(--light-bg); color: var(--text-dark); border-radius: 6px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: all 0.2s ease; }
+    .cart-qty-btn:hover { background: var(--primary-color); color: white; }
+    .cart-qty-input { width: 32px; text-align: center; border: none; background: transparent; font-size: 14px; font-weight: 600; color: var(--text-dark); }
+    .remove-btn { position: absolute; top: 8px; right: 8px; background: #ffebee; border: none; color: #e57373; cursor: pointer; transition: all 0.2s ease; padding: 6px; border-radius: 6px; display: flex; align-items: center; opacity: 0.7; }
+    .remove-btn:hover { background: var(--danger-color); color: white; opacity: 1; }
+    .remove-btn svg { width: 14px; height: 14px; }
+    .cart-summary { padding: 20px; background: linear-gradient(180deg, var(--light-bg) 0%, #e8f5e9 100%); border-top: 2px solid #c8e6c9; }
+    .cart-total { font-weight: 800; text-align: center; font-size: 24px; color: var(--text-dark); margin-bottom: 4px; }
+    .cart-total-label { text-align: center; font-size: 13px; color: var(--text-light); margin-bottom: 16px; display: block; }
+    .cart-actions { display: flex; gap: 10px; }
+    .cart-actions button { padding: 12px 16px; border: none; border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: 600; transition: all 0.2s ease; flex: 1; }
+    .go-cart-btn { background: var(--primary-color); color: white; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); }
+    .go-cart-btn:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4); }
+    .empty-cart-btn { background: white; color: var(--danger-color); border: 2px solid #ffcdd2; }
+    .empty-cart-btn:hover { background: var(--danger-color); color: white; border-color: var(--danger-color); }
 
-    /* Toast Notifications */
-    #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
-    .toast { padding: 12px 20px; border-radius: var(--border-radius); color: #fff; background: var(--success-color); box-shadow: 0 5px 15px rgba(0,0,0,0.2); opacity: 0; transform: translateY(20px); animation: slideUp 0.4s forwards, fadeOutToast 0.4s forwards 3s; font-size: 15px; font-weight: 500; }
-    .toast.error { background: var(--danger-color); }
-    .toast.warning { background: #ffc107; color: #333; }
-    @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
-    @keyframes fadeOutToast { to { opacity: 0; transform: translateY(20px); } }
-    @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+    /* Toast fisso sullo schermo */
+    #toast-fixed {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 999999;
+      padding: 14px 24px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      color: #fff;
+      background: #2ecc71;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      transform: translateX(calc(100% + 50px));
+      opacity: 0;
+      transition: transform 0.4s ease, opacity 0.4s ease;
+    }
+    #toast-fixed.show {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    #toast-fixed.error { background: #e74c3c; }
+    #toast-fixed.warning { background: #f39c12; color: #333; }
 
     /* Modals */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 10000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
@@ -523,10 +581,21 @@ $prodotti_result = $conn->query($sql);
               $stock_text = 'Disponibile: ' . intval($prod['quantita']);
               if ($prod['quantita'] <= 0) { $stock_class = 'out-of-stock'; $stock_text = 'Esaurito'; } 
               elseif ($prod['quantita'] <= 10) { $stock_class = 'low-stock'; $stock_text = 'Pochi pezzi: ' . intval($prod['quantita']); }
+              
+              // Controlla se il prodotto è nuovo (aggiunto negli ultimi 7 giorni)
+              $is_new = false;
+              if (!empty($prod['data_creazione'])) {
+                  $created = strtotime($prod['data_creazione']);
+                  $seven_days_ago = strtotime('-7 days');
+                  $is_new = ($created >= $seven_days_ago);
+              }
             ?>
             <div class="product-card" data-id="<?php echo $prod['id']; ?>" data-stock="<?php echo intval($prod['quantita']); ?>" data-nome="<?php echo htmlspecialchars($nome_low); ?>" data-barcode="<?php echo htmlspecialchars($barcode_low); ?>" data-imei="<?php echo htmlspecialchars($imei_low); ?>" data-categoria="<?php echo htmlspecialchars($cat_low); ?>" data-sottocategoria="<?php echo htmlspecialchars($subcat_low); ?>" data-sottosottocategoria="<?php echo htmlspecialchars($subsubcat_low); ?>">
                 <div class="card-inner">
                     <div class="card-front">
+                        <?php if ($is_new): ?>
+                        <span class="new-badge">Nuovo</span>
+                        <?php endif; ?>
                         <button class="info-btn" title="Vedi dettagli" onclick="toggleCardDetails('<?php echo $prod['id']; ?>', this, event)">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                         </button>
@@ -571,15 +640,20 @@ $prodotti_result = $conn->query($sql);
         </div>
 
         <aside class="cart-preview" id="cart-preview" role="region" aria-label="Anteprima carrello">
-          <h3>Carrello</h3>
+          <div class="cart-header">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.53h9.72a2 2 0 0 0 2-1.53l1.66-7.43H5.12"/></svg>
+            Carrello
+            <span class="cart-badge-count" id="cart-badge-count">0</span>
+          </div>
           <ul id="cart-items">
             <div class="empty-cart-message" id="empty-cart-message">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                <p>Il tuo carrello è vuoto.</p>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.53h9.72a2 2 0 0 0 2-1.53l1.66-7.43H5.12"/></svg>
+                <p>Il tuo carrello è vuoto</p>
             </div>
           </ul>
           <div class="cart-summary">
-              <div class="cart-total" id="cart-total">Totale: €0,00</div>
+              <span class="cart-total-label">Totale da pagare</span>
+              <div class="cart-total" id="cart-total">€0,00</div>
               <div class="cart-actions">
                 <button class="go-cart-btn" onclick="vaiAlCarrello()">Vai al carrello</button>
                 <button class="empty-cart-btn" onclick="mostraConfermaSvuotaCarrello()">Svuota</button>
@@ -589,6 +663,9 @@ $prodotti_result = $conn->query($sql);
       </div>
     </section>
   </div>
+
+  <!-- Toast fisso sullo schermo -->
+  <div id="toast-fixed"></div>
 
   <script>
     // Variabili Globali
@@ -605,6 +682,18 @@ $prodotti_result = $conn->query($sql);
     const confirmationModal = document.getElementById('confirmation-modal');
     const modalMessage = document.getElementById('modal-message');
     const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+    const toastFixed = document.getElementById('toast-fixed');
+
+    // Toast fisso sullo schermo (slide da destra)
+    function showToast(msg, type = 'success') {
+      toastFixed.className = '';
+      toastFixed.classList.add(type);
+      toastFixed.textContent = msg;
+      toastFixed.classList.add('show');
+      setTimeout(() => {
+        toastFixed.classList.remove('show');
+      }, 3000);
+    }
 
     function debounce(func, delay) { clearTimeout(debounceTimer); debounceTimer = setTimeout(func, delay); }
 
@@ -703,12 +792,6 @@ $prodotti_result = $conn->query($sql);
         document.getElementById('empty-grid-message').style.display = count === 0 ? 'block' : 'none';
     }
 
-    function showToast(msg, type = 'success') {
-      const cont = document.getElementById('toast-container'), toast = document.createElement('div');
-      toast.className = `toast ${type}`; toast.textContent = msg; cont.appendChild(toast);
-      toast.addEventListener('animationend', e => { if (e.animationName === 'fadeOutToast') toast.remove(); });
-    }
-
     function salvaCarrello() { localStorage.setItem('cart', JSON.stringify(cart)); }
     function modificaQuantita(btn, d) { const i = btn.parentElement.querySelector('.qty-input'); i.value = Math.min(Math.max(parseInt(i.value) + d, 1), parseInt(i.max)); }
     function formatPrice(p) { return '€' + parseFloat(p).toFixed(2).replace('.',','); }
@@ -723,31 +806,52 @@ $prodotti_result = $conn->query($sql);
         aggiornaAnteprima();
     }
 
-    function aggiornaAnteprima() {
+    function aggiornaAnteprima(isNewItem = false) {
         cartItemsList.innerHTML = '';
         let tot = 0;
-        const hasItems = Object.keys(cart).length > 0;
+        let itemCount = 0;
+        const cartEntries = Object.entries(cart);
+        const hasItems = cartEntries.length > 0;
+        
+        // Aggiorna badge contatore
+        cartEntries.forEach(([key, it]) => { itemCount += it.qty; });
+        document.getElementById('cart-badge-count').textContent = itemCount;
+        
         cartPreview.classList.toggle('visible', hasItems);
         emptyCartMessage.classList.toggle('visible', !hasItems);
         document.querySelector('.cart-summary').style.display = hasItems ? 'block' : 'none';
+        
+        // Animazione pulse quando si aggiunge
+        if (isNewItem && hasItems) {
+            cartPreview.classList.remove('pulse');
+            void cartPreview.offsetWidth; // Force reflow
+            cartPreview.classList.add('pulse');
+        }
+        
         if (hasItems) {
-            Object.entries(cart).forEach(([key, it]) => {
-                tot += it.qty * it.price;
+            cartEntries.forEach(([key, it], index) => {
+                const subtotal = it.qty * it.price;
+                tot += subtotal;
                 const li = document.createElement('li');
+                if (isNewItem && index === cartEntries.length - 1) li.classList.add('new-item');
                 li.innerHTML = `
                   <img class="item-img" src="${it.img}" alt="${it.name}" />
-                  <div class="item-info"><span class="name">${it.name}</span><span class="details">${it.qty} &times; ${formatPrice(it.price)}</span></div>
-                  <div class="cart-item-qty-controls">
-                    <button class="cart-qty-btn" onclick="modificaQuantitaCart('${key}', -1)"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
-                    <input type="number" class="cart-qty-input" value="${it.qty}" min="1" max="${it.giacenza}" onchange="modificaQuantitaCart('${key}', parseInt(this.value) - ${it.qty})" />
-                    <button class="cart-qty-btn" onclick="modificaQuantitaCart('${key}', 1)"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+                  <div class="item-info">
+                    <span class="name">${it.name}</span>
+                    <span class="details">${it.qty} × ${formatPrice(it.price)}</span>
+                    <span class="subtotal">${formatPrice(subtotal)}</span>
                   </div>
-                  <button class="remove-btn" onclick="mostraConfermaRimozione('${key}', '${it.name}')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>`;
+                  <div class="cart-item-qty-controls">
+                    <button class="cart-qty-btn" onclick="modificaQuantitaCart('${key}', -1)"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+                    <input type="number" class="cart-qty-input" value="${it.qty}" min="1" max="${it.giacenza}" onchange="modificaQuantitaCart('${key}', parseInt(this.value) - ${it.qty})" />
+                    <button class="cart-qty-btn" onclick="modificaQuantitaCart('${key}', 1)"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+                  </div>
+                  <button class="remove-btn" onclick="mostraConfermaRimozione('${key}', '${it.name}')" title="Rimuovi"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>`;
                 cartItemsList.appendChild(li);
             });
         } else { cartItemsList.appendChild(emptyCartMessage); }
-      cartTotalElem.textContent = 'Totale: '+formatPrice(tot);
-      salvaCarrello();
+        cartTotalElem.textContent = formatPrice(tot);
+        salvaCarrello();
     }
 
     function mostraConfermaRimozione(key, name) {
@@ -827,9 +931,10 @@ $prodotti_result = $conn->query($sql);
         btn.querySelector('.cart-icon').style.display = 'none'; btn.querySelector('.check-icon').style.display = 'inline-block';
         setTimeout(() => { btn.classList.remove('success'); btn.querySelector('.cart-icon').style.display = 'inline-block'; btn.querySelector('.check-icon').style.display = 'none'; }, 1500);
 
+        const isNew = !cart[key];
         if (cart[key]) { cart[key].qty += qty; showToast(`Quantità di "${name}" aggiornata.`, "success"); } 
         else { cart[key] = { id, name, price, qty, img, giacenza: stock }; showToast(`"${name}" aggiunto al carrello.`, "success"); }
-        aggiornaAnteprima();
+        aggiornaAnteprima(isNew);
     }
     
     function svuotaCarrello() { cart = {}; aggiornaAnteprima(); showToast("Carrello svuotato.", "warning"); }
