@@ -621,11 +621,29 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
     }
 
     nav ul li ul.dropdown li a, nav ul li ul.dropdown li button {
-      padding: 12px 20px; color: var(--text-dark); background-color: transparent;
-      width: 100%; text-align: left; border-radius: 0; font-size: 15px;
+      padding: 12px 20px; 
+      color: var(--text-dark); 
+      background-color: transparent;
+      width: 100%; 
+      text-align: left; 
+      border-radius: 0; 
+      font-size: 15px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
+      position: relative;
     }
     nav ul li ul.dropdown li a:hover, nav ul li ul.dropdown li button:hover {
-      background-color: var(--brand-color); color: white;
+      background-color: rgba(40, 167, 69, 0.1);
+      color: var(--brand-color);
+      padding-left: 25px;
+    }
+    nav ul li ul.dropdown li.active > a,
+    nav ul li ul.dropdown li.active > button {
+      background-color: var(--brand-color);
+      color: white;
+      font-weight: 600;
+      padding-left: 25px;
     }
     nav ul li ul.dropdown li.has-submenu > a::after {
       content: " \25B6"; float: right; font-size: 10px;
@@ -641,10 +659,25 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
       padding: 8px 0; 
       list-style: none;
       z-index: 2100;
-      animation: fadeIn 0.2s ease;
       overflow: visible;
       height: auto;
       width: auto;
+      transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+    
+    /* Stile per i link nel submenu */
+    nav ul li ul.dropdown li ul.submenu li a {
+      padding: 10px 20px;
+      color: var(--text-dark);
+      display: block;
+      text-decoration: none;
+      font-size: 14px;
+      transition: background-color 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
+    }
+    nav ul li ul.dropdown li ul.submenu li a:hover {
+      background-color: rgba(40, 167, 69, 0.1);
+      color: var(--brand-color);
+      padding-left: 25px;
     }
     
     /* MODIFICA: Rimosso :hover per la visualizzazione, ora gestito da JS con la classe .active */
@@ -722,7 +755,75 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         .top-bar nav { display: none; } /* Nasconde la navigazione principale */
         .search-container { margin-left: auto; } /* Sposta la ricerca a destra */
         .user-menu-container { margin-left: 15px; padding-left: 15px; }
-        /* Qui potresti aggiungere un hamburger menu per mobile */
+        
+        /* Hamburger button */
+        .hamburger-btn {
+            display: flex !important;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            margin-left: 10px;
+        }
+        .hamburger-btn span {
+            width: 25px;
+            height: 3px;
+            background-color: white;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        .hamburger-btn.active span:nth-child(1) { transform: rotate(45deg) translate(8px, 8px); }
+        .hamburger-btn.active span:nth-child(2) { opacity: 0; }
+        .hamburger-btn.active span:nth-child(3) { transform: rotate(-45deg) translate(7px, -7px); }
+        
+        /* Menu mobile */
+        nav.mobile-nav {
+            display: flex !important;
+            position: fixed;
+            top: 80px;
+            left: 0;
+            width: 100%;
+            background-color: var(--brand-color);
+            flex-direction: column;
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
+            z-index: 999;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        nav.mobile-nav.active {
+            transform: translateX(0);
+        }
+        nav.mobile-nav ul {
+            flex-direction: column;
+            gap: 0;
+        }
+        nav.mobile-nav ul li {
+            width: 100%;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        nav.mobile-nav ul li a,
+        nav.mobile-nav ul li button {
+            border-radius: 0;
+            padding: 15px 20px;
+        }
+        nav.mobile-nav ul li ul.dropdown {
+            position: static !important;
+            width: 100% !important;
+            min-width: auto !important;
+            top: auto !important;
+            left: auto !important;
+            box-shadow: none;
+            border-radius: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        nav.mobile-nav ul li.active > ul.dropdown {
+            max-height: 500px;
+        }
     }
     
     @media (max-width: 768px) {
@@ -1352,8 +1453,15 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
     <!-- Contenitore per i risultati della ricerca -->
     <div class="search-results-dropdown" id="searchResultsDropdown"></div>
   </div>
+  
+  <!-- Hamburger Button per Mobile -->
+  <button class="hamburger-btn" id="hamburgerBtn">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
 
-  <nav>
+  <nav class="mobile-nav">
     <ul>
       <li><a href="#"><i class="fas fa-cash-register"></i> Vendita</a></li>
 
@@ -2524,43 +2632,30 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         const positionSubmenu = (submenuParentLi) => {
             const submenu = submenuParentLi.querySelector(':scope > ul.submenu');
             if (!submenu) {
-                console.warn('Submenu not found');
                 return;
             }
             
-            console.log('positionSubmenu called, submenu:', submenu);
-            
-            // Trova il dropdown principale a cui appartiene questo submenu
             const dropdown = submenuParentLi.closest('ul.dropdown');
             if (!dropdown) {
-                console.warn('Dropdown not found');
                 return;
             }
             
-            // Forza il display - senza !important nello style inline
             submenu.style.display = 'block';
             submenu.style.visibility = 'visible';
             submenu.style.opacity = '1';
             submenu.style.zIndex = '9999';
-            submenu.style.backgroundColor = 'white';
-            submenu.style.border = '1px solid red';
             
-            // Calcola la posizione
             const dropdownRect = dropdown.getBoundingClientRect();
             const parentItemRect = submenuParentLi.getBoundingClientRect();
             
-            // Calcola l'offset della voce dentro il dropdown
             const offsetTopInsideDropdown = parentItemRect.top - dropdownRect.top;
             
-            // Posiziona il submenu a DESTRA della voce selezionata
             const leftPos = parentItemRect.right + 10;
             const topPos = dropdownRect.top + offsetTopInsideDropdown;
             
             submenu.style.left = leftPos + 'px';
             submenu.style.top = topPos + 'px';
             submenu.style.position = 'fixed';
-            
-            console.log('Submenu positioned:', {left: leftPos, top: topPos, display: submenu.style.display});
         };
         
         dropdownToggles.forEach(toggle => {
@@ -2571,22 +2666,36 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
                 const wasActive = parentLi.classList.contains('active');
                 const parentMenu = this.closest('ul');
                 
-                parentMenu.querySelectorAll('.active').forEach(item => {
-                    if (item !== parentLi) item.classList.remove('active');
+                // Chiudi TUTTI gli altri submenu e nascondi i loro elementi
+                parentMenu.querySelectorAll('li.has-submenu.active').forEach(item => {
+                    if (item !== parentLi) {
+                        item.classList.remove('active');
+                        // Nascondi anche il submenu
+                        const submenu = item.querySelector(':scope > ul.submenu');
+                        if (submenu) {
+                            submenu.style.display = 'none';
+                        }
+                    }
                 });
+                
                 if (!wasActive) {
                     parentLi.classList.add('active');
                     if (this.closest('ul.dropdown')) {
-                        // È un submenu dentro un dropdown (CONTROLLARE PRIMA!)
-                        console.log('Positioning submenu');
+                        // È un submenu dentro un dropdown
                         positionSubmenu(parentLi);
                     } else if (this.closest('nav > ul')) {
                         // È un dropdown principale
-                        console.log('Positioning dropdown');
                         positionDropdown(this);
                     }
                 }
-                else parentLi.classList.remove('active');
+                else {
+                    parentLi.classList.remove('active');
+                    // Nascondi il submenu
+                    const submenu = parentLi.querySelector(':scope > ul.submenu');
+                    if (submenu) {
+                        submenu.style.display = 'none';
+                    }
+                }
             });
         });
         
@@ -2600,6 +2709,33 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
                     positionSubmenu(activeItem);
                 }
             });
+        });
+        
+        // Supporto per chiusura con tasto Escape
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                document.querySelectorAll('nav .has-dropdown.active, nav .has-submenu.active').forEach(activeItem => {
+                    activeItem.classList.remove('active');
+                    const submenu = activeItem.querySelector(':scope > ul.submenu');
+                    if (submenu) {
+                        submenu.style.display = 'none';
+                    }
+                });
+            }
+        });
+        
+        // Miglioramento: Chiudi i menu quando clicchi fuori
+        document.addEventListener('click', function(event) {
+            const navElement = document.querySelector('nav');
+            if (navElement && !navElement.contains(event.target)) {
+                document.querySelectorAll('nav .has-dropdown.active, nav .has-submenu.active').forEach(activeItem => {
+                    activeItem.classList.remove('active');
+                    const submenu = activeItem.querySelector(':scope > ul.submenu');
+                    if (submenu) {
+                        submenu.style.display = 'none';
+                    }
+                });
+            }
         });
 
         // --- NUOVO: Logica per Barra di Ricerca Globale ---
@@ -2673,6 +2809,52 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
             }
         });
 
+        // Gestione Hamburger Menu Mobile
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const mobileNav = document.querySelector('nav.mobile-nav');
+        
+        if (hamburgerBtn && mobileNav) {
+            // Toggle hamburger menu
+            hamburgerBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                hamburgerBtn.classList.toggle('active');
+                mobileNav.classList.toggle('active');
+            });
+            
+            // Chiudi menu quando clicchi su un link
+            mobileNav.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', function() {
+                    hamburgerBtn.classList.remove('active');
+                    mobileNav.classList.remove('active');
+                });
+            });
+            
+            // Chiudi menu quando clicchi su un bottone (es. dropdown)
+            mobileNav.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    // Se il bottone ha un submenu, non chiudere il menu
+                    if (!this.parentElement.querySelector(':scope > ul.submenu')) {
+                        e.stopPropagation();
+                        // Se non è un dropdown, chiudi il menu
+                        if (!this.parentElement.classList.contains('has-dropdown')) {
+                            hamburgerBtn.classList.remove('active');
+                            mobileNav.classList.remove('active');
+                        }
+                    }
+                });
+            });
+        }
+        
+        // Chiudi hamburger menu quando clicchi fuori
+        document.addEventListener('click', function(event) {
+            if (hamburgerBtn && mobileNav) {
+                if (!event.target.closest('nav') && !event.target.closest('.hamburger-btn')) {
+                    hamburgerBtn.classList.remove('active');
+                    mobileNav.classList.remove('active');
+                }
+            }
+        });
+        
         // Gestione Menu Utente
         const userMenuContainer = document.getElementById('userMenuContainer');
         if(userMenuContainer) userMenuContainer.addEventListener('click', e => {
