@@ -632,26 +632,24 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
       margin-left: 10px; color: var(--text-light);
     }
     nav ul li ul.dropdown li ul.submenu {
-      display: none; 
-      position: fixed; 
+      display: none;
+      position: fixed;
       background-color: var(--bg-white); 
       min-width: 200px; 
       border-radius: 8px;
       box-shadow: var(--shadow-lg); 
       padding: 8px 0; 
       list-style: none;
-      z-index: 2100; 
-      transform-origin: left; 
-      animation: scaleXIn 0.3s ease;
+      z-index: 2100;
+      animation: fadeIn 0.2s ease;
       overflow: visible;
       height: auto;
       width: auto;
     }
-    @keyframes scaleXIn { from { opacity: 0; transform: scaleX(0.8); } to { opacity: 1; transform: scaleX(1); } }
     
     /* MODIFICA: Rimosso :hover per la visualizzazione, ora gestito da JS con la classe .active */
     nav ul li ul.dropdown li.active > ul.submenu { 
-        display: block; 
+        display: block;
     }
 
     /* Menu Utente Migliorato */
@@ -2525,18 +2523,44 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         
         const positionSubmenu = (submenuParentLi) => {
             const submenu = submenuParentLi.querySelector(':scope > ul.submenu');
-            if (!submenu) return;
+            if (!submenu) {
+                console.warn('Submenu not found');
+                return;
+            }
+            
+            console.log('positionSubmenu called, submenu:', submenu);
             
             // Trova il dropdown principale a cui appartiene questo submenu
             const dropdown = submenuParentLi.closest('ul.dropdown');
-            if (!dropdown) return;
+            if (!dropdown) {
+                console.warn('Dropdown not found');
+                return;
+            }
             
+            // Forza il display - senza !important nello style inline
+            submenu.style.display = 'block';
+            submenu.style.visibility = 'visible';
+            submenu.style.opacity = '1';
+            submenu.style.zIndex = '9999';
+            submenu.style.backgroundColor = 'white';
+            submenu.style.border = '1px solid red';
+            
+            // Calcola la posizione
             const dropdownRect = dropdown.getBoundingClientRect();
-            const submenuParentRect = submenuParentLi.getBoundingClientRect();
+            const parentItemRect = submenuParentLi.getBoundingClientRect();
             
-            // Posiziona il submenu a destra del dropdown principale, allineato verticalmente con l'elemento genitore
-            submenu.style.top = (submenuParentRect.top) + 'px';
-            submenu.style.left = (dropdownRect.right + 10) + 'px';
+            // Calcola l'offset della voce dentro il dropdown
+            const offsetTopInsideDropdown = parentItemRect.top - dropdownRect.top;
+            
+            // Posiziona il submenu a DESTRA della voce selezionata
+            const leftPos = parentItemRect.right + 10;
+            const topPos = dropdownRect.top + offsetTopInsideDropdown;
+            
+            submenu.style.left = leftPos + 'px';
+            submenu.style.top = topPos + 'px';
+            submenu.style.position = 'fixed';
+            
+            console.log('Submenu positioned:', {left: leftPos, top: topPos, display: submenu.style.display});
         };
         
         dropdownToggles.forEach(toggle => {
@@ -2546,17 +2570,20 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
                 const parentLi = this.parentElement;
                 const wasActive = parentLi.classList.contains('active');
                 const parentMenu = this.closest('ul');
+                
                 parentMenu.querySelectorAll('.active').forEach(item => {
                     if (item !== parentLi) item.classList.remove('active');
                 });
                 if (!wasActive) {
                     parentLi.classList.add('active');
-                    if (this.closest('nav > ul')) {
-                        // È un dropdown principale
-                        positionDropdown(this);
-                    } else if (this.closest('ul.dropdown')) {
-                        // È un submenu dentro un dropdown
+                    if (this.closest('ul.dropdown')) {
+                        // È un submenu dentro un dropdown (CONTROLLARE PRIMA!)
+                        console.log('Positioning submenu');
                         positionSubmenu(parentLi);
+                    } else if (this.closest('nav > ul')) {
+                        // È un dropdown principale
+                        console.log('Positioning dropdown');
+                        positionDropdown(this);
                     }
                 }
                 else parentLi.classList.remove('active');
