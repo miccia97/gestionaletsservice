@@ -601,6 +601,8 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
       position: fixed;
       background-color: var(--bg-white);
       min-width: 220px;
+            width: max-content;
+            max-width: 280px;
       border-radius: 8px;
       box-shadow: var(--shadow-lg);
       padding: 8px 0;
@@ -610,7 +612,7 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
       animation: scaleYIn 0.3s ease;
       overflow: visible;
       height: auto;
-      width: auto;
+            box-sizing: border-box;
     }
      @keyframes scaleYOut { from { opacity: 0; transform: scaleY(0.8); } to { opacity: 1; transform: scaleY(1); } }
      @keyframes scaleYIn { from { opacity: 0; transform: scaleY(0.8); } to { opacity: 1; transform: scaleY(1); } }
@@ -654,6 +656,8 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
       position: fixed;
       background-color: var(--bg-white); 
       min-width: 200px; 
+            width: max-content;
+            max-width: 260px;
       border-radius: 8px;
       box-shadow: var(--shadow-lg); 
       padding: 8px 0; 
@@ -661,7 +665,7 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
       z-index: 2100;
       overflow: visible;
       height: auto;
-      width: auto;
+            box-sizing: border-box;
       transition: opacity 0.2s ease, visibility 0.2s ease;
     }
     
@@ -1438,6 +1442,168 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
     .message-box.error { background-color: #f44336; border-color: #ff9999; }
     .message-box.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
 
+    /* ===== TOAST NOTIFICATIONS ===== */
+    .toast-container {
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        z-index: 3000;
+        pointer-events: none;
+    }
+    .toast {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        padding: 1.2rem 1.5rem;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 300px;
+        max-width: 450px;
+        animation: slideInRight 0.4s ease-out;
+        pointer-events: auto;
+        border-left: 4px solid var(--brand-color);
+    }
+    .toast.success { border-left-color: #2ecc71; }
+    .toast.error { border-left-color: #e74c3c; }
+    .toast.warning { border-left-color: #f39c12; }
+    .toast.info { border-left-color: #3498db; }
+    .toast-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .toast.success .toast-icon { color: #2ecc71; }
+    .toast.error .toast-icon { color: #e74c3c; }
+    .toast.warning .toast-icon { color: #f39c12; }
+    .toast.info .toast-icon { color: #3498db; }
+    .toast-message { flex: 1; color: var(--text-dark); font-weight: 500; font-size: 1rem; }
+    .toast-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 1.2rem; padding: 0; transition: color 0.2s ease; }
+    .toast-close:hover { color: var(--text-dark); }
+    @keyframes slideInRight { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(400px); opacity: 0; } }
+    .toast.removing { animation: slideOutRight 0.3s ease-out forwards; }
+
+    /* ===== CONFIRMATION MODAL ===== */
+    .confirm-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); background: white; border-radius: 12px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); padding: 2rem; z-index: 3001; max-width: 400px; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+    .confirm-modal.show { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
+    .confirm-modal-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 3000; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+    .confirm-modal-backdrop.show { opacity: 1; visibility: visible; }
+    .confirm-title { font-size: 1.3rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.5rem; }
+    .confirm-message { color: var(--text-light); margin-bottom: 2rem; line-height: 1.5; }
+    .confirm-actions { display: flex; gap: 1rem; justify-content: flex-end; }
+    .confirm-actions button { padding: 0.8rem 1.8rem; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+    .confirm-actions .btn-cancel { background-color: var(--border-color); color: var(--text-dark); }
+    .confirm-actions .btn-cancel:hover { background-color: #d1d9e0; transform: translateY(-2px); }
+    .confirm-actions .btn-confirm { background-color: #e74c3c; color: white; }
+    .confirm-actions .btn-confirm:hover { background-color: #c0392b; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3); }
+
+    /* ===== TABELLE MODERNE ===== */
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-md); }
+    table thead { background: linear-gradient(135deg, var(--brand-color) 0%, #1f8e3c 100%); color: white; }
+    table th { padding: 1.2rem; text-align: left; font-weight: 600; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; user-select: none; position: relative; white-space: nowrap; }
+    table th:hover { background-color: rgba(0, 0, 0, 0.1); }
+    table th.sortable::after { content: ' ↕'; font-size: 0.8rem; opacity: 0.6; }
+    table th.sort-asc::after { content: ' ↑'; opacity: 1; }
+    table th.sort-desc::after { content: ' ↓'; opacity: 1; }
+    table tbody tr { border-bottom: 1px solid var(--border-color); transition: background-color 0.2s ease; }
+    table tbody tr:nth-child(even) { background-color: #f9fafb; }
+    table tbody tr:hover { background-color: #f0f7ff; }
+    table tbody tr:last-child { border-bottom: none; }
+    table td { padding: 1rem 1.2rem; color: var(--text-dark); font-size: 0.95rem; }
+    table td.actions { display: flex; gap: 8px; justify-content: center; }
+    table .action-btn { padding: 0.5rem 0.8rem; border-radius: 6px; border: none; cursor: pointer; font-size: 0.85rem; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 4px; }
+    table .action-btn.edit { background-color: #3498db; color: white; }
+    table .action-btn.edit:hover { background-color: #2980b9; transform: scale(1.05); }
+    table .action-btn.delete { background-color: #e74c3c; color: white; }
+    table .action-btn.delete:hover { background-color: #c0392b; transform: scale(1.05); }
+    table .action-btn.view { background-color: #95a5a6; color: white; }
+    table .action-btn.view:hover { background-color: #7f8c8d; transform: scale(1.05); }
+
+    /* ===== PAGINATION MODERNA ===== */
+    .pagination { display: flex; justify-content: center; gap: 0.5rem; margin-top: 2rem; flex-wrap: wrap; }
+    .pagination a, .pagination span { padding: 0.6rem 1rem; border-radius: 6px; border: 1px solid var(--border-color); text-decoration: none; color: var(--text-dark); transition: all 0.2s ease; font-weight: 500; }
+    .pagination a:hover { background-color: var(--brand-color); color: white; border-color: var(--brand-color); }
+    .pagination .active { background-color: var(--brand-color); color: white; border-color: var(--brand-color); }
+
+    /* ===== EMPTY STATES ===== */
+    .empty-state { text-align: center; padding: 3rem 2rem; color: var(--text-light); }
+    .empty-state-icon { font-size: 4rem; color: var(--border-color); margin-bottom: 1rem; opacity: 0.7; }
+    .empty-state-title { font-size: 1.3rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem; }
+    .empty-state-message { font-size: 1rem; color: var(--text-light); margin-bottom: 2rem; line-height: 1.6; }
+    .empty-state-action { display: inline-block; padding: 0.9rem 1.8rem; background-color: var(--brand-color); color: white; border-radius: 8px; text-decoration: none; transition: all 0.2s ease; cursor: pointer; border: none; font-weight: 600; }
+    .empty-state-action:hover { background-color: var(--brand-dark); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3); }
+
+    /* ===== LOADING SPINNERS ===== */
+    .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(40, 167, 69, 0.2); border-top-color: var(--brand-color); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-state { display: flex; align-items: center; justify-content: center; gap: 1rem; padding: 2rem; color: var(--text-light); font-weight: 500; }
+    .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
+    @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* ===== BREADCRUMBS ===== */
+    .breadcrumbs { display: flex; align-items: center; gap: 0.5rem; padding: 1rem 2rem; background-color: var(--bg-light); border-radius: 8px; margin-bottom: 2rem; flex-wrap: wrap; font-size: 0.95rem; }
+    .breadcrumb-item { display: flex; align-items: center; gap: 0.5rem; color: var(--text-light); }
+    .breadcrumb-item.active { color: var(--text-dark); font-weight: 600; }
+    .breadcrumb-item a { color: var(--brand-color); text-decoration: none; transition: color 0.2s ease; }
+    .breadcrumb-item a:hover { color: var(--brand-dark); text-decoration: underline; }
+    .breadcrumb-separator { color: var(--text-light); opacity: 0.5; }
+
+    /* ===== DARK MODE ===== */
+    @media (prefers-color-scheme: dark) {
+        :root.dark-mode { --text-dark: #e8e8e8; --text-light: #b0b0b0; --bg-light: #1a1a1a; --bg-white: #242424; --border-color: #333333; }
+        body.dark-mode { background-color: #0d0d0d; color: var(--text-dark); }
+        .dark-mode table { background-color: var(--bg-white); }
+        .dark-mode table tbody tr:nth-child(even) { background-color: #2a2a2a; }
+        .dark-mode table tbody tr:hover { background-color: #333333; }
+        .dark-mode .toast { background-color: var(--bg-white); border-color: var(--border-color); }
+        .dark-mode .confirm-modal { background-color: var(--bg-white); }
+    }
+    .dark-mode-toggle { background: none; border: none; cursor: pointer; font-size: 1.4rem; color: white; transition: transform 0.2s ease; padding: 8px; }
+    .dark-mode-toggle:hover { transform: scale(1.2); }
+
+    /* ===== CARD COMPONENTS ===== */
+    .card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow-md); transition: all 0.3s ease; }
+    .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+    .card-header { font-size: 1.2rem; font-weight: 600; color: var(--text-dark); margin-bottom: 1rem; border-bottom: 2px solid var(--border-color); padding-bottom: 1rem; }
+    .card-body { color: var(--text-dark); }
+
+    /* ===== BADGES ===== */
+    .badge { display: inline-block; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+    .badge-success { background-color: #d4edda; color: #155724; }
+    .badge-danger { background-color: #f8d7da; color: #721c24; }
+    .badge-warning { background-color: #fff3cd; color: #856404; }
+    .badge-info { background-color: #d1ecf1; color: #0c5460; }
+    .badge-primary { background-color: #d6d8db; color: var(--text-dark); }
+
+    /* ===== ACCESSIBILITY ===== */
+    :focus-visible { outline: 2px solid var(--brand-color); outline-offset: 2px; }
+    a:focus-visible, button:focus-visible { outline: 2px solid var(--brand-color); outline-offset: 4px; }
+    input:focus-visible, select:focus-visible, textarea:focus-visible { outline: none; border-color: var(--brand-color); box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.15); }
+
+    /* ===== PRINT STYLES ===== */
+    @media print {
+        .top-bar, nav, .user-menu-container, .hamburger-btn, .toast-container, .confirm-modal, .confirm-modal-backdrop, .action-btn, .pagination, .dark-mode-toggle { display: none !important; }
+        body { padding-top: 0; background: white; }
+        .wizard-container, .popup-content, .modal-content { box-shadow: none; page-break-inside: avoid; max-width: 100%; max-height: 100%; }
+        table { box-shadow: none; border: 1px solid #000; }
+        table th, table td { border: 1px solid #000; }
+        .card { box-shadow: none; border: 1px solid #000; page-break-inside: avoid; }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+        body { padding-top: 100px; }
+        table { font-size: 0.85rem; overflow-x: auto; display: block; }
+        table thead { display: none; }
+        table tbody, table tr, table td { display: block; width: 100%; }
+        table tr { border-bottom: 2px solid var(--border-color); margin-bottom: 1rem; }
+        table td { padding: 0.5rem 0 !important; border-bottom: 1px dotted var(--border-color); }
+        table td::before { content: attr(data-label); font-weight: 600; color: var(--text-dark); display: block; margin-bottom: 0.5rem; }
+        .toast-container { right: 10px; left: 10px; }
+        .toast { min-width: auto; max-width: 100%; }
+        .breadcrumbs { padding: 0.8rem 1rem; font-size: 0.85rem; }
+        .card { padding: 1rem; }
+        .empty-state-icon { font-size: 3rem; }
+    }
+
   </style>
 </head>
 <body>
@@ -1526,6 +1692,11 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
       </li>
     </ul>
   </nav>
+
+  <!-- Dark Mode Toggle -->
+  <button class="dark-mode-toggle" id="dark-mode-toggle" title="Attiva/Disattiva modalità scura" aria-label="Modalità scura" aria-pressed="false">
+    <i class="fas fa-moon"></i>
+  </button>
 
   <!-- Menu Utente Migliorato -->
   <div class="user-menu-container" id="userMenuContainer">
@@ -2664,19 +2835,34 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
                 event.stopPropagation();
                 const parentLi = this.parentElement;
                 const wasActive = parentLi.classList.contains('active');
-                const parentMenu = this.closest('ul');
                 
-                // Chiudi TUTTI gli altri submenu e nascondi i loro elementi
-                parentMenu.querySelectorAll('li.has-submenu.active').forEach(item => {
-                    if (item !== parentLi) {
-                        item.classList.remove('active');
-                        // Nascondi anche il submenu
-                        const submenu = item.querySelector(':scope > ul.submenu');
-                        if (submenu) {
-                            submenu.style.display = 'none';
+                // CHIUDI TUTTI GLI ALTRI DROPDOWN PRINCIPALI (di primo livello)
+                const isTopLevelToggle = parentLi.classList.contains('has-dropdown') && parentLi.parentElement?.matches('nav > ul');
+                if (isTopLevelToggle) {
+                    document.querySelectorAll('nav > ul > li.has-dropdown.active').forEach(item => {
+                        if (item !== parentLi) {
+                            item.classList.remove('active');
+                            const dropdown = item.querySelector(':scope > ul.dropdown');
+                            if (dropdown) {
+                                dropdown.style.display = 'none';
+                            }
                         }
-                    }
-                });
+                    });
+                }
+                
+                // Chiudi i submenu nello stesso dropdown
+                const parentMenu = this.closest('ul');
+                if (parentMenu) {
+                    parentMenu.querySelectorAll('li.has-submenu.active').forEach(item => {
+                        if (item !== parentLi) {
+                            item.classList.remove('active');
+                            const submenu = item.querySelector(':scope > ul.submenu');
+                            if (submenu) {
+                                submenu.style.display = 'none';
+                            }
+                        }
+                    });
+                }
                 
                 if (!wasActive) {
                     parentLi.classList.add('active');
@@ -2823,7 +3009,13 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
             
             // Chiudi menu quando clicchi su un link
             mobileNav.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', function() {
+                link.addEventListener('click', function(event) {
+                    const parentLi = this.closest('li');
+                    const hasSubmenu = parentLi && parentLi.classList.contains('has-submenu') && parentLi.querySelector(':scope > ul.submenu');
+                    if (hasSubmenu) {
+                        event.stopPropagation();
+                        return;
+                    }
                     hamburgerBtn.classList.remove('active');
                     mobileNav.classList.remove('active');
                 });
@@ -2862,6 +3054,105 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
             userMenuContainer.classList.toggle('active');
         });
     });
+
+    // ===== SISTEMA TOAST NOTIFICATIONS =====
+    window.showToast = function(message, type = 'success', duration = 4000) {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+        }
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        const iconMap = { 'success': 'fas fa-check-circle', 'error': 'fas fa-exclamation-circle', 'warning': 'fas fa-exclamation-triangle', 'info': 'fas fa-info-circle' };
+        toast.innerHTML = `<i class="toast-icon ${iconMap[type]}"></i><span class="toast-message">${message}</span><button class="toast-close" aria-label="Chiudi">&times;</button>`;
+        container.appendChild(toast);
+        const removeToast = () => { toast.classList.add('removing'); setTimeout(() => toast.remove(), 300); };
+        toast.querySelector('.toast-close').addEventListener('click', removeToast);
+        if (duration > 0) setTimeout(removeToast, duration);
+        return toast;
+    };
+
+    // ===== CONFIRMATION DIALOG =====
+    window.showConfirmDialog = function(title, message, onConfirm, onCancel) {
+        let backdrop = document.getElementById('confirm-backdrop');
+        let modal = document.getElementById('confirm-modal');
+        if (!backdrop) { backdrop = document.createElement('div'); backdrop.id = 'confirm-backdrop'; backdrop.className = 'confirm-modal-backdrop'; document.body.appendChild(backdrop); }
+        if (!modal) { modal = document.createElement('div'); modal.id = 'confirm-modal'; modal.className = 'confirm-modal'; document.body.appendChild(modal); }
+        modal.innerHTML = `<h3 class="confirm-title">${title}</h3><p class="confirm-message">${message}</p><div class="confirm-actions"><button class="btn-cancel">Annulla</button><button class="btn-confirm">Conferma</button></div>`;
+        const btnCancel = modal.querySelector('.btn-cancel');
+        const btnConfirm = modal.querySelector('.btn-confirm');
+        const close = () => { backdrop.classList.remove('show'); modal.classList.remove('show'); setTimeout(() => { backdrop.style.display = 'none'; modal.style.display = 'none'; }, 300); };
+        btnCancel.addEventListener('click', () => { close(); if (onCancel) onCancel(); });
+        btnConfirm.addEventListener('click', () => { close(); if (onConfirm) onConfirm(); });
+        backdrop.style.display = 'block';
+        modal.style.display = 'block';
+        setTimeout(() => { backdrop.classList.add('show'); modal.classList.add('show'); btnConfirm.focus(); }, 10);
+        const handleEsc = (e) => { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', handleEsc); } };
+        document.addEventListener('keydown', handleEsc);
+    };
+
+    // ===== DARK MODE =====
+    window.initDarkMode = function() {
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const savedMode = localStorage.getItem('darkMode');
+        if (savedMode === 'true' || (!savedMode && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark-mode');
+            document.body.classList.add('dark-mode');
+            if (darkModeToggle) darkModeToggle.setAttribute('aria-pressed', 'true');
+        }
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', () => {
+                const isDark = document.documentElement.classList.toggle('dark-mode');
+                document.body.classList.toggle('dark-mode');
+                localStorage.setItem('darkMode', isDark);
+                darkModeToggle.setAttribute('aria-pressed', isDark);
+            });
+        }
+    };
+
+    // ===== SORTABLE TABLES =====
+    window.makeSortableTable = function(tableSelector) {
+        const table = document.querySelector(tableSelector);
+        if (!table) return;
+        const headers = table.querySelectorAll('th.sortable');
+        headers.forEach((header, index) => {
+            header.addEventListener('click', () => {
+                const tbody = table.querySelector('tbody');
+                const rows = Array.from(tbody.querySelectorAll('tr'));
+                const isAscending = header.classList.contains('sort-asc');
+                headers.forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+                header.classList.add(isAscending ? 'sort-desc' : 'sort-asc');
+                rows.sort((a, b) => {
+                    let aValue = a.children[index].textContent.trim();
+                    let bValue = b.children[index].textContent.trim();
+                    if (!isNaN(aValue) && !isNaN(bValue)) return isAscending ? bValue - aValue : aValue - bValue;
+                    return isAscending ? bValue.localeCompare(aValue) : aValue.localeCompare(bValue);
+                });
+                rows.forEach(row => tbody.appendChild(row));
+            });
+        });
+    };
+
+    // ===== LOADING STATE =====
+    window.setLoadingState = function(button, isLoading = true) {
+        const originalHTML = button.innerHTML;
+        if (isLoading) {
+            button.disabled = true;
+            button.style.opacity = '0.6';
+            button.innerHTML = '<i class="spinner" style="display: inline-block; margin-right: 8px;"></i> Caricamento...';
+            button.setAttribute('data-original-html', originalHTML);
+        } else {
+            button.disabled = false;
+            button.style.opacity = '1';
+            button.innerHTML = button.getAttribute('data-original-html') || originalHTML;
+        }
+    };
+
+    // Inizializza dark mode
+    window.initDarkMode();
 
 </script>
 </body>
