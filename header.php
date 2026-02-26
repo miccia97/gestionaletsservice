@@ -399,16 +399,23 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <style>
     :root {
-      --brand-color: #28a745;
-      --brand-dark: #218838;
-      --text-dark: #34495e;
-      --text-light: #7f8c8d;
-      --border-color: #ecf0f1;
-      --bg-light: #f7f9fc;
+      --brand-color: #22c55e;
+      --brand-dark: #16a34a;
+      --brand-light: #dcfce7;
+      --text-dark: #1e293b;
+      --text-light: #64748b;
+      --text-muted: #94a3b8;
+      --border-color: #e2e8f0;
+      --bg-light: #f8fafc;
       --bg-white: #ffffff;
-      --success-color: #2ecc71;
-      --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.07); /* Ombra più soffusa */
-      --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.1);
+      --success-color: #22c55e;
+      --danger-color: #ef4444;
+      --warning-color: #f59e0b;
+      --info-color: #3b82f6;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12);
+      --shadow-glow: 0 0 30px rgba(34, 197, 94, 0.2);
     }
     
     html {
@@ -419,70 +426,94 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
       font-family: 'Poppins', sans-serif;
       color: var(--text-dark);
       margin: 0;
-      background: var(--bg-light); /* Sfondo più pulito */
+      background: var(--bg-light);
       padding: 0;
-      padding-top: 80px; /* Ridotto per header più compatto */
+      padding-top: 88px;
       min-height: 100vh;
       overflow-y: auto;
       overflow-x: visible;
+      transition: padding-top 0.3s ease;
+    }
+    
+    /* Quando l'header è compatto */
+    body.header-scrolled {
+      padding-top: 80px;
     }
 
     /* --- INIZIO MODIFICHE HEADER --- */
     .top-bar {
-      background-color: var(--brand-color); /* MODIFICA: Ripristinato colore solido */
+      background: linear-gradient(135deg, var(--brand-color) 0%, #15803d 50%, var(--brand-dark) 100%);
       color: white;
-      padding: 0 30px; /* Padding solo orizzontale */
-      height: 80px; /* Altezza fissa per l'header */
+      padding: 0 30px;
+      height: 72px;
       width: 100vw;
       box-sizing: border-box;
       display: flex;
       align-items: center;
-      gap: 20px; /* Gap ridotto */
+      gap: 24px;
       position: fixed;
       top: 0;
       left: 0;
       z-index: 1000;
-      box-shadow: var(--shadow-md); /* Ombra più moderna */
+      box-shadow: 0 4px 20px rgba(34, 197, 94, 0.25);
       transition: all 0.3s ease;
       overflow: visible !important;
+      backdrop-filter: blur(10px);
+    }
+    
+    /* Header scrolled - più compatto */
+    .top-bar.scrolled {
+      height: 64px;
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.15);
     }
 
     .logo {
-      font-size: 28px; /* Dimensione ridotta per un look più fine */
-      font-weight: 700; /* Leggermente più bold */
+      font-size: 26px;
+      font-weight: 700;
       white-space: nowrap;
       color: white;
       text-decoration: none;
       cursor: pointer;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+      letter-spacing: -0.5px;
+      transition: transform 0.2s ease;
+    }
+    .logo:hover {
+      transform: scale(1.02);
     }
     
     .search-container {
-        position: relative; /* Necessario per il posizionamento del dropdown dei risultati */
+        position: relative;
         display: flex;
         align-items: center;
-        background-color: rgba(255, 255, 255, 0.15);
-        border-radius: 25px;
-        padding: 5px 15px;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 50px;
+        padding: 8px 18px;
         width: 100%;
-        max-width: 400px; /* Larghezza massima per la barra di ricerca */
-        transition: background-color 0.3s ease;
+        max-width: 420px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .search-container:focus-within {
-        background-color: rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.4);
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+        transform: scale(1.02);
     }
 
     .search-container i {
-        color: rgba(255, 255, 255, 0.8);
-        margin-right: 10px;
+        color: rgba(255, 255, 255, 0.9);
+        margin-right: 12px;
+        font-size: 14px;
     }
 
     .search-bar {
         background: transparent;
         border: none;
         color: white;
-        font-size: 15px;
+        font-size: 14px;
+        font-weight: 500;
         outline: none;
         width: 100%;
     }
@@ -553,34 +584,46 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
 
     nav ul li button,
     nav ul li a {
-      background-color: transparent; /* Sfondo trasparente di default */
+      background-color: transparent;
       border: none;
-      color: white; /* Testo bianco */
-      font-size: 15px; /* Dimensione del font ridotta */
+      color: white;
+      font-size: 14px;
       font-weight: 500;
-      padding: 10px 20px;
+      padding: 10px 18px;
       cursor: pointer;
-      border-radius: 8px; /* Bordi arrotondati */
+      border-radius: 10px;
       user-select: none;
       text-decoration: none;
-      display: flex; /* Per allineare icona e testo */
+      display: flex;
       align-items: center;
-      gap: 8px; /* Spazio tra icona e testo */
+      gap: 8px;
       white-space: nowrap;
-      transition: background-color 0.2s ease, color 0.2s ease;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       height: fit-content;
+      position: relative;
     }
 
     nav ul li button:hover,
     nav ul li a:hover {
-        background-color: rgba(255, 255, 255, 0.15); /* Sfondo semi-trasparente al hover */
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
     }
     
     /* Indicatore di pagina attiva */
     nav ul li a.active-link {
-        background-color: rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.25);
         font-weight: 600;
-        box-shadow: inset 0 -3px 0 0 white; /* Sottolineatura per la pagina attiva */
+    }
+    nav ul li a.active-link::after {
+        content: '';
+        position: absolute;
+        bottom: 4px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 20px;
+        height: 3px;
+        background: white;
+        border-radius: 2px;
     }
 
     button.no-arrow::after {
@@ -599,23 +642,26 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
     nav ul li ul.dropdown {
       display: none;
       position: fixed;
-      background-color: var(--bg-white);
+      background: var(--bg-white);
       min-width: 220px;
-            width: max-content;
-            max-width: 280px;
-      border-radius: 8px;
-      box-shadow: var(--shadow-lg);
-      padding: 8px 0;
+      width: max-content;
+      max-width: 280px;
+      border-radius: 14px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+      padding: 10px;
       list-style: none;
       z-index: 2000;
       transform-origin: top;
-      animation: scaleYIn 0.3s ease;
+      animation: dropdownIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       overflow: visible;
       height: auto;
-            box-sizing: border-box;
+      box-sizing: border-box;
+      border: 1px solid var(--border-color);
     }
-     @keyframes scaleYOut { from { opacity: 0; transform: scaleY(0.8); } to { opacity: 1; transform: scaleY(1); } }
-     @keyframes scaleYIn { from { opacity: 0; transform: scaleY(0.8); } to { opacity: 1; transform: scaleY(1); } }
+    @keyframes dropdownIn { 
+      from { opacity: 0; transform: translateY(-10px) scale(0.95); } 
+      to { opacity: 1; transform: translateY(0) scale(1); } 
+    }
     
     /* MODIFICA: Rimosso :hover per la visualizzazione, ora gestito da JS con la classe .active */
     nav ul li.active > ul.dropdown { 
@@ -623,22 +669,23 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
     }
 
     nav ul li ul.dropdown li a, nav ul li ul.dropdown li button {
-      padding: 12px 20px; 
+      padding: 12px 16px; 
       color: var(--text-dark); 
       background-color: transparent;
       width: 100%; 
       text-align: left; 
-      border-radius: 0; 
-      font-size: 15px;
+      border-radius: 10px; 
+      font-size: 14px;
+      font-weight: 500;
       border: none;
       cursor: pointer;
-      transition: background-color 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
+      margin-bottom: 2px;
     }
     nav ul li ul.dropdown li a:hover, nav ul li ul.dropdown li button:hover {
-      background-color: rgba(40, 167, 69, 0.1);
-      color: var(--brand-color);
-      padding-left: 25px;
+      background: var(--brand-light);
+      color: var(--brand-dark);
     }
     nav ul li ul.dropdown li.active > a,
     nav ul li ul.dropdown li.active > button {
@@ -676,12 +723,11 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
       display: block;
       text-decoration: none;
       font-size: 14px;
-      transition: background-color 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     nav ul li ul.dropdown li ul.submenu li a:hover {
-      background-color: rgba(40, 167, 69, 0.1);
-      color: var(--brand-color);
-      padding-left: 25px;
+      background: var(--brand-light);
+      color: var(--brand-dark);
     }
     
     /* MODIFICA: Rimosso :hover per la visualizzazione, ora gestito da JS con la classe .active */
@@ -694,41 +740,63 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         position: relative;
         display: flex;
         align-items: center;
-        gap: 12px;
-        margin-left: 20px;
-        padding-left: 20px;
-        border-left: 1px solid rgba(255, 255, 255, 0.2);
+        gap: 14px;
+        margin-left: 24px;
+        padding-left: 24px;
+        border-left: 1px solid rgba(255, 255, 255, 0.25);
         cursor: pointer;
+        padding: 8px 0 8px 24px;
+        transition: all 0.2s ease;
+    }
+    .user-menu-container:hover {
+        border-left-color: rgba(255, 255, 255, 0.5);
     }
     .user-greeting {
         color: white;
         font-weight: 500;
-        font-size: 15px;
+        font-size: 14px;
         white-space: nowrap;
+        line-height: 1.3;
     }
     .user-greeting .user-name {
-        font-weight: 600;
+        font-weight: 700;
+        display: block;
+    }
+    .user-greeting .user-role {
+        font-size: 11px;
+        opacity: 0.8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     .user-icon-trigger {
-        font-size: 28px;
+        width: 42px;
+        height: 42px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
         color: white;
-        transition: transform 0.2s ease;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .user-menu-container:hover .user-icon-trigger {
-        transform: scale(1.1);
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.05);
     }
     
     .user-dropdown {
         display: none;
         position: absolute;
-        top: calc(100% + 15px); /* Più spazio dall'header */
+        top: calc(100% + 12px);
         right: 0;
-        background-color: var(--bg-white);
-        border-radius: 8px;
-        box-shadow: var(--shadow-lg);
-        min-width: 240px; /* Più largo */
-        padding: 15px;
-        animation: fadeInDropdown 0.3s ease-out forwards;
+        background: var(--bg-white);
+        border-radius: 16px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        min-width: 260px;
+        border: 1px solid var(--border-color);
+        padding: 20px;
+        animation: fadeInDropdown 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         transform-origin: top right;
         opacity: 0;
         visibility: hidden;
@@ -739,15 +807,52 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         from { opacity: 0; transform: translateY(-10px) scale(0.95); }
         to { opacity: 1; transform: translateY(0) scale(1); }
     }
-    .user-dropdown-info { font-size: 15px; color: var(--text-dark); margin-bottom: 10px;
-        padding-bottom: 10px; border-bottom: 1px solid var(--border-color); text-align: center; }
-    .user-dropdown-info strong { font-weight: 600; display: block; margin-bottom: 3px; font-size: 16px; }
-    .user-dropdown-info span { display: block; color: var(--text-light); font-size: 13px; }
-    .user-dropdown .logout-button { display: block; width: 100%; text-align: center;
-        background-color: var(--brand-color); color: white; padding: 10px 15px;
-        border-radius: 5px; text-decoration: none; font-size: 14px;
-        transition: background-color 0.2s ease, transform 0.2s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .user-dropdown .logout-button:hover { background-color: var(--brand-dark); transform: translateY(-1px); }
+    .user-dropdown-info { 
+        font-size: 14px; 
+        color: var(--text-dark); 
+        margin-bottom: 16px;
+        padding-bottom: 16px; 
+        border-bottom: 1px solid var(--border-color); 
+        text-align: center; 
+    }
+    .user-dropdown-info strong { 
+        font-weight: 700; 
+        display: block; 
+        margin-bottom: 4px; 
+        font-size: 16px;
+        color: var(--text-dark);
+    }
+    .user-dropdown-info span { 
+        display: inline-block; 
+        color: var(--brand-color); 
+        font-size: 12px;
+        font-weight: 600;
+        background: var(--brand-light);
+        padding: 4px 12px;
+        border-radius: 20px;
+        margin-top: 8px;
+    }
+    .user-dropdown .logout-button { 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%; 
+        text-align: center;
+        background: linear-gradient(135deg, var(--brand-color) 0%, var(--brand-dark) 100%); 
+        color: white; 
+        padding: 12px 16px;
+        border-radius: 12px; 
+        text-decoration: none; 
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+        box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+    }
+    .user-dropdown .logout-button:hover { 
+        transform: translateY(-2px); 
+        box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+    }
 
     @media (max-width: 1200px) {
         .user-greeting { display: none; } /* Nasconde il saluto su schermi più piccoli */
@@ -2406,11 +2511,6 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
       </li>
     </ul>
   </nav>
-
-  <!-- Dark Mode Toggle -->
-  <button class="dark-mode-toggle" id="dark-mode-toggle" title="Attiva/Disattiva modalità scura" aria-label="Modalità scura" aria-pressed="false">
-    <i class="fas fa-moon"></i>
-  </button>
 
   <!-- Menu Utente Migliorato -->
   <div class="user-menu-container" id="userMenuContainer">
@@ -4072,6 +4172,18 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
                     }
                 }
             });
+        });
+        
+        // Effetto scroll per header compatto
+        window.addEventListener('scroll', () => {
+            const topBar = document.querySelector('.top-bar');
+            if (topBar) {
+                if (window.scrollY > 50) {
+                    topBar.classList.add('scrolled');
+                } else {
+                    topBar.classList.remove('scrolled');
+                }
+            }
         });
         
         // Ricalcola la posizione dei dropdown e submenu al resize
