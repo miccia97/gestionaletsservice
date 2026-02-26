@@ -3180,27 +3180,47 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
                         </div>
                         <div class="calcoli-summary">
                             <div class="calcolo-row">
-                                <span class="calcolo-label">Totale Costi Ricondizionamento</span>
-                                <span class="calcolo-value" id="totale_costi_ricondizionamento_permuta">€ 0,00</span>
-                                <input type="hidden" id="totale_costi_ricondizionamento_val_permuta" name="totale_costi_ricondizionamento_val">
-                            </div>
-                            <div class="calcolo-row">
-                                <span class="calcolo-label">Valore Vendita Prodotto Ceduto</span>
+                                <span class="calcolo-label">📤 Valore Prodotto Ceduto</span>
                                 <span class="calcolo-value" id="valore_vendita_ceduto_permuta">€ 0,00</span>
                             </div>
                             <div class="calcolo-row">
-                                <span class="calcolo-label">Valore Permuta (Iniziale)</span>
-                                <span class="calcolo-value" id="valore_permuta_ricevuto_permuta">€ 0,00</span>
-                            </div>
-                            <div class="calcolo-row highlight">
-                                <span class="calcolo-label">Valore Netto Prodotto Ricevuto</span>
-                                <span class="calcolo-value" id="valore_netto_ricevuto_permuta">€ 0,00</span>
-                                <input type="hidden" id="valore_netto_ricevuto_val_permuta" name="valore_netto_ricevuto_val">
+                                <span class="calcolo-label">📥 Valore Permuta Riconosciuto</span>
+                                <span class="calcolo-value" id="valore_permuta_ricevuto_permuta" style="color: #10b981;">- € 0,00</span>
                             </div>
                             <div class="calcolo-row total">
                                 <span class="calcolo-label">💵 Conguaglio Cliente</span>
                                 <span class="calcolo-value" id="conguaglio_cliente_permuta">€ 0,00</span>
                                 <input type="hidden" id="conguaglio_cliente_val_permuta" name="conguaglio_cliente_val">
+                            </div>
+                        </div>
+                        
+                        <div style="border-top: 2px dashed #e2e8f0; margin: 1rem -1.5rem; padding-top: 1rem;"></div>
+                        <div class="form-card-title-permuta" style="margin-bottom: 1rem;">
+                            <span class="icon">📊</span> Analisi Costi e Margine
+                        </div>
+                        <div class="calcoli-summary" style="background: #fefce8; border-color: #fde047;">
+                            <div class="calcolo-row">
+                                <span class="calcolo-label">🔧 Costi Ricondizionamento</span>
+                                <span class="calcolo-value" id="totale_costi_ricondizionamento_permuta" style="color: #dc2626;">€ 0,00</span>
+                                <input type="hidden" id="totale_costi_ricondizionamento_val_permuta" name="totale_costi_ricondizionamento_val">
+                            </div>
+                            <div class="calcolo-row">
+                                <span class="calcolo-label">🎁 Costo Accessori</span>
+                                <span class="calcolo-value" id="costo_accessori_display_permuta" style="color: #dc2626;">€ 0,00</span>
+                            </div>
+                            <div class="calcolo-row">
+                                <span class="calcolo-label">📦 Costo Prodotto Ceduto</span>
+                                <span class="calcolo-value" id="costo_prodotto_display_permuta" style="color: #dc2626;">€ 0,00</span>
+                            </div>
+                            <div class="calcolo-row highlight">
+                                <span class="calcolo-label">💎 Valore Netto Ricevuto</span>
+                                <span class="calcolo-value" id="valore_netto_ricevuto_permuta">€ 0,00</span>
+                                <input type="hidden" id="valore_netto_ricevuto_val_permuta" name="valore_netto_ricevuto_val">
+                            </div>
+                            <div class="calcolo-row" style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; margin: 0.5rem -1.5rem -1.5rem; padding: 1rem 1.5rem; border-radius: 0 0 14px 14px;">
+                                <span class="calcolo-label" style="color: white;">💹 Margine Stimato</span>
+                                <span class="calcolo-value" id="margine_permuta" style="color: white; font-size: 1.2rem;">€ 0,00</span>
+                                <input type="hidden" id="margine_permuta_val" name="margine_permuta_val">
                             </div>
                         </div>
                     </div>
@@ -3838,22 +3858,64 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         const permutaForm = document.getElementById('permuta-form');
         const prenotazioneForm = document.getElementById('prenotazione-prodotto-form');
         if (permutaForm) {
-            permutaForm.addEventListener('input', () => {
-                const tuoValore = parseFloat(permutaForm.tuo_valore_vendita.value) || 0;
-                const clienteValore = parseFloat(permutaForm.cliente_valore_permuta.value) || 0;
-                let totaleCosti = 0;
-                permutaForm.querySelectorAll('.costo-importo').forEach(i => totaleCosti += parseFloat(i.value) || 0);
-                const valoreNetto = clienteValore - totaleCosti;
-                const conguaglio = tuoValore - valoreNetto;
-                document.getElementById('valore_vendita_ceduto_permuta').textContent = formatCurrency(tuoValore);
-                document.getElementById('valore_permuta_ricevuto_permuta').textContent = formatCurrency(clienteValore);
-                document.getElementById('totale_costi_ricondizionamento_permuta').textContent = formatCurrency(totaleCosti);
-                document.getElementById('valore_netto_ricevuto_permuta').textContent = formatCurrency(valoreNetto);
-                document.getElementById('conguaglio_cliente_permuta').textContent = formatCurrency(conguaglio);
-                permutaForm.totale_costi_ricondizionamento_val.value = totaleCosti.toFixed(2);
-                permutaForm.valore_netto_ricevuto_val.value = valoreNetto.toFixed(2);
-                permutaForm.conguaglio_cliente_val.value = conguaglio.toFixed(2);
-            });
+            const calcolaPermuta = () => {
+                // Valori base
+                const prezzoVenditaCeduto = parseFloat(document.getElementById('tuo_valore_vendita_permuta').value) || 0;
+                const valorePermuta = parseFloat(document.getElementById('cliente_valore_permuta_main').value) || 0;
+                
+                // Costi ricondizionamento (somma di tutti i costi inseriti)
+                let costiRicondizionamento = 0;
+                permutaForm.querySelectorAll('.costo-importo').forEach(i => costiRicondizionamento += parseFloat(i.value) || 0);
+                
+                // Altri costi
+                const costoAccessori = parseFloat(document.getElementById('costo_accessori_input_permuta').value) || 0;
+                const costoProdotto = parseFloat(document.getElementById('costo_prodotto_input_permuta').value) || 0;
+                
+                // CALCOLO CONGUAGLIO CLIENTE (semplice: prezzo ceduto - valore permuta)
+                const conguaglioCliente = prezzoVenditaCeduto - valorePermuta;
+                
+                // CALCOLO VALORE NETTO RICEVUTO (permuta - costi ricondizionamento)
+                const valoreNettoRicevuto = valorePermuta - costiRicondizionamento;
+                
+                // CALCOLO MARGINE STIMATO
+                // Se rivendo il dispositivo ricevuto al prezzo di vendita finale, il margine è:
+                // Margine = Conguaglio + Valore Netto Ricevuto - Costo Prodotto Ceduto - Costo Accessori
+                // Oppure semplicemente: Prezzo Ceduto - Costo Prodotto - Costo Accessori + Valore Netto - (costi già detratti)
+                // Formula semplificata: Margine = Conguaglio + ValoreNetto - CostoProdotto - CostoAccessori
+                const margineStimato = conguaglioCliente + valoreNettoRicevuto - costoProdotto - costoAccessori;
+                
+                // Aggiorna la UI
+                document.getElementById('valore_vendita_ceduto_permuta').textContent = formatCurrency(prezzoVenditaCeduto);
+                document.getElementById('valore_permuta_ricevuto_permuta').textContent = '- ' + formatCurrency(valorePermuta);
+                document.getElementById('conguaglio_cliente_permuta').textContent = formatCurrency(conguaglioCliente);
+                
+                document.getElementById('totale_costi_ricondizionamento_permuta').textContent = formatCurrency(costiRicondizionamento);
+                document.getElementById('costo_accessori_display_permuta').textContent = formatCurrency(costoAccessori);
+                document.getElementById('costo_prodotto_display_permuta').textContent = formatCurrency(costoProdotto);
+                document.getElementById('valore_netto_ricevuto_permuta').textContent = formatCurrency(valoreNettoRicevuto);
+                document.getElementById('margine_permuta').textContent = formatCurrency(margineStimato);
+                
+                // Colore margine (verde se positivo, rosso se negativo)
+                const margineEl = document.getElementById('margine_permuta');
+                if (margineStimato < 0) {
+                    margineEl.parentElement.style.background = 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)';
+                } else {
+                    margineEl.parentElement.style.background = 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
+                }
+                
+                // Salva nei campi hidden
+                document.getElementById('totale_costi_ricondizionamento_val_permuta').value = costiRicondizionamento.toFixed(2);
+                document.getElementById('valore_netto_ricevuto_val_permuta').value = valoreNettoRicevuto.toFixed(2);
+                document.getElementById('conguaglio_cliente_val_permuta').value = conguaglioCliente.toFixed(2);
+                if (document.getElementById('margine_permuta_val')) {
+                    document.getElementById('margine_permuta_val').value = margineStimato.toFixed(2);
+                }
+            };
+            
+            permutaForm.addEventListener('input', calcolaPermuta);
+            // Inizializza calcoli al caricamento
+            calcolaPermuta();
+            
             document.getElementById('add_costo_btn_permuta').addEventListener('click', () => {
                 const container = document.getElementById('costi_ricondizionamento_container_permuta');
                 const newItem = document.createElement('div');
