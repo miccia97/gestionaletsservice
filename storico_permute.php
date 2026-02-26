@@ -153,6 +153,11 @@ function getPermutaStatusClasses($status) {
         --table-border: 1px solid var(--border-color-light);
     }
 
+    /* Utility class per nascondere elementi */
+    .hidden {
+        display: none !important;
+    }
+
     body {
         margin: 0;
         font-family: 'Inter', sans-serif;
@@ -1053,6 +1058,408 @@ function getPermutaStatusClasses($status) {
         grid-column: 1 / -1; /* Occupa l'intera larghezza della griglia */
     }
 
+    /* ========== REDESIGNED EDIT MODAL ========== */
+    .edit-permuta-modal {
+        width: 95%;
+        max-width: 900px;
+        padding: 0;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+    
+    .edit-modal-header {
+        background: linear-gradient(135deg, var(--brand-green) 0%, var(--brand-green-dark) 100%);
+        padding: 1.5rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .edit-modal-header h2 {
+        color: white;
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .edit-modal-header h2 svg {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .edit-modal-close {
+        background: rgba(255,255,255,0.2);
+        border: none;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    
+    .edit-modal-close:hover {
+        background: rgba(255,255,255,0.3);
+    }
+    
+    .edit-modal-close svg {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .edit-modal-body {
+        padding: 2rem;
+        max-height: 65vh;
+        overflow-y: auto;
+    }
+    
+    .edit-section {
+        margin-bottom: 2rem;
+    }
+    
+    .edit-section:last-child {
+        margin-bottom: 0;
+    }
+    
+    .edit-section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    
+    .edit-section-title svg {
+        width: 20px;
+        height: 20px;
+        color: var(--brand-green);
+    }
+    
+    .edit-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .edit-grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+    
+    .edit-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+    }
+    
+    .edit-field.full-width {
+        grid-column: 1 / -1;
+    }
+    
+    .edit-field label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .edit-field input,
+    .edit-field textarea,
+    .edit-field select {
+        padding: 0.75rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+        background: #f8fafc;
+    }
+    
+    .edit-field input:focus,
+    .edit-field textarea:focus,
+    .edit-field select:focus {
+        outline: none;
+        border-color: var(--brand-green);
+        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.15);
+        background: white;
+    }
+    
+    .edit-field input[readonly] {
+        background: #e2e8f0;
+        color: #64748b;
+        cursor: not-allowed;
+    }
+    
+    .edit-field textarea {
+        min-height: 80px;
+        resize: vertical;
+    }
+    
+    .edit-modal-footer {
+        padding: 1.25rem 2rem;
+        background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+    }
+    
+    .btn-edit-cancel {
+        padding: 0.75rem 1.5rem;
+        background: white;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-weight: 600;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .btn-edit-cancel:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+    }
+    
+    .btn-edit-save {
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, var(--brand-green) 0%, var(--brand-green-dark) 100%);
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+    
+    .btn-edit-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    }
+    
+    .btn-edit-save svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* ========== REDESIGNED VIEW MODAL ========== */
+    .view-permuta-modal {
+        width: 95%;
+        max-width: 900px;
+        padding: 0;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+    
+    .view-modal-header {
+        background: linear-gradient(135deg, var(--brand-green) 0%, var(--brand-green-dark) 100%);
+        padding: 1.5rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .view-modal-header h2 {
+        color: white;
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .view-modal-header h2 svg {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .view-modal-close {
+        background: rgba(255,255,255,0.2);
+        border: none;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    
+    .view-modal-close:hover {
+        background: rgba(255,255,255,0.3);
+    }
+    
+    .view-modal-close svg {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .view-modal-body {
+        padding: 2rem;
+        max-height: 65vh;
+        overflow-y: auto;
+    }
+    
+    .view-section {
+        margin-bottom: 1.5rem;
+    }
+    
+    .view-section:last-child {
+        margin-bottom: 0;
+    }
+    
+    .view-section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    
+    .view-section-header svg {
+        width: 20px;
+        height: 20px;
+        color: var(--brand-green);
+    }
+    
+    .view-info-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+    
+    .view-info-item {
+        background: #f8fafc;
+        padding: 1rem;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .view-info-item.full-width {
+        grid-column: 1 / -1;
+    }
+    
+    .view-info-item label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.35rem;
+    }
+    
+    .view-info-item span {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e293b;
+        display: block;
+        word-break: break-word;
+    }
+    
+    .view-info-item span.price {
+        color: var(--brand-green);
+        font-size: 1.1rem;
+    }
+    
+    .view-status-badge {
+        display: inline-block;
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .view-status-badge.in_trattativa {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+    
+    .view-status-badge.completata {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+    
+    .view-status-badge.accettata {
+        background: #ffedd5;
+        color: #c2410c;
+    }
+    
+    .view-status-badge.rifiutata {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+    
+    .view-status-badge.annullata {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+    
+    .view-modal-footer {
+        padding: 1.25rem 2rem;
+        background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+    }
+    
+    .btn-view-close {
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, var(--brand-green) 0%, var(--brand-green-dark) 100%);
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+    
+    .btn-view-close:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    }
+
+    @media (max-width: 768px) {
+        .edit-grid, .edit-grid-3, .view-info-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .edit-modal-body, .view-modal-body {
+            padding: 1rem;
+        }
+        
+        .edit-modal-header, .view-modal-header {
+            padding: 1rem 1.5rem;
+        }
+        
+        .edit-modal-header h2, .view-modal-header h2 {
+            font-size: 1.1rem;
+        }
+    }
+
   </style>
 </head>
 <body>
@@ -1214,162 +1621,371 @@ function getPermutaStatusClasses($status) {
         </div>
     </div>
 
-    <!-- Edit Permuta Modal Content -->
-    <div id="editPermutaModalContent" class="modal-content hidden">
-        <div class="modal-header">
-            <h2>Modifica Permuta #<span id="editPermutaId"></span></h2>
-            <button class="modal-close-button" onclick="closeModal()">&times;</button>
+    <!-- Edit Permuta Modal Content - REDESIGNED -->
+    <div id="editPermutaModalContent" class="modal-content edit-permuta-modal hidden">
+        <div class="edit-modal-header">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                Modifica Permuta #<span id="editPermutaId"></span>
+            </h2>
+            <button class="edit-modal-close" onclick="closeModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
         </div>
-        <div class="modal-body">
+        <div class="edit-modal-body">
             <form id="editPermutaForm">
                 <input type="hidden" id="editPermutaHiddenId" name="id">
-                <div class="modal-grid">
-                    <div class="modal-form-group">
-                        <label for="editPermutaCliente">Cliente</label>
-                        <input type="text" id="editPermutaCliente" name="cliente" required>
+                
+                <!-- Sezione Dati Generali -->
+                <div class="edit-section">
+                    <div class="edit-section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        Dati Generali
                     </div>
-                    <div class="modal-form-group">
-                        <label for="editPermutaTelefono">Telefono</label>
-                        <input type="text" id="editPermutaTelefono" name="telefono">
+                    <div class="edit-grid">
+                        <div class="edit-field">
+                            <label>Cliente</label>
+                            <input type="text" id="editPermutaCliente" name="cliente" required>
+                        </div>
+                        <div class="edit-field">
+                            <label>Telefono</label>
+                            <input type="text" id="editPermutaTelefono" name="telefono">
+                        </div>
+                        <div class="edit-field">
+                            <label>Progressivo</label>
+                            <input type="text" id="editPermutaProgressivo" name="progressivo" readonly>
+                        </div>
+                        <div class="edit-field">
+                            <label>Data</label>
+                            <input type="date" id="editPermutaData" name="data" required>
+                        </div>
                     </div>
-                    <div class="modal-form-group">
-                        <label for="editPermutaProgressivo">Progressivo</label>
-                        <input type="text" id="editPermutaProgressivo" name="progressivo" readonly>
+                </div>
+                
+                <!-- Sezione Dispositivo Nuovo -->
+                <div class="edit-section">
+                    <div class="edit-section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                            <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                        </svg>
+                        Dispositivo Nuovo (Venduto)
                     </div>
-                    <div class="modal-form-group">
-                        <label for="editPermutaData">Data</label>
-                        <input type="date" id="editPermutaData" name="data" required>
+                    <div class="edit-grid">
+                        <div class="edit-field">
+                            <label>Modello Nuovo</label>
+                            <input type="text" id="editPermutaModelloNuovo" name="modello_nuovo">
+                        </div>
+                        <div class="edit-field">
+                            <label>IMEI Nuovo</label>
+                            <input type="text" id="editPermutaImeiNuovo" name="imei_nuovo">
+                        </div>
+                        <div class="edit-field">
+                            <label>Prezzo Nuovo (€)</label>
+                            <input type="number" step="0.01" id="editPermutaPrezzoNuovo" name="prezzo_nuovo">
+                        </div>
+                        <div class="edit-field">
+                            <label>Costo Prodotto (€)</label>
+                            <input type="number" step="0.01" id="editPermutaCostoProdotto" name="costo_prodotto">
+                        </div>
+                        <div class="edit-field full-width">
+                            <label>Note Nuovo</label>
+                            <textarea id="editPermutaNoteNuovo" name="note_nuovo" rows="2"></textarea>
+                        </div>
                     </div>
-                    <div class="modal-form-group">
-                        <label for="editPermutaModelloNuovo">Modello Nuovo</label>
-                        <input type="text" id="editPermutaModelloNuovo" name="modello_nuovo">
+                </div>
+                
+                <!-- Sezione Dispositivo Usato -->
+                <div class="edit-section">
+                    <div class="edit-section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="17 1 21 5 17 9"></polyline>
+                            <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                            <polyline points="7 23 3 19 7 15"></polyline>
+                            <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                        </svg>
+                        Dispositivo Usato (Ritirato)
                     </div>
-                    <div class="modal-form-group">
-                        <label for="editPermutaImeiNuovo">IMEI Nuovo</label>
-                        <input type="text" id="editPermutaImeiNuovo" name="imei_nuovo">
+                    <div class="edit-grid">
+                        <div class="edit-field">
+                            <label>Modello Usato</label>
+                            <input type="text" id="editPermutaModelloUsato" name="modello_usato">
+                        </div>
+                        <div class="edit-field">
+                            <label>IMEI Usato</label>
+                            <input type="text" id="editPermutaImeiUsato" name="imei_usato">
+                        </div>
+                        <div class="edit-field">
+                            <label>Prezzo Permuta (€)</label>
+                            <input type="number" step="0.01" id="editPermutaPrezzoPermuta" name="prezzo_permuta">
+                        </div>
+                        <div class="edit-field">
+                            <label>Costo Riparazione (€)</label>
+                            <input type="number" step="0.01" id="editPermutaCostoRiparazione" name="costo_riparazione">
+                        </div>
+                        <div class="edit-field full-width">
+                            <label>Note Usato</label>
+                            <textarea id="editPermutaNoteUsato" name="note_usato" rows="2"></textarea>
+                        </div>
                     </div>
-                    <div class="modal-form-group full-width">
-                        <label for="editPermutaNoteNuovo">Note Nuovo</label>
-                        <textarea id="editPermutaNoteNuovo" name="note_nuovo" rows="3"></textarea> <!-- Aumentato rows -->
+                </div>
+                
+                <!-- Sezione Riepilogo Finanziario -->
+                <div class="edit-section">
+                    <div class="edit-section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                        Riepilogo Finanziario e Stato
                     </div>
-                    <div class="modal-form-group">
-                        <label for="editPermutaPrezzoNuovo">Prezzo Nuovo (€)</label>
-                        <input type="number" step="0.01" id="editPermutaPrezzoNuovo" name="prezzo_nuovo">
+                    <div class="edit-grid-3">
+                        <div class="edit-field">
+                            <label>Costo Accessori (€)</label>
+                            <input type="number" step="0.01" id="editPermutaCostoAccessori" name="costo_accessori">
+                        </div>
+                        <div class="edit-field">
+                            <label>Differenza da Pagare (€)</label>
+                            <input type="number" step="0.01" id="editPermutaDifferenza" name="differenza">
+                        </div>
+                        <div class="edit-field">
+                            <label>Prezzo Vendita Finale (€)</label>
+                            <input type="number" step="0.01" id="editPermutaPrezzoVendita" name="prezzo_vendita">
+                        </div>
+                        <div class="edit-field">
+                            <label>Status</label>
+                            <select id="editPermutaStatus" name="status">
+                                <option value="In Trattativa">In Trattativa</option>
+                                <option value="Accettata">Accettata</option>
+                                <option value="Rifiutata">Rifiutata</option>
+                                <option value="Completata">Completata</option>
+                                <option value="Annullata">Annullata</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="modal-form-group">
-                        <label for="editPermutaCostoProdotto">Costo Prodotto (€)</label>
-                        <input type="number" step="0.01" id="editPermutaCostoProdotto" name="costo_prodotto">
+                </div>
+                
+                <!-- Sezione Note -->
+                <div class="edit-section">
+                    <div class="edit-section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg>
+                        Note e Test
                     </div>
-                    <div class="modal-form-group">
-                        <label for="editPermutaModelloUsato">Modello Usato</label>
-                        <input type="text" id="editPermutaModelloUsato" name="modello_usato">
-                    </div>
-                    <div class="modal-form-group">
-                        <label for="editPermutaImeiUsato">IMEI Usato</label>
-                        <input type="text" id="editPermutaImeiUsato" name="imei_usato">
-                    </div>
-                    <div class="modal-form-group full-width">
-                        <label for="editPermutaNoteUsato">Note Usato</label>
-                        <textarea id="editPermutaNoteUsato" name="note_usato" rows="3"></textarea> <!-- Aumentato rows -->
-                    </div>
-                    <div class="modal-form-group">
-                        <label for="editPermutaPrezzoPermuta">Prezzo Permuta (€)</label>
-                        <input type="number" step="0.01" id="editPermutaPrezzoPermuta" name="prezzo_permuta">
-                    </div>
-                    <div class="modal-form-group">
-                        <label for="editPermutaCostoRiparazione">Costo Riparazione Usato (€)</label>
-                        <input type="number" step="0.01" id="editPermutaCostoRiparazione" name="costo_riparazione">
-                    </div>
-                    <div class="modal-form-group">
-                        <label for="editPermutaCostoAccessori">Costo Accessori (€)</label>
-                        <input type="number" step="0.01" id="editPermutaCostoAccessori" name="costo_accessori">
-                    </div>
-                    <div class="modal-form-group">
-                        <label for="editPermutaDifferenza">Differenza da Pagare (€)</label>
-                        <input type="number" step="0.01" id="editPermutaDifferenza" name="differenza">
-                    </div>
-                    <div class="modal-form-group">
-                        <label for="editPermutaPrezzoVendita">Prezzo di Vendita Finale (€)</label>
-                        <input type="number" step="0.01" id="editPermutaPrezzoVendita" name="prezzo_vendita">
-                    </div>
-                    <div class="modal-form-group">
-                        <label for="editPermutaStatus">Status</label>
-                        <select id="editPermutaStatus" name="status">
-                            <option value="In Trattativa">In Trattativa</option>
-                            <option value="Accettata">Accettata</option>
-                            <option value="Rifiutata">Rifiutata</option>
-                            <option value="Completata">Completata</option>
-                            <option value="Annullata">Annullata</option>
-                        </select>
-                    </div>
-                    <div class="modal-form-group full-width">
-                        <label for="editPermutaTestOk">Test Effettuati</label>
-                        <textarea id="editPermutaTestOk" name="test_ok" rows="3"></textarea> <!-- Aumentato rows -->
-                    </div>
-                    <div class="modal-form-group full-width">
-                        <label for="editPermutaNoteGenerali">Note Generali</label>
-                        <textarea id="editPermutaNoteGenerali" name="note_generali" rows="3"></textarea> <!-- Aumentato rows -->
+                    <div class="edit-grid">
+                        <div class="edit-field">
+                            <label>Test Effettuati</label>
+                            <textarea id="editPermutaTestOk" name="test_ok" rows="3"></textarea>
+                        </div>
+                        <div class="edit-field">
+                            <label>Note Generali</label>
+                            <textarea id="editPermutaNoteGenerali" name="note_generali" rows="3"></textarea>
+                        </div>
                     </div>
                 </div>
             </form>
         </div>
-        <div class="modal-footer">
-            <button class="btn-cancel" onclick="closeModal()">Annulla</button>
-            <button class="btn-primary" onclick="savePermuta()">Salva Modifiche</button>
+        <div class="edit-modal-footer">
+            <button type="button" class="btn-edit-cancel" onclick="closeModal()">Annulla</button>
+            <button type="button" class="btn-edit-save" onclick="savePermuta()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                Salva Modifiche
+            </button>
         </div>
     </div>
 
-    <!-- View Permuta Modal Content -->
-    <div id="viewPermutaModalContent" class="modal-content hidden">
-        <div class="modal-header">
-            <h2>Dettagli Permuta #<span id="viewPermutaId"></span></h2>
-            <button class="modal-close-button" onclick="closeModal()">&times;</button>
+    <!-- View Permuta Modal Content - REDESIGNED -->
+    <div id="viewPermutaModalContent" class="modal-content view-permuta-modal hidden">
+        <div class="view-modal-header">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                Dettagli Permuta #<span id="viewPermutaId"></span>
+            </h2>
+            <button class="view-modal-close" onclick="closeModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
         </div>
-        <div class="modal-body">
-            <div id="permutaDetailsContent" class="p-2">
-                <div class="view-modal-details">
-                    <div class="view-modal-details-group"><strong>ID Permuta:</strong> <span id="viewPermutaDetailId"></span></div>
-                    <div class="view-modal-details-group"><strong>Progressivo:</strong> <span id="viewPermutaDetailProgressivo"></span></div>
-                    <div class="view-modal-details-group"><strong>Data:</strong> <span id="viewPermutaDetailData"></span></div>
-                    <div class="view-modal-details-group"><strong>Cliente:</strong> <span id="viewPermutaDetailCliente"></span></div>
-                    <div class="view-modal-details-group"><strong>Telefono:</strong> <span id="viewPermutaDetailTelefono"></span></div>
-                    <div class="view-modal-details-group"><strong>Status:</strong> <span id="viewPermutaDetailStatus"></span></div>
+        <div class="view-modal-body">
+            <div id="permutaDetailsContent">
+                <!-- Sezione Dati Generali -->
+                <div class="view-section">
+                    <div class="view-section-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        Dati Generali
+                    </div>
+                    <div class="view-info-grid">
+                        <div class="view-info-item">
+                            <label>ID Permuta</label>
+                            <span id="viewPermutaDetailId"></span>
+                        </div>
+                        <div class="view-info-item">
+                            <label>Progressivo</label>
+                            <span id="viewPermutaDetailProgressivo"></span>
+                        </div>
+                        <div class="view-info-item">
+                            <label>Data</label>
+                            <span id="viewPermutaDetailData"></span>
+                        </div>
+                        <div class="view-info-item">
+                            <label>Cliente</label>
+                            <span id="viewPermutaDetailCliente"></span>
+                        </div>
+                        <div class="view-info-item">
+                            <label>Telefono</label>
+                            <span id="viewPermutaDetailTelefono"></span>
+                        </div>
+                        <div class="view-info-item">
+                            <label>Status</label>
+                            <span id="viewPermutaDetailStatus"></span>
+                        </div>
+                    </div>
                 </div>
 
-                <h3 class="view-modal-section-title">Dispositivo Nuovo</h3>
-                <div class="view-modal-details">
-                    <div class="view-modal-details-group"><strong>Modello:</strong> <span id="viewPermutaDetailModelloNuovo"></span></div>
-                    <div class="view-modal-details-group"><strong>IMEI:</strong> <span id="viewPermutaDetailImeiNuovo"></span></div>
-                    <div class="view-modal-details-group full-width-detail"><strong>Note:</strong> <span id="viewPermutaDetailNoteNuovo"></span></div>
-                    <div class="view-modal-details-group"><strong>Prezzo:</strong> <span id="viewPermutaDetailPrezzoNuovo"></span></div>
-                    <div class="view-modal-details-group"><strong>Costo Prodotto:</strong> <span id="viewPermutaDetailCostoProdotto"></span></div>
+                <!-- Sezione Dispositivo Nuovo -->
+                <div class="view-section">
+                    <div class="view-section-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                            <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                        </svg>
+                        Dispositivo Nuovo (Venduto)
+                    </div>
+                    <div class="view-info-grid">
+                        <div class="view-info-item">
+                            <label>Modello</label>
+                            <span id="viewPermutaDetailModelloNuovo"></span>
+                        </div>
+                        <div class="view-info-item">
+                            <label>IMEI</label>
+                            <span id="viewPermutaDetailImeiNuovo"></span>
+                        </div>
+                        <div class="view-info-item">
+                            <label>Prezzo</label>
+                            <span id="viewPermutaDetailPrezzoNuovo" class="price"></span>
+                        </div>
+                        <div class="view-info-item">
+                            <label>Costo Prodotto</label>
+                            <span id="viewPermutaDetailCostoProdotto" class="price"></span>
+                        </div>
+                        <div class="view-info-item full-width">
+                            <label>Note</label>
+                            <span id="viewPermutaDetailNoteNuovo"></span>
+                        </div>
+                    </div>
                 </div>
 
-                <h3 class="view-modal-section-title">Dispositivo Usato (Permuta)</h3>
-                <div class="view-modal-details">
-                    <div class="view-modal-details-group"><strong>Modello:</strong> <span id="viewPermutaDetailModelloUsato"></span></div>
-                    <div class="view-modal-details-group"><strong>IMEI:</strong> <span id="viewPermutaDetailImeiUsato"></span></div>
-                    <div class="view-modal-details-group full-width-detail"><strong>Note:</strong> <span id="viewPermutaDetailNoteUsato"></span></div>
-                    <div class="view-modal-details-group"><strong>Prezzo Permuta:</strong> <span id="viewPermutaDetailPrezzoPermuta"></span></div>
-                    <div class="view-modal-details-group"><strong>Costo Ricondizionamento:</strong> <span id="viewPermutaDetailCostoRiparazione"></span></div>
+                <!-- Sezione Dispositivo Usato -->
+                <div class="view-section">
+                    <div class="view-section-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="17 1 21 5 17 9"></polyline>
+                            <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                            <polyline points="7 23 3 19 7 15"></polyline>
+                            <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                        </svg>
+                        Dispositivo Usato (Ritirato)
+                    </div>
+                    <div class="view-info-grid">
+                        <div class="view-info-item">
+                            <label>Modello</label>
+                            <span id="viewPermutaDetailModelloUsato"></span>
+                        </div>
+                        <div class="view-info-item">
+                            <label>IMEI</label>
+                            <span id="viewPermutaDetailImeiUsato"></span>
+                        </div>
+                        <div class="view-info-item">
+                            <label>Prezzo Permuta</label>
+                            <span id="viewPermutaDetailPrezzoPermuta" class="price"></span>
+                        </div>
+                        <div class="view-info-item">
+                            <label>Costo Ricondizionamento</label>
+                            <span id="viewPermutaDetailCostoRiparazione" class="price"></span>
+                        </div>
+                        <div class="view-info-item full-width">
+                            <label>Note</label>
+                            <span id="viewPermutaDetailNoteUsato"></span>
+                        </div>
+                    </div>
                 </div>
 
-                <h3 class="view-modal-section-title">Riepilogo Finanziario</h3>
-                <div class="view-modal-details">
-                    <div class="view-modal-details-group"><strong>Costo Accessori:</strong> <span id="viewPermutaDetailCostoAccessori"></span></div>
-                    <div class="view-modal-details-group"><strong>Differenza da Pagare:</strong> <span id="viewPermutaDetailDifferenza"></span></div>
-                    <div class="view-modal-details-group"><strong>Prezzo di Vendita Finale:</strong> <span id="viewPermutaDetailPrezzoVendita"></span></div>
+                <!-- Sezione Riepilogo Finanziario -->
+                <div class="view-section">
+                    <div class="view-section-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                        Riepilogo Finanziario
+                    </div>
+                    <div class="view-info-grid">
+                        <div class="view-info-item">
+                            <label>Costo Accessori</label>
+                            <span id="viewPermutaDetailCostoAccessori" class="price"></span>
+                        </div>
+                        <div class="view-info-item">
+                            <label>Differenza da Pagare</label>
+                            <span id="viewPermutaDetailDifferenza" class="price"></span>
+                        </div>
+                        <div class="view-info-item">
+                            <label>Prezzo Vendita Finale</label>
+                            <span id="viewPermutaDetailPrezzoVendita" class="price"></span>
+                        </div>
+                    </div>
                 </div>
 
-                <h3 class="view-modal-section-title">Note e Test</h3>
-                <div class="view-modal-details">
-                    <div class="view-modal-details-group full-width-detail"><strong>Test Effettuati:</strong> <span id="viewPermutaDetailTestOk"></span></div>
-                    <div class="view-modal-details-group full-width-detail"><strong>Note Generali:</strong> <span id="viewPermutaDetailNoteGenerali"></span></div>
+                <!-- Sezione Note e Test -->
+                <div class="view-section">
+                    <div class="view-section-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg>
+                        Note e Test
+                    </div>
+                    <div class="view-info-grid">
+                        <div class="view-info-item full-width">
+                            <label>Test Effettuati</label>
+                            <span id="viewPermutaDetailTestOk"></span>
+                        </div>
+                        <div class="view-info-item full-width">
+                            <label>Note Generali</label>
+                            <span id="viewPermutaDetailNoteGenerali"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="modal-footer">
-            <button class="btn-cancel" onclick="closeModal()">Chiudi</button>
+        <div class="view-modal-footer">
+            <button type="button" class="btn-view-close" onclick="closeModal()">Chiudi</button>
         </div>
     </div>
 
@@ -1601,6 +2217,7 @@ function getPermutaStatusClasses($status) {
             modalToShow.classList.remove('hidden');
         }
 
+        mainModal.classList.remove('hidden');
         mainModal.classList.add('show');
         currentModalPermutaId = permutaId;
     }
@@ -1608,6 +2225,7 @@ function getPermutaStatusClasses($status) {
     function closeModal() {
         mainModal.classList.remove('show');
         setTimeout(() => {
+            mainModal.classList.add('hidden');
             deletePermutaModalContent.classList.add('hidden');
             editPermutaModalContent.classList.add('hidden');
             viewPermutaModalContent.classList.add('hidden');
