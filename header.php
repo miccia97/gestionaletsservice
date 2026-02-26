@@ -1791,174 +1791,360 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         white-space: nowrap;
     }
 
-    #permutaPopup fieldset {
-        border: 1px solid var(--border-color);
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        background-color: var(--bg-white);
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        gap: 1.5rem;
-    }
-
-    #permutaPopup legend {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: var(--brand-color);
-        padding: 0 0.8rem;
-        margin-bottom: 0.5rem;
-        background-color: var(--bg-white);
-        border-radius: 5px;
-    }
-
-    #permutaPopup .wizard-body > .form-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 2rem;
-    }
-
-    #permutaPopup fieldset > .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.6rem;
-    }
-
-    @media (min-width: 768px) {
-        #permutaPopup fieldset {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.8rem;
-        }
-
-        #permutaPopup .wizard-body > .form-grid fieldset {
-            grid-column: 1 / -1;
-        }
-        
-        #permutaPopup fieldset > .form-group,
-        #permutaPopup fieldset > h4,
-        #permutaPopup fieldset > .table-responsive,
-        #permutaPopup fieldset > #costi_ricondizionamento_container_permuta,
-        #permutaPopup fieldset > #add_costo_btn_permuta,
-        #permutaPopup fieldset > .summary-line {
-            grid-column: 1 / -1;
-        }
-    }
-
-    #permutaPopup .table-responsive {
-        width: 100%;
-        overflow-x: auto;
-        margin-top: 1rem;
-        margin-bottom: 2rem;
-    }
-
-    #permutaPopup table {
-        width: 100%;
-        min-width: 600px;
-        border-collapse: collapse;
-        margin-top: 1rem;
-    }
-
-    #permutaPopup table th,
-    #permutaPopup table td {
-        border: 1px solid #e0e6eb;
-        padding: 0.8rem;
-        text-align: left;
-        vertical-align: top;
-    }
-
-    #permutaPopup table th {
-        background-color: var(--brand-color);
-        color: white;
-        font-weight: 600;
-        white-space: nowrap;
-    }
-
-    #permutaPopup table tr:nth-child(even) {
-        background-color: #f8f9fa;
-    }
-
-    #permutaPopup table select,
-    #permutaPopup table input[type="text"] {
-        width: 100%;
-        padding: 0.5rem;
-        border-radius: 5px;
-        border: 1px solid #dcdfe6;
-        font-size: 0.9rem;
-        box-sizing: border-box;
-    }
-
-    #permutaPopup table input[type="checkbox"] {
-        width: auto;
-        margin-right: 0.5rem;
-    }
-
-    #costi_ricondizionamento_container_permuta {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        margin-top: 1rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .costo-item {
-        display: flex;
-        gap: 0.8rem;
-        align-items: center;
-    }
-
-    .costo-item input[type="text"] { flex-grow: 2; }
-    .costo-item input[type="number"] { flex-grow: 1; max-width: 120px; }
-
-    .remove-costo-btn {
-        background-color: #dc3545; color: white; border: none; padding: 0.5rem 1rem;
-        border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: background-color 0.2s ease;
-    }
-    .remove-costo-btn:hover { background-color: #c82333; }
-
-    #add_costo_btn_permuta {
-        background-color: #007bff; color: white; border: none; padding: 0.8rem 1.5rem;
-        border-radius: 8px; cursor: pointer; font-size: 1rem; margin-top: 1rem;
-        transition: background-color 0.2s ease;
-    }
-    #add_costo_btn_permuta:hover { background-color: #0056b3; }
-
-    .summary-line {
-        display: flex; justify-content: space-between; padding: 0.8rem 0;
-        border-bottom: 1px dashed #e2e8f0; font-size: 1.05rem; font-weight: 500; color: var(--text-dark);
-    }
-    .summary-line:last-of-type { border-bottom: none; }
-    .summary-line label { font-weight: 600; color: #475569; }
-    .summary-line.highlight {
-        background-color: #e6ffed; border-radius: 5px; padding: 0.8rem; margin-top: 1rem;
-    }
-    .summary-line.total {
-        font-size: 1.2rem; font-weight: 700; color: #1e8449;
-        border-top: 2px solid var(--brand-color); padding-top: 1.2rem; margin-top: 1.5rem;
+    /* ===== PERMUTA POPUP - DESIGN WIZARD MODERNO ===== */
+    #permutaPopup .wizard-container {
+        max-width: 1000px;
     }
     
-    .form-actions {
-        display: flex; justify-content: flex-end; gap: 1rem; padding-top: 1.5rem;
-        border-top: 1px solid var(--border-color); background-color: #fdfdfd; flex-shrink: 0;
+    #permutaPopup .wizard-header {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
     }
-
-    .form-actions button {
-        padding: 0.8rem 2.2rem; font-size: 1.05rem; font-weight: 600; border-radius: 10px;
-        border: none; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    
+    #permutaPopup .stepper-nav {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0;
+        padding: 1.25rem 2rem;
+        background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+        border-bottom: 1px solid #e2e8f0;
     }
-
-    .form-actions button[type="submit"] {
-        background-color: var(--brand-color);
+    
+    #permutaPopup .step-permuta {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        flex: 1;
+        max-width: 160px;
+    }
+    
+    #permutaPopup .step-permuta:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        top: 22px;
+        left: calc(50% + 25px);
+        width: calc(100% - 50px);
+        height: 3px;
+        background: #e2e8f0;
+        transition: background 0.4s ease;
+    }
+    
+    #permutaPopup .step-permuta.completed::after {
+        background: linear-gradient(90deg, #28a745, #20c997);
+    }
+    
+    #permutaPopup .step-bubble-permuta {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: white;
+        border: 3px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        position: relative;
+        z-index: 2;
+        font-size: 1.1rem;
+    }
+    
+    #permutaPopup .step-permuta.active .step-bubble-permuta {
+        border-color: #28a745;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.2);
+        transform: scale(1.1);
+    }
+    
+    #permutaPopup .step-permuta.completed .step-bubble-permuta {
+        border-color: #28a745;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
         color: white;
     }
-    .form-actions button[type="submit"]:hover {
-        background-color: var(--brand-dark);
-        transform: translateY(-2px);
-        box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+    
+    #permutaPopup .step-label-permuta {
+        margin-top: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: color 0.3s ease;
     }
-    .form-actions button#annulla_permuta_btn { background-color: #e0e6eb; color: var(--text-dark); }
-    .form-actions button#annulla_permuta_btn:hover { background-color: #d1d9e0; }
-    .form-actions button#stampa_riepilogo_btn_permuta { background-color: #17a2b8; color: white; }
-    .form-actions button#stampa_riepilogo_btn_permuta:hover { background-color: #138496; }
+    
+    #permutaPopup .step-permuta.active .step-label-permuta,
+    #permutaPopup .step-permuta.completed .step-label-permuta {
+        color: #28a745;
+    }
+    
+    #permutaPopup .permuta-step-pane {
+        display: none;
+        animation: fadeInStep 0.4s ease;
+    }
+    
+    #permutaPopup .permuta-step-pane.active {
+        display: block;
+    }
+    
+    /* Form Card Permuta */
+    #permutaPopup .form-card-permuta {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.25rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        border-left: 4px solid #28a745;
+    }
+    
+    #permutaPopup .form-card-permuta.purple {
+        border-left-color: #17a2b8;
+    }
+    
+    #permutaPopup .form-card-permuta.green {
+        border-left-color: #10b981;
+    }
+    
+    #permutaPopup .form-card-title-permuta {
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748b;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    #permutaPopup .form-card-title-permuta .icon {
+        font-size: 1.2rem;
+    }
+    
+    /* Valutazione Tecnica Moderna */
+    #permutaPopup .test-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+    
+    #permutaPopup .test-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0.9rem 1rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        transition: all 0.2s ease;
+    }
+    
+    #permutaPopup .test-item:hover {
+        border-color: #cbd5e1;
+        background: #f1f5f9;
+    }
+    
+    #permutaPopup .test-item .test-icon {
+        font-size: 1.3rem;
+        width: 36px;
+        text-align: center;
+    }
+    
+    #permutaPopup .test-item .test-info {
+        flex: 1;
+    }
+    
+    #permutaPopup .test-item .test-name {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #334155;
+        margin-bottom: 4px;
+    }
+    
+    #permutaPopup .test-item select {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.8rem;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+        background: white;
+    }
+    
+    #permutaPopup .test-item input[type="text"] {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.8rem;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+        width: 100%;
+        margin-top: 6px;
+    }
+    
+    /* Badge esito */
+    #permutaPopup .esito-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    #permutaPopup .esito-ok { background: #d1fae5; color: #065f46; }
+    #permutaPopup .esito-warning { background: #fef3c7; color: #92400e; }
+    #permutaPopup .esito-error { background: #fee2e2; color: #991b1b; }
+    
+    /* Riepilogo Calcoli Moderno */
+    #permutaPopup .calcoli-summary {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 2px solid #e2e8f0;
+    }
+    
+    #permutaPopup .calcolo-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px dashed #e2e8f0;
+    }
+    
+    #permutaPopup .calcolo-row:last-child {
+        border-bottom: none;
+    }
+    
+    #permutaPopup .calcolo-row.highlight {
+        background: white;
+        margin: 0.5rem -1rem;
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        border: none;
+    }
+    
+    #permutaPopup .calcolo-row.total {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        margin: 1rem -1.5rem -1.5rem;
+        padding: 1.25rem 1.5rem;
+        border-radius: 0 0 14px 14px;
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+    
+    #permutaPopup .calcolo-label {
+        font-weight: 500;
+        color: #64748b;
+    }
+    
+    #permutaPopup .calcolo-value {
+        font-weight: 700;
+        color: #1e293b;
+    }
+    
+    #permutaPopup .calcolo-row.total .calcolo-label,
+    #permutaPopup .calcolo-row.total .calcolo-value {
+        color: white;
+    }
+    
+    /* Costi Ricondizionamento Moderni */
+    #permutaPopup .costo-item-modern {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        padding: 0.75rem;
+        background: white;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 0.75rem;
+    }
+    
+    #permutaPopup .costo-item-modern input[type="text"] {
+        flex: 2;
+    }
+    
+    #permutaPopup .costo-item-modern input[type="number"] {
+        flex: 1;
+        max-width: 120px;
+    }
+    
+    #permutaPopup .btn-remove-costo {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: none;
+        background: #fee2e2;
+        color: #dc2626;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+    
+    #permutaPopup .btn-remove-costo:hover {
+        background: #fecaca;
+    }
+    
+    #permutaPopup .btn-add-costo {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0.6rem 1.2rem;
+        background: #dbeafe;
+        color: #1d4ed8;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    #permutaPopup .btn-add-costo:hover {
+        background: #bfdbfe;
+    }
+    
+    /* Footer Permuta */
+    #permutaPopup .wizard-footer {
+        background: white;
+        border-radius: 0 0 20px 20px;
+    }
+    
+    #permutaPopup .wizard-progress-fill {
+        background: linear-gradient(90deg, #28a745, #20c997);
+    }
+    
+    /* Responsive Permuta */
+    @media (max-width: 768px) {
+        #permutaPopup .stepper-nav {
+            gap: 0.25rem;
+            padding: 1rem 0.5rem;
+        }
+        
+        #permutaPopup .step-bubble-permuta {
+            width: 36px;
+            height: 36px;
+            font-size: 1rem;
+        }
+        
+        #permutaPopup .step-label-permuta {
+            font-size: 0.7rem;
+        }
+        
+        #permutaPopup .test-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        #permutaPopup .costo-item-modern {
+            flex-wrap: wrap;
+        }
+        
+        #permutaPopup .costo-item-modern input[type="text"],
+        #permutaPopup .costo-item-modern input[type="number"] {
+            flex: 1 1 100%;
+            max-width: none;
+        }
+    }
 
     .image-preview {
         display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;
@@ -2610,12 +2796,42 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
     </div>
 </div>
 
-<!-- Nuovo popup per la Gestione Permuta -->
+<!-- Nuovo popup per la Gestione Permuta - Design Wizard Moderno -->
 <div class="popup-overlay" id="permutaPopup">
     <div class="wizard-container">
         <div class="wizard-header">
-            <h1>Gestione Nuova Permuta</h1>
+            <div class="wizard-header-content">
+                <div class="wizard-header-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 1l4 4-4 4"></path>
+                        <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                        <path d="M7 23l-4-4 4-4"></path>
+                        <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                    </svg>
+                </div>
+                <h1>Gestione Nuova Permuta</h1>
+            </div>
             <button type="button" class="close-btn" id="close-permuta-popup-btn">&times;</button>
+        </div>
+        
+        <!-- Stepper Navigation -->
+        <div class="stepper-nav">
+            <div class="step-permuta active" data-step="1">
+                <div class="step-bubble-permuta">👤</div>
+                <div class="step-label-permuta">Cliente</div>
+            </div>
+            <div class="step-permuta" data-step="2">
+                <div class="step-bubble-permuta">📤</div>
+                <div class="step-label-permuta">Ceduto</div>
+            </div>
+            <div class="step-permuta" data-step="3">
+                <div class="step-bubble-permuta">📥</div>
+                <div class="step-label-permuta">Ricevuto</div>
+            </div>
+            <div class="step-permuta" data-step="4">
+                <div class="step-bubble-permuta">💰</div>
+                <div class="step-label-permuta">Calcoli</div>
+            </div>
         </div>
         
         <form method="POST" action="" id="permuta-form" enctype="multipart/form-data">
@@ -2623,349 +2839,395 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
             <div class="wizard-body">
                 <?php if(!empty($permuta_feedback_message)) echo $permuta_feedback_message; ?>
 
-                <div class="form-grid">
-                    <!-- 1. Dettagli Generali della Permuta -->
-                    <fieldset>
-                        <legend>1. Dettagli Generali</legend>
-                        <div class="form-group">
-                            <label for="numero_permuta">Numero Permuta:</label>
-                            <input type="text" id="numero_permuta" name="numero_permuta_display" value="Automatico al Salvataggio" readonly>
-                            <input type="hidden" id="numero_progressivo" name="numero_progressivo">
+                <!-- Step 1: Dettagli Generali e Cliente -->
+                <div class="permuta-step-pane active" data-step="1">
+                    <div class="form-card-permuta">
+                        <div class="form-card-title-permuta">
+                            <span class="icon">📋</span> Dettagli Permuta
                         </div>
-                        <div class="form-group">
-                            <label for="data_permuta">Data Permuta:</label>
-                            <input type="date" id="data_permuta" name="data_permuta" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="cliente_permuta">Cliente:</label>
-                            <div class="client-input-container">
-                                <input type="text" id="cliente_permuta" name="cliente_display" placeholder="Cerca o seleziona cliente" autocomplete="off" required>
-                                <input type="hidden" id="cliente_id_permuta" name="cliente_id">
-                                <div id="client_suggestions_permuta" class="autocomplete-list"></div>
-                                <i class="fas fa-plus-circle add-client-icon" id="open_new_client_modal_btn_permuta" title="Aggiungi nuovo cliente"></i>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="numero_permuta">Numero Permuta</label>
+                                <input type="text" id="numero_permuta" name="numero_permuta_display" value="Automatico al Salvataggio" readonly style="background: #f1f5f9; color: #64748b;">
+                                <input type="hidden" id="numero_progressivo" name="numero_progressivo">
+                            </div>
+                            <div class="form-group">
+                                <label for="data_permuta">Data Permuta *</label>
+                                <input type="date" id="data_permuta" name="data_permuta" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="stato_permuta">Stato</label>
+                                <select id="stato_permuta" name="stato_permuta" required>
+                                    <option value="In Trattativa">🔄 In Trattativa</option>
+                                    <option value="Accettata">✅ Accettata</option>
+                                    <option value="Rifiutata">❌ Rifiutata</option>
+                                    <option value="Completata">🎉 Completata</option>
+                                    <option value="Annullata">🚫 Annullata</option>
+                                </select>
                             </div>
                         </div>
-
-                        <div class="form-group">
-                            <label for="telefono_cliente_permuta">Telefono Cliente:</label>
-                            <input type="text" id="telefono_cliente_permuta" name="telefono_cliente" placeholder="Es: 3331234567" pattern="[0-9]{10,15}" title="Inserisci un numero di telefono valido (10-15 cifre)">
-                        </div>
-                        <div class="form-group">
-                            <label for="stato_permuta">Stato Permuta:</label>
-                            <select id="stato_permuta" name="stato_permuta" required>
-                                <option value="In Trattativa">In Trattativa</option>
-                                <option value="Accettata">Accettata</option>
-                                <option value="Rifiutata">Rifiutata</option>
-                                <option value="Completata">Completata</option>
-                                <option value="Annullata">Annullata</option>
-                            </select>
-                        </div>
-                    </fieldset>
-
-                    <!-- 2. Il Tuo Prodotto (Ceduto al Cliente) -->
-                    <fieldset>
-                        <legend>2. Prodotto Ceduto</legend>
-                        <div class="form-group">
-                            <label for="tuo_modello_permuta">Modello:</label>
-                            <div class="product-input-wrapper">
-                                <input type="text" id="tuo_modello_permuta" name="tuo_modello" placeholder="Cerca o inserisci modello" autocomplete="off" required>
-                                <div id="product_suggestions_permuta" class="autocomplete-list"></div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="tuo_imei_permuta">IMEI / Seriale:</label>
-                            <input type="text" id="tuo_imei_permuta" name="tuo_imei">
-                        </div>
-                        <div class="form-group">
-                            <label for="tuo_valore_vendita_permuta">Valore di Vendita (€):</label>
-                            <input type="number" id="tuo_valore_vendita_permuta" name="tuo_valore_vendita" step="0.01" min="0" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="tuo_note_permuta">Note Prodotto Ceduto:</label>
-                            <textarea id="tuo_note_permuta" name="tuo_note" rows="3"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="tuo_foto_permuta">Allegati / Foto:</label>
-                            <input type="file" id="tuo_foto_permuta" name="tuo_foto[]" multiple accept="image/*">
-                            <div id="tuo_foto_preview_permuta" class="image-preview"></div>
-                        </div>
-                    </fieldset>
-
-                    <!-- 3. Prodotto del Cliente (Ricevuto in Permuta) -->
-                    <fieldset>
-                        <legend>3. Prodotto Ricevuto</legend>
-                        <div class="form-group">
-                            <label for="cliente_modello_permuta">Modello:</label>
-                            <input type="text" id="cliente_modello_permuta" name="cliente_modello" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="cliente_imei_permuta">IMEI / Seriale:</label>
-                            <input type="text" id="cliente_imei_permuta" name="cliente_imei">
-                        </div>
-                        <div class="form-group">
-                            <label for="cliente_note_permuta">Note Generali Prodotto Ricevuto:</label>
-                            <textarea id="cliente_note_permuta" name="cliente_note" rows="3"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="cliente_valore_permuta_main">Valore Permuta Proposto (€):</label>
-                            <input type="number" id="cliente_valore_permuta_main" name="cliente_valore_permuta" step="0.01" min="0" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="cliente_foto_permuta">Allegati / Foto:</label>
-                            <input type="file" id="cliente_foto_permuta" name="cliente_foto[]" multiple accept="image/*">
-                            <div id="cliente_foto_preview_permuta" class="image-preview"></div>
-                        </div>
-
-                        <h4>Valutazione Tecnica</h4>
-                        <div class="table-responsive">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Componente</th>
-                                        <th>Esito</th>
-                                        <th>Note</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Display</td>
-                                        <td>
-                                            <select name="test_display_esito">
-                                                <option value="Funzionante">Funzionante</option>
-                                                <option value="Danneggiato">Danneggiato</option>
-                                                <option value="Guasto">Guasto</option>
-                                            </select>
-                                        </td>
-                                        <td><input type="text" name="test_display_note"></td>
-                                    </tr>
-                                    <td>Touchscreen</td>
-                                    <td>
-                                        <select name="test_touch_esito">
-                                            <option value="Funzionante">Funzionante</option>
-                                            <option value="Parzialmente Funzionante">Parzialmente Funzionante</option>
-                                            <option value="Non Funzionante">Non Funzionante</option>
-                                        </select>
-                                    </td>
-                                    <td><input type="text" name="test_touch_note"></td>
-                                </tr>
-                                <tr>
-                                    <td>Batteria</td>
-                                    <td>
-                                        <select name="test_batteria_esito">
-                                            <option value="Ottima">Ottima</option>
-                                            <option value="Buona">Buona</option>
-                                            <option value="Scarso">Scarso</option>
-                                            <option value="Da Sostituire">Da Sostituire</option>
-                                        </select>
-                                    </td>
-                                    <td><input type="text" name="test_batteria_note" placeholder="% salute, cicli"></td>
-                                </tr>
-                                <tr>
-                                    <td>Fotocamera Post.</td>
-                                    <td>
-                                        <select name="test_cam_post_esito">
-                                            <option value="Funzionante">Funzionante</option>
-                                            <option value="Difettosa">Difettosa</option>
-                                            <option value="Non Funzionante">Non Funzionante</option>
-                                        </select>
-                                    </td>
-                                    <td><input type="text" name="test_cam_post_note"></td>
-                                </tr>
-                                <tr>
-                                    <td>Fotocamera Ant.</td>
-                                    <td>
-                                        <select name="test_cam_ant_esito">
-                                            <option value="Funzionante">Funzionante</option>
-                                            <option value="Difettosa">Difettosa</option>
-                                            <option value="Non Funzionante">Non Funzionante</option>
-                                        </select>
-                                    </td>
-                                    <td><input type="text" name="test_cam_ant_note"></td>
-                                </tr>
-                                <tr>
-                                    <td>Audio</td>
-                                    <td>
-                                        <select name="test_audio_esito">
-                                            <option value="Funzionante">Funzionante</option>
-                                            <option value="Distorto">Distorto</option>
-                                            <option value="Non Funzionante">Non Funzionante</option>
-                                        </select>
-                                    </td>
-                                    <td><input type="text" name="test_audio_note"></td>
-                                </tr>
-                                <tr>
-                                    <td>Microfono</td>
-                                    <td>
-                                        <select name="test_mic_esito">
-                                            <option value="Funzionante">Funzionante</option>
-                                            <option value="Difettoso">Difettoso</option>
-                                            <option value="Non Funzionante">Non Funzionante</option>
-                                        </select>
-                                    </td>
-                                    <td><input type="text" name="test_mic_note"></td>
-                                </tr>
-                                 <tr>
-                                    <td>Wi-Fi</td>
-                                    <td>
-                                        <select name="test_wifi_esito">
-                                            <option value="Funzionante">Funzionante</option>
-                                            <option value="Instabile">Instabile</option>
-                                            <option value="Non Funzionante">Non Funzionante</option>
-                                        </select>
-                                    </td>
-                                    <td><input type="text" name="test_wifi_note"></td>
-                                </tr>
-                                <tr>
-                                    <td>Bluetooth</td>
-                                    <td>
-                                        <select name="test_bt_esito">
-                                            <option value="Funzionante">Funzionante</option>
-                                            <option value="Instabile">Instabile</option>
-                                            <option value="Non Funzionante">Non Funzionante</option>
-                                        </select>
-                                    </td>
-                                    <td><input type="text" name="test_bt_note"></td>
-                                </tr>
-                                <tr>
-                                    <td>Ricarica</td>
-                                    <td>
-                                        <select name="test_ricarica_esito">
-                                            <option value="Funzionante">Funzionante</option>
-                                            <option value="Difettosa">Difettosa</option>
-                                            <option value="Non Funzionante">Non Funzionante</option>
-                                        </select>
-                                    </td>
-                                    <td><input type="text" name="test_ricarica_note"></td>
-                                </tr>
-                                <tr>
-                                    <td>Tasti Fisici</td>
-                                    <td>
-                                        <select name="test_tasti_esito">
-                                            <option value="Funzionante">Funzionante</option>
-                                            <option value="Bloccati">Bloccati</
-                                            <option value="Non Funzionante">Non Funzionante</option>
-                                        </select>
-                                    </td>
-                                    <td><input type="text" name="test_tasti_note"></td>
-                                </tr>
-                                <tr>
-                                    <td>Sensori</td>
-                                    <td>
-                                        <select name="test_sensori_esito">
-                                            <option value="Funzionante">Funzionante</option>
-                                            <option value="Parzialmente Funzionante">Parzialmente Funzionante</option>
-                                            <option value="Non Funzionante">Non Funzionante</option>
-                                        </select>
-                                    </td>
-                                    <td><input type="text" name="test_sensori_note"></td>
-                                </tr>
-                                <tr>
-                                    <td>Sblocco Biometrico</td>
-                                    <td>
-                                        <select name="test_sblocco_bio_esito">
-                                            <option value="Funzionante">Funzionante</option>
-                                            <option value="Non Funzionante">Non Funzionante</option>
-                                            <option value="Non Applicabile">Non Applicabile</option>
-                                        </select>
-                                    </td>
-                                    <td><input type="text" name="test_sblocco_bio_note"></td>
-                                </tr>
-                                 <tr>
-                                    <td>Reset Fabbrica</td>
-                                    <td>
-                                        <input type="checkbox" name="test_reset_fabbrica" value="Si"> Sì
-                                    </td>
-                                    <td><input type="text" name="test_reset_fabbrica_note"></td>
-                                </tr>
-                                 <tr>
-                                    <td>Account</td>
-                                    <td>
-                                        <select name="test_accounts_esito">
-                                            <option value="Liberi">Liberi</option>
-                                            <option value="Presenti">Presenti</option>
-                                        </select>
-                                    </td>
-                                    <td><input type="text" name="test_accounts_note" placeholder="Es: Google, iCloud..."></td>
-                                </tr>
-                                 <tr>
-                                    <td>Altro</td>
-                                    <td>
-                                        <select name="test_altro_esito">
-                                            <option value="N/A">N/A</option>
-                                            <option value="Funzionante">Funzionante</option>
-                                            <option value="Difettoso">Difettoso</option>
-                                        </select>
-                                    </td>
-                                    <td><input type="text" name="test_altro_note"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </fieldset>
-
-                <!-- 4. Calcoli e Conguaglio Finale -->
-                <fieldset>
-                    <legend>4. Calcoli Finali</legend>
-                    <h4>Costi di Ricondizionamento</h4>
-                    <div id="costi_ricondizionamento_container_permuta">
-                        <div class="costo-item">
-                            <input type="text" name="costo_descrizione[]" placeholder="Descrizione Costo">
-                            <input type="number" name="costo_importo[]" step="0.01" min="0" class="costo-importo" value="0">
-                            <button type="button" class="remove-costo-btn">Rimuovi</button>
-                        </div>
-                    </div>
-                    <button type="button" id="add_costo_btn_permuta">Aggiungi Costo</button>
-
-                    <div class="summary-line">
-                        <label>Totale Costi Ricondizionamento:</label>
-                        <span id="totale_costi_ricondizionamento_permuta">€ 0.00</span>
-                        <input type="hidden" id="totale_costi_ricondizionamento_val_permuta" name="totale_costi_ricondizionamento_val">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="costo_accessori_input_permuta">Costo Accessori (€):</label>
-                        <input type="number" id="costo_accessori_input_permuta" name="costo_accessori_input" step="0.01" min="0" value="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="costo_prodotto_input_permuta">Costo Prodotto (€):</label>
-                        <input type="number" id="costo_prodotto_input_permuta" name="costo_prodotto_input" step="0.01" min="0" value="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="prezzo_vendita_input_permuta">Prezzo Vendita Finale (€):</label>
-                        <input type="number" id="prezzo_vendita_input_permuta" name="prezzo_vendita_input" step="0.01" min="0" value="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="note_generali_input_permuta">Note Aggiuntive:</label>
-                        <textarea id="note_generali_input_permuta" name="note_generali_input" rows="3" placeholder="Aggiungi qui eventuali note generali..."></textarea>
                     </div>
                     
-                    <div class="summary-line">
-                        <label>Valore Vendita Prodotto Ceduto:</label>
-                        <span id="valore_vendita_ceduto_permuta">€ 0.00</span>
+                    <div class="form-card-permuta purple">
+                        <div class="form-card-title-permuta">
+                            <span class="icon">👤</span> Dati Cliente
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label for="cliente_permuta">Cliente *</label>
+                                <div class="client-input-container">
+                                    <input type="text" id="cliente_permuta" name="cliente_display" placeholder="Cerca o seleziona cliente..." autocomplete="off" required>
+                                    <input type="hidden" id="cliente_id_permuta" name="cliente_id">
+                                    <div id="client_suggestions_permuta" class="autocomplete-list"></div>
+                                    <i class="fas fa-plus-circle add-client-icon" id="open_new_client_modal_btn_permuta" title="Aggiungi nuovo cliente"></i>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="telefono_cliente_permuta">Telefono</label>
+                                <input type="text" id="telefono_cliente_permuta" name="telefono_cliente" placeholder="Es: 3331234567">
+                            </div>
+                        </div>
                     </div>
-                    <div class="summary-line">
-                        <label>Valore Permuta (Iniziale):</label>
-                        <span id="valore_permuta_ricevuto_permuta">€ 0.00</span>
+                </div>
+
+                <!-- Step 2: Prodotto Ceduto (il tuo) -->
+                <div class="permuta-step-pane" data-step="2">
+                    <div class="form-card-permuta">
+                        <div class="form-card-title-permuta">
+                            <span class="icon">📤</span> Prodotto Ceduto al Cliente
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="tuo_modello_permuta">Modello *</label>
+                                <div class="product-input-wrapper">
+                                    <input type="text" id="tuo_modello_permuta" name="tuo_modello" placeholder="Cerca o inserisci modello..." autocomplete="off" required>
+                                    <div id="product_suggestions_permuta" class="autocomplete-list"></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="tuo_imei_permuta">IMEI / Seriale</label>
+                                <input type="text" id="tuo_imei_permuta" name="tuo_imei" placeholder="Inserisci IMEI o seriale">
+                            </div>
+                            <div class="form-group">
+                                <label for="tuo_valore_vendita_permuta">Valore di Vendita (€) *</label>
+                                <input type="number" id="tuo_valore_vendita_permuta" name="tuo_valore_vendita" step="0.01" min="0" required placeholder="0.00">
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="tuo_note_permuta">Note Prodotto</label>
+                                <textarea id="tuo_note_permuta" name="tuo_note" rows="2" placeholder="Eventuali note sul prodotto ceduto..."></textarea>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="tuo_foto_permuta">Foto / Allegati</label>
+                                <input type="file" id="tuo_foto_permuta" name="tuo_foto[]" multiple accept="image/*">
+                                <div id="tuo_foto_preview_permuta" class="image-preview"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="summary-line highlight">
-                        <label>Valore Netto Prodotto Ricevuto:</label>
-                        <span id="valore_netto_ricevuto_permuta">€ 0.00</span>
-                        <input type="hidden" id="valore_netto_ricevuto_val_permuta" name="valore_netto_ricevuto_val">
+                </div>
+
+                <!-- Step 3: Prodotto Ricevuto + Valutazione -->
+                <div class="permuta-step-pane" data-step="3">
+                    <div class="form-card-permuta purple">
+                        <div class="form-card-title-permuta">
+                            <span class="icon">📥</span> Prodotto Ricevuto dal Cliente
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="cliente_modello_permuta">Modello *</label>
+                                <input type="text" id="cliente_modello_permuta" name="cliente_modello" required placeholder="es. iPhone 13 Pro">
+                            </div>
+                            <div class="form-group">
+                                <label for="cliente_imei_permuta">IMEI / Seriale</label>
+                                <input type="text" id="cliente_imei_permuta" name="cliente_imei" placeholder="Inserisci IMEI o seriale">
+                            </div>
+                            <div class="form-group">
+                                <label for="cliente_valore_permuta_main">Valore Permuta Proposto (€) *</label>
+                                <input type="number" id="cliente_valore_permuta_main" name="cliente_valore_permuta" step="0.01" min="0" required placeholder="0.00">
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="cliente_note_permuta">Note Generali</label>
+                                <textarea id="cliente_note_permuta" name="cliente_note" rows="2" placeholder="Note sul prodotto ricevuto..."></textarea>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="cliente_foto_permuta">Foto / Allegati</label>
+                                <input type="file" id="cliente_foto_permuta" name="cliente_foto[]" multiple accept="image/*">
+                                <div id="cliente_foto_preview_permuta" class="image-preview"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="summary-line total">
-                        <label>Conguaglio Cliente:</label>
-                        <span id="conguaglio_cliente_permuta">€ 0.00</span>
-                        <input type="hidden" id="conguaglio_cliente_val_permuta" name="conguaglio_cliente_val">
+                    
+                    <div class="form-card-permuta green">
+                        <div class="form-card-title-permuta">
+                            <span class="icon">🔍</span> Valutazione Tecnica
+                        </div>
+                        <div class="test-grid">
+                            <div class="test-item">
+                                <div class="test-icon">📱</div>
+                                <div class="test-info">
+                                    <div class="test-name">Display</div>
+                                    <select name="test_display_esito">
+                                        <option value="Funzionante">✅ Funzionante</option>
+                                        <option value="Danneggiato">⚠️ Danneggiato</option>
+                                        <option value="Guasto">❌ Guasto</option>
+                                    </select>
+                                    <input type="text" name="test_display_note" placeholder="Note...">
+                                </div>
+                            </div>
+                            <div class="test-item">
+                                <div class="test-icon">👆</div>
+                                <div class="test-info">
+                                    <div class="test-name">Touchscreen</div>
+                                    <select name="test_touch_esito">
+                                        <option value="Funzionante">✅ Funzionante</option>
+                                        <option value="Parzialmente Funzionante">⚠️ Parziale</option>
+                                        <option value="Non Funzionante">❌ Non Funz.</option>
+                                    </select>
+                                    <input type="text" name="test_touch_note" placeholder="Note...">
+                                </div>
+                            </div>
+                            <div class="test-item">
+                                <div class="test-icon">🔋</div>
+                                <div class="test-info">
+                                    <div class="test-name">Batteria</div>
+                                    <select name="test_batteria_esito">
+                                        <option value="Ottima">✅ Ottima</option>
+                                        <option value="Buona">✅ Buona</option>
+                                        <option value="Scarso">⚠️ Scarsa</option>
+                                        <option value="Da Sostituire">❌ Da Sostituire</option>
+                                    </select>
+                                    <input type="text" name="test_batteria_note" placeholder="% salute, cicli...">
+                                </div>
+                            </div>
+                            <div class="test-item">
+                                <div class="test-icon">📷</div>
+                                <div class="test-info">
+                                    <div class="test-name">Fotocamera Post.</div>
+                                    <select name="test_cam_post_esito">
+                                        <option value="Funzionante">✅ Funzionante</option>
+                                        <option value="Difettosa">⚠️ Difettosa</option>
+                                        <option value="Non Funzionante">❌ Non Funz.</option>
+                                    </select>
+                                    <input type="text" name="test_cam_post_note" placeholder="Note...">
+                                </div>
+                            </div>
+                            <div class="test-item">
+                                <div class="test-icon">🤳</div>
+                                <div class="test-info">
+                                    <div class="test-name">Fotocamera Ant.</div>
+                                    <select name="test_cam_ant_esito">
+                                        <option value="Funzionante">✅ Funzionante</option>
+                                        <option value="Difettosa">⚠️ Difettosa</option>
+                                        <option value="Non Funzionante">❌ Non Funz.</option>
+                                    </select>
+                                    <input type="text" name="test_cam_ant_note" placeholder="Note...">
+                                </div>
+                            </div>
+                            <div class="test-item">
+                                <div class="test-icon">🔊</div>
+                                <div class="test-info">
+                                    <div class="test-name">Audio/Speaker</div>
+                                    <select name="test_audio_esito">
+                                        <option value="Funzionante">✅ Funzionante</option>
+                                        <option value="Distorto">⚠️ Distorto</option>
+                                        <option value="Non Funzionante">❌ Non Funz.</option>
+                                    </select>
+                                    <input type="text" name="test_audio_note" placeholder="Note...">
+                                </div>
+                            </div>
+                            <div class="test-item">
+                                <div class="test-icon">🎤</div>
+                                <div class="test-info">
+                                    <div class="test-name">Microfono</div>
+                                    <select name="test_mic_esito">
+                                        <option value="Funzionante">✅ Funzionante</option>
+                                        <option value="Difettoso">⚠️ Difettoso</option>
+                                        <option value="Non Funzionante">❌ Non Funz.</option>
+                                    </select>
+                                    <input type="text" name="test_mic_note" placeholder="Note...">
+                                </div>
+                            </div>
+                            <div class="test-item">
+                                <div class="test-icon">📶</div>
+                                <div class="test-info">
+                                    <div class="test-name">Wi-Fi</div>
+                                    <select name="test_wifi_esito">
+                                        <option value="Funzionante">✅ Funzionante</option>
+                                        <option value="Instabile">⚠️ Instabile</option>
+                                        <option value="Non Funzionante">❌ Non Funz.</option>
+                                    </select>
+                                    <input type="text" name="test_wifi_note" placeholder="Note...">
+                                </div>
+                            </div>
+                            <div class="test-item">
+                                <div class="test-icon">🔵</div>
+                                <div class="test-info">
+                                    <div class="test-name">Bluetooth</div>
+                                    <select name="test_bt_esito">
+                                        <option value="Funzionante">✅ Funzionante</option>
+                                        <option value="Instabile">⚠️ Instabile</option>
+                                        <option value="Non Funzionante">❌ Non Funz.</option>
+                                    </select>
+                                    <input type="text" name="test_bt_note" placeholder="Note...">
+                                </div>
+                            </div>
+                            <div class="test-item">
+                                <div class="test-icon">🔌</div>
+                                <div class="test-info">
+                                    <div class="test-name">Ricarica</div>
+                                    <select name="test_ricarica_esito">
+                                        <option value="Funzionante">✅ Funzionante</option>
+                                        <option value="Difettosa">⚠️ Difettosa</option>
+                                        <option value="Non Funzionante">❌ Non Funz.</option>
+                                    </select>
+                                    <input type="text" name="test_ricarica_note" placeholder="Note...">
+                                </div>
+                            </div>
+                            <div class="test-item">
+                                <div class="test-icon">🔘</div>
+                                <div class="test-info">
+                                    <div class="test-name">Tasti Fisici</div>
+                                    <select name="test_tasti_esito">
+                                        <option value="Funzionante">✅ Funzionante</option>
+                                        <option value="Bloccati">⚠️ Bloccati</option>
+                                        <option value="Non Funzionante">❌ Non Funz.</option>
+                                    </select>
+                                    <input type="text" name="test_tasti_note" placeholder="Note...">
+                                </div>
+                            </div>
+                            <div class="test-item">
+                                <div class="test-icon">🔒</div>
+                                <div class="test-info">
+                                    <div class="test-name">Sblocco Bio</div>
+                                    <select name="test_sblocco_bio_esito">
+                                        <option value="Funzionante">✅ Funzionante</option>
+                                        <option value="Non Funzionante">❌ Non Funz.</option>
+                                        <option value="Non Applicabile">➖ N/A</option>
+                                    </select>
+                                    <input type="text" name="test_sblocco_bio_note" placeholder="Note...">
+                                </div>
+                            </div>
+                            <div class="test-item">
+                                <div class="test-icon">🔄</div>
+                                <div class="test-info">
+                                    <div class="test-name">Reset Fabbrica</div>
+                                    <select name="test_reset_fabbrica">
+                                        <option value="Si">✅ Eseguito</option>
+                                        <option value="No">❌ Non Eseguito</option>
+                                    </select>
+                                    <input type="text" name="test_reset_fabbrica_note" placeholder="Note...">
+                                </div>
+                            </div>
+                            <div class="test-item">
+                                <div class="test-icon">👤</div>
+                                <div class="test-info">
+                                    <div class="test-name">Account</div>
+                                    <select name="test_accounts_esito">
+                                        <option value="Liberi">✅ Liberi</option>
+                                        <option value="Presenti">⚠️ Presenti</option>
+                                    </select>
+                                    <input type="text" name="test_accounts_note" placeholder="Google, iCloud...">
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </fieldset>
+                </div>
+
+                <!-- Step 4: Calcoli Finali -->
+                <div class="permuta-step-pane" data-step="4">
+                    <div class="form-card-permuta">
+                        <div class="form-card-title-permuta">
+                            <span class="icon">🛠️</span> Costi di Ricondizionamento
+                        </div>
+                        <div id="costi_ricondizionamento_container_permuta">
+                            <div class="costo-item-modern">
+                                <input type="text" name="costo_descrizione[]" placeholder="Descrizione costo...">
+                                <input type="number" name="costo_importo[]" step="0.01" min="0" placeholder="0.00" class="costo-importo" value="0">
+                                <button type="button" class="btn-remove-costo"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>
+                        <button type="button" id="add_costo_btn_permuta" class="btn-add-costo">
+                            <i class="fas fa-plus"></i> Aggiungi Costo
+                        </button>
+                    </div>
+                    
+                    <div class="form-card-permuta purple">
+                        <div class="form-card-title-permuta">
+                            <span class="icon">📊</span> Altri Costi e Prezzi
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="costo_accessori_input_permuta">Costo Accessori (€)</label>
+                                <input type="number" id="costo_accessori_input_permuta" name="costo_accessori_input" step="0.01" min="0" value="0" placeholder="0.00">
+                            </div>
+                            <div class="form-group">
+                                <label for="costo_prodotto_input_permuta">Costo Prodotto (€)</label>
+                                <input type="number" id="costo_prodotto_input_permuta" name="costo_prodotto_input" step="0.01" min="0" value="0" placeholder="0.00">
+                            </div>
+                            <div class="form-group">
+                                <label for="prezzo_vendita_input_permuta">Prezzo Vendita Finale (€)</label>
+                                <input type="number" id="prezzo_vendita_input_permuta" name="prezzo_vendita_input" step="0.01" min="0" value="0" placeholder="0.00">
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="note_generali_input_permuta">Note Aggiuntive</label>
+                                <textarea id="note_generali_input_permuta" name="note_generali_input" rows="2" placeholder="Eventuali note aggiuntive..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-card-permuta green">
+                        <div class="form-card-title-permuta">
+                            <span class="icon">💰</span> Riepilogo Finale
+                        </div>
+                        <div class="calcoli-summary">
+                            <div class="calcolo-row">
+                                <span class="calcolo-label">Totale Costi Ricondizionamento</span>
+                                <span class="calcolo-value" id="totale_costi_ricondizionamento_permuta">€ 0,00</span>
+                                <input type="hidden" id="totale_costi_ricondizionamento_val_permuta" name="totale_costi_ricondizionamento_val">
+                            </div>
+                            <div class="calcolo-row">
+                                <span class="calcolo-label">Valore Vendita Prodotto Ceduto</span>
+                                <span class="calcolo-value" id="valore_vendita_ceduto_permuta">€ 0,00</span>
+                            </div>
+                            <div class="calcolo-row">
+                                <span class="calcolo-label">Valore Permuta (Iniziale)</span>
+                                <span class="calcolo-value" id="valore_permuta_ricevuto_permuta">€ 0,00</span>
+                            </div>
+                            <div class="calcolo-row highlight">
+                                <span class="calcolo-label">Valore Netto Prodotto Ricevuto</span>
+                                <span class="calcolo-value" id="valore_netto_ricevuto_permuta">€ 0,00</span>
+                                <input type="hidden" id="valore_netto_ricevuto_val_permuta" name="valore_netto_ricevuto_val">
+                            </div>
+                            <div class="calcolo-row total">
+                                <span class="calcolo-label">💵 Conguaglio Cliente</span>
+                                <span class="calcolo-value" id="conguaglio_cliente_permuta">€ 0,00</span>
+                                <input type="hidden" id="conguaglio_cliente_val_permuta" name="conguaglio_cliente_val">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-actions">
-                <button type="submit" name="salva_permuta">Salva Permuta</button>
-                <button type="button" id="annulla_permuta_btn">Annulla</button>
-                <button type="button" id="stampa_riepilogo_btn_permuta">Stampa Riepilogo</button>
+            <div class="wizard-footer">
+                <button type="button" class="wizard-btn prev" id="prev-btn-permuta" style="display: none;">
+                    <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    Indietro
+                </button>
+                
+                <div class="wizard-progress-section">
+                    <div class="wizard-progress-bar">
+                        <div class="wizard-progress-fill" id="wizard-progress-fill-permuta" style="width: 25%;"></div>
+                    </div>
+                    <div class="wizard-progress-text" id="wizard-progress-text-permuta">Step 1 di 4</div>
+                </div>
+                
+                <button type="button" class="wizard-btn next" id="next-btn-permuta">
+                    Avanti
+                    <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </button>
+                <button type="submit" name="salva_permuta" class="wizard-btn submit" id="submit-permuta-btn" style="display: none;">
+                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    Salva Permuta
+                </button>
             </div>
         </form>
     </div>
@@ -3419,6 +3681,87 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         <?php endif; ?>
     })();
 
+    // --- Logica Specifica per Wizard Permuta ---
+    (() => {
+        const popup = document.getElementById('permutaPopup');
+        if (!popup) return;
+        
+        const prevBtn = popup.querySelector('#prev-btn-permuta');
+        const nextBtn = popup.querySelector('#next-btn-permuta');
+        const submitBtn = popup.querySelector('#submit-permuta-btn');
+        const steps = popup.querySelectorAll('.permuta-step-pane');
+        const navSteps = popup.querySelectorAll('.stepper-nav .step-permuta');
+        const progressFill = popup.querySelector('#wizard-progress-fill-permuta');
+        const progressText = popup.querySelector('#wizard-progress-text-permuta');
+        let currentStep = 1;
+
+        window.showPermutaStep = (stepNumber) => {
+            currentStep = stepNumber;
+            steps.forEach(s => s.classList.toggle('active', parseInt(s.dataset.step) === currentStep));
+            navSteps.forEach(ns => {
+                const stepNum = parseInt(ns.dataset.step);
+                ns.classList.toggle('active', stepNum === currentStep);
+                ns.classList.toggle('completed', stepNum < currentStep);
+            });
+            
+            if (prevBtn) prevBtn.style.display = currentStep > 1 ? 'flex' : 'none';
+            if (nextBtn) nextBtn.style.display = currentStep < steps.length ? 'flex' : 'none';
+            if (submitBtn) submitBtn.style.display = currentStep === steps.length ? 'flex' : 'none';
+            
+            // Aggiorna la progress bar
+            const progressPercent = (currentStep / steps.length) * 100;
+            if (progressFill) progressFill.style.width = progressPercent + '%';
+            if (progressText) progressText.textContent = `Step ${currentStep} di ${steps.length}`;
+        };
+
+        const openBtn = document.getElementById('openNuovaPermutaPopupBtn');
+        if (openBtn) {
+            openBtn.addEventListener('click', () => {
+                showPermutaStep(1);
+                const form = popup.querySelector('form');
+                if (form) form.reset();
+                // Imposta la data odierna
+                const dataPermutaInput = document.getElementById('data_permuta');
+                if (dataPermutaInput) {
+                    const today = new Date().toISOString().split('T')[0];
+                    dataPermutaInput.value = today;
+                }
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                const currentPane = popup.querySelector(`.permuta-step-pane[data-step="${currentStep}"]`);
+                if (currentPane) {
+                    const requiredInputs = currentPane.querySelectorAll('[required]');
+                    for (const input of requiredInputs) {
+                        if (!input.value) {
+                            showMessage('Compila tutti i campi obbligatori prima di procedere.', true);
+                            input.focus();
+                            return;
+                        }
+                    }
+                }
+                showPermutaStep(currentStep + 1);
+            });
+        }
+        
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => showPermutaStep(currentStep - 1));
+        }
+        
+        // Click sugli step per navigare direttamente
+        navSteps.forEach(ns => {
+            ns.addEventListener('click', () => {
+                const stepNum = parseInt(ns.dataset.step);
+                // Permetti di andare solo a step completati o step corrente
+                if (stepNum <= currentStep) {
+                    showPermutaStep(stepNum);
+                }
+            });
+        });
+    })();
+
     // --- Logica Specifica Autocomplete ---
     setupAutocomplete(
         document.getElementById('cliente_riparazione_autocomplete'),
@@ -3514,14 +3857,21 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
             document.getElementById('add_costo_btn_permuta').addEventListener('click', () => {
                 const container = document.getElementById('costi_ricondizionamento_container_permuta');
                 const newItem = document.createElement('div');
-                newItem.className = 'costo-item';
-                newItem.innerHTML = `<input type="text" name="costo_descrizione[]" placeholder="Descrizione Costo"><input type="number" name="costo_importo[]" step="0.01" min="0" class="costo-importo" value="0"><button type="button" class="remove-costo-btn">Rimuovi</button>`;
+                newItem.className = 'costo-item-modern';
+                newItem.innerHTML = `
+                    <input type="text" name="costo_descrizione[]" placeholder="Descrizione costo...">
+                    <input type="number" name="costo_importo[]" step="0.01" min="0" placeholder="0.00" class="costo-importo" value="0">
+                    <button type="button" class="btn-remove-costo"><i class="fas fa-times"></i></button>
+                `;
                 container.appendChild(newItem);
             });
             permutaForm.addEventListener('click', e => {
-                if (e.target.classList.contains('remove-costo-btn')) {
-                    e.target.parentElement.remove();
-                    permutaForm.dispatchEvent(new Event('input'));
+                if (e.target.classList.contains('btn-remove-costo') || e.target.closest('.btn-remove-costo')) {
+                    const item = e.target.closest('.costo-item-modern');
+                    if (item) {
+                        item.remove();
+                        permutaForm.dispatchEvent(new Event('input'));
+                    }
                 }
             });
         }
