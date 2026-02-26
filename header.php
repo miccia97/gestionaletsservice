@@ -863,55 +863,110 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
     .wizard-container, .popup-content {
       width: 100%;
       background-color: var(--bg-white);
-      border-radius: 12px; /* Coerenza con il nuovo stile */
-      box-shadow: var(--shadow-lg);
-      max-height: 95vh;
-      overflow-y: auto;
+      border-radius: 20px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+      max-height: 90vh;
+      height: 90vh;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
       position: relative;
-      animation: scaleInPopup 0.4s ease;
+      animation: slideUpPopup 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .wizard-container { max-width: 900px; }
-    .popup-content { max-width: 650px; }
+    .popup-content { max-width: 650px; height: auto; }
 
-    @keyframes scaleInPopup { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    @keyframes slideUpPopup { 
+      from { opacity: 0; transform: translateY(30px) scale(0.95); } 
+      to { opacity: 1; transform: translateY(0) scale(1); } 
+    }
 
     .close-btn {
         position: absolute;
-        top: 15px;
-        right: 15px; /* Avvicinato al bordo */
-        background: transparent;
+        top: 18px;
+        right: 20px;
+        width: 36px;
+        height: 36px;
+        background: rgba(255,255,255,0.2);
         border: none;
-        font-size: 2rem; /* Leggermente più piccolo */
-        color: rgba(255, 255, 255, 0.7); /* Adattato al nuovo header */
+        border-radius: 50%;
+        font-size: 1.4rem;
+        color: white;
         cursor: pointer;
         z-index: 10;
-        transition: color 0.2s ease, transform 0.2s ease;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         line-height: 1;
     }
-    .close-btn:hover { color: white; transform: rotate(90deg); }
+    .close-btn:hover { 
+      background: rgba(255,255,255,0.3);
+      transform: rotate(90deg);
+    }
     
-    /* MODIFICA: Stile popup header unificato */
-    .wizard-header, .popup-header, .modal-header {
-      padding: 1.2rem 2rem;
-      border-bottom: 1px solid var(--border-color);
+    /* Header Wizard con Gradiente */
+    .wizard-header, .popup-header {
+      padding: 1.8rem 2.5rem;
       flex-shrink: 0;
-      background-color: var(--brand-color); /* MODIFICA: Ripristinato colore solido */
+      background: linear-gradient(135deg, var(--brand-color) 0%, #20c997 100%);
       color: white;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-      border-radius: 12px 12px 0 0;
-      margin: 0;
+      border-radius: 20px 20px 0 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .wizard-header::before, .popup-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      pointer-events: none;
     }
     
-    .wizard-header h1, .popup-header h2, .modal-header h3 {
+    .wizard-header-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .wizard-header-icon {
+      width: 50px;
+      height: 50px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .wizard-header-icon svg {
+      width: 28px;
+      height: 28px;
+      stroke: white;
+      fill: none;
+    }
+    
+    .wizard-header h1, .popup-header h2 {
         text-align: center; margin: 0; font-size: 1.5rem;
-        font-weight: 600; color: white;
+        font-weight: 700; color: white;
+        letter-spacing: -0.3px;
     }
     
-    .modal-content .modal-header {
+    .modal-header {
         padding: 1.2rem 1.5rem;
+        background-color: var(--brand-color);
+        color: white;
+        border-radius: 12px 12px 0 0;
         margin: 0;
+    }
+    .modal-header h3 {
+        text-align: center; margin: 0; font-size: 1.3rem;
+        font-weight: 600; color: white;
     }
     
     .modal-content .close-button {
@@ -919,65 +974,192 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         font-size: 2rem;
     }
 
+    /* Stepper Navigation Moderno */
     .stepper-nav {
-      display: flex; justify-content: space-between;
-      padding: 1.5rem 2.5rem; border-bottom: 1px solid var(--border-color);
-      background-color: var(--bg-light);
+      display: flex;
+      justify-content: center;
+      padding: 0;
+      background-color: var(--bg-white);
+      border-bottom: 1px solid var(--border-color);
       flex-shrink: 0;
     }
+    .stepper-wrapper {
+      display: flex;
+      align-items: center;
+      padding: 1.5rem 2rem;
+      max-width: 600px;
+      width: 100%;
+    }
     .step {
-      display: flex; align-items: center; flex-direction: column;
-      text-align: center; position: relative; flex: 1;
+      display: flex; 
+      align-items: center; 
+      flex-direction: column;
+      text-align: center; 
+      position: relative; 
+      flex: 1;
+      cursor: pointer;
     }
-    .step-icon {
-      width: 45px; height: 45px; border-radius: 50%;
-      background-color: var(--border-color); color: var(--text-light);
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 600; transition: all 0.3s ease;
-      border: 3px solid var(--border-color); z-index: 2;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    .step-bubble {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--bg-light);
+      border: 2px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      z-index: 2;
     }
-    .step-label { font-size: 0.85rem; font-weight: 500; color: var(--text-light); margin-top: 0.6rem; transition: all 0.3s ease; }
-    .step.active .step-icon, .step.completed .step-icon { background-color: var(--brand-color); border-color: var(--brand-color); color: white; }
-    .step.completed .step-icon { background-color: var(--success-color); border-color: var(--success-color); }
-    .step.active .step-label { color: var(--brand-color); font-weight: 600; }
-    .step.completed .step-label { color: var(--success-color); }
+    .step-bubble svg {
+      width: 22px;
+      height: 22px;
+      stroke: var(--text-light);
+      stroke-width: 2;
+      fill: none;
+      transition: all 0.3s ease;
+    }
+    .step-label { 
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-light);
+      margin-top: 8px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    /* Step connector line */
     .step:not(:last-child)::after {
-      content: ''; position: absolute; top: 22px; left: 50%;
-      width: 100%; height: 3px; background-color: var(--border-color);
-      z-index: 1; transition: background-color 0.3s ease;
+      content: '';
+      position: absolute;
+      top: 24px;
+      left: calc(50% + 28px);
+      width: calc(100% - 56px);
+      height: 3px;
+      background: var(--border-color);
+      z-index: 1;
+      transition: all 0.4s ease;
     }
-    .step.completed::after { background-color: var(--success-color); }
+    /* Active step */
+    .step.active .step-bubble {
+      background: #e8f5e9;
+      border-color: var(--brand-color);
+      box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.15);
+    }
+    .step.active .step-bubble svg { stroke: var(--brand-color); }
+    .step.active .step-label { color: var(--brand-color); }
+    /* Completed step */
+    .step.completed .step-bubble {
+      background: var(--brand-color);
+      border-color: var(--brand-color);
+    }
+    .step.completed .step-bubble svg { stroke: white; }
+    .step.completed .step-label { color: var(--brand-color); }
+    .step.completed::after { background: var(--brand-color); }
 
     .wizard-body, .popup-body, .modal-body {
-        padding: 2.5rem;
-        background-color: #ffffff; /* Sfondo bianco per il corpo */
+        padding: 2rem 2.5rem;
+        background-color: #f8f9fa;
+        overflow-y: auto;
+        flex: 1;
+        min-height: 0; /* Importante per scroll in flexbox */
     }
     .modal-content .modal-body {
         padding: 1.5rem;
     }
     
-    .step-pane { display: none; animation: fadeIn 0.5s ease; }
-    .step-pane.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.8rem;
+    /* Form che avvolge body e footer */
+    .wizard-container form,
+    .popup-content form {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
     }
-    .form-group { display: flex; flex-direction: column; gap: 0.6rem; }
+    
+    /* Form Card per raggruppare campi */
+    .form-card {
+      background: white;
+      border-radius: 14px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      margin-bottom: 1rem;
+    }
+    .form-card-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-light);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .form-card-title svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--brand-color);
+    }
+    
+    .step-pane { display: none; animation: fadeInStep 0.4s ease; }
+    .step-pane.active { display: block; }
+    @keyframes fadeInStep { 
+      from { opacity: 0; transform: translateX(20px); } 
+      to { opacity: 1; transform: translateX(0); } 
+    }
+
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.25rem;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
     .form-group.full-width { grid-column: 1 / -1; }
-    label { font-weight: 500; font-size: 0.95rem; color: var(--text-dark); margin-bottom: 0.2rem; }
+    label { font-weight: 600; font-size: 0.85rem; color: #4a5568; margin-bottom: 0; }
+    
+    /* Input con icone */
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .input-wrapper .input-icon {
+      position: absolute;
+      left: 14px;
+      width: 18px;
+      height: 18px;
+      stroke: var(--text-light);
+      fill: none;
+      pointer-events: none;
+      transition: stroke 0.2s ease;
+    }
+    .input-wrapper input:focus ~ .input-icon {
+      stroke: var(--brand-color);
+    }
+    
     input, select, textarea {
-      width: 100%; padding: 0.85rem 1.1rem;
-      border: 1px solid #dcdfe6;
+      width: 100%; 
+      padding: 0.85rem 1rem;
+      border: 2px solid #e2e8f0;
       border-radius: 10px;
-      font-size: 1rem; color: var(--text-dark);
-      box-sizing: border-box; transition: all 0.2s ease;
+      font-size: 0.95rem; 
+      color: var(--text-dark);
+      box-sizing: border-box; 
+      transition: all 0.2s ease;
       background-color: white;
+      font-family: inherit;
+    }
+    .input-wrapper input {
+      padding-left: 44px;
     }
     input:focus, select:focus, textarea:focus {
-      border-color: var(--brand-color); outline: none; box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.2);
+      border-color: var(--brand-color); 
+      outline: none; 
+      box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.1);
     }
+    input::placeholder { color: #a0aec0; }
+    
     .client-input-container {
         position: relative;
         display: flex;
@@ -988,36 +1170,75 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         flex-grow: 1;
     }
 
+    /* Footer con Progress Bar */
     .wizard-footer, .popup-footer, .modal-footer {
       display: flex; 
       justify-content: space-between;
-      padding: 1.5rem 2.5rem; 
+      align-items: center;
+      padding: 1.25rem 2.5rem; 
       border-top: 1px solid var(--border-color);
-      background-color: #fdfdfd; 
+      background-color: white; 
       flex-shrink: 0;
       gap: 1rem;
-      border-radius: 0 0 12px 12px;
+      border-radius: 0 0 20px 20px;
     }
     .modal-footer {
         justify-content: flex-end;
+        border-radius: 0 0 12px 12px;
+    }
+    
+    /* Progress bar nel footer */
+    .wizard-progress-section {
+      flex: 1;
+      max-width: 280px;
+      margin: 0 1.5rem;
+    }
+    .wizard-progress-bar {
+      height: 6px;
+      background: var(--border-color);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .wizard-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--brand-color), #20c997);
+      border-radius: 3px;
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      width: 25%;
+    }
+    .wizard-progress-text {
+      font-size: 0.7rem;
+      color: var(--text-light);
+      margin-top: 5px;
+      text-align: center;
     }
 
     .wizard-btn, .popup-btn, .modal-footer button {
-      padding: 0.8rem 2.2rem;
-      font-size: 1.05rem; 
+      padding: 0.85rem 2rem;
+      font-size: 0.95rem; 
       font-weight: 600;
+      font-family: inherit;
       border-radius: 10px;
       border: none;
       cursor: pointer;
       transition: all 0.2s ease;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .wizard-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
     }
     .wizard-btn.prev, .modal-footer .cancel-button { 
-        background-color: #e0e6eb; 
-        color: var(--text-dark); 
+        background-color: #f1f5f9; 
+        color: #64748b;
+        border: 2px solid #e2e8f0;
     }
     .wizard-btn.prev:hover, .modal-footer .cancel-button:hover { 
-        background-color: #d1d9e0; 
+        background-color: #e2e8f0; 
     }
     .wizard-btn.next, .wizard-btn.submit, .popup-btn.submit, .modal-footer .save-button { 
         background-color: var(--brand-color); 
@@ -1037,17 +1258,109 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         border: none;
     }
     
+    /* Pattern Lock Section */
+    .pattern-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.5rem;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-radius: 16px;
+      border: 2px dashed #e2e8f0;
+    }
+    .pattern-section-header {
+      text-align: center;
+    }
+    .pattern-section-header h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 4px;
+    }
+    .pattern-section-header p {
+      font-size: 0.8rem;
+      color: var(--text-light);
+      margin: 0;
+    }
+    
     .pattern-lock {
         width: 180px; height: 180px; display: grid; grid-template-columns: repeat(3, 1fr);
         gap: 20px; position: relative; user-select: none; touch-action: none;
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     }
     #pattern-canvas { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1; }
     .pattern-dot {
-        width: 100%; height: 100%; background: #ecf0f1; border-radius: 50%;
-        border: 1px solid #dcdfe6; cursor: pointer; z-index: 2;
+        width: 100%; height: 100%; background: #e2e8f0; border-radius: 50%;
+        border: 3px solid #cbd5e1; cursor: pointer; z-index: 2;
         transition: all 0.2s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-    .pattern-dot.selected { background-color: var(--brand-color); border-color: var(--brand-dark); transform: scale(1.1); }
+    .pattern-dot:hover { background-color: #d1fae5; border-color: var(--brand-color); }
+    .pattern-dot.selected { background-color: var(--brand-color); border-color: var(--brand-dark); transform: scale(1.15); box-shadow: 0 4px 12px rgba(40,167,69,0.3); }
+    
+    .pattern-hint {
+      font-size: 0.75rem;
+      color: var(--text-light);
+      text-align: center;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .pattern-hint svg { width: 14px; height: 14px; stroke: var(--text-light); }
+    
+    /* Telefono Chip Display */
+    .telefono-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--brand-color) 0%, #20c997 100%);
+      color: white;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .telefono-chip svg { width: 16px; height: 16px; stroke: white; }
+    
+    /* Checkbox Wizard Style */
+    .checkbox-wrapper-wizard {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 1rem;
+      background: #f8fafc;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+    }
+    .checkbox-wrapper-wizard:hover { background: #f1f5f9; border-color: #e2e8f0; }
+    .checkbox-wrapper-wizard input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--brand-color);
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .checkbox-wrapper-wizard .checkbox-label {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .checkbox-wrapper-wizard .checkbox-label span:first-child {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-dark);
+    }
+    .checkbox-wrapper-wizard .checkbox-label span:last-child {
+      font-size: 0.8rem;
+      color: var(--text-light);
+    }
     
     .feedback { padding: 1rem 1.5rem; margin: 0 0 1.5rem 0; border-radius: 8px; font-weight: 500; border: 1px solid transparent; }
     .feedback.success { background-color: #eafaf1; border-color: #b7e1c7; color: #155724; }
@@ -1103,17 +1416,93 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
     .copy-message.show {
         opacity: 1;
     }
+    
+    /* Responsive Wizard */
+    @media (max-width: 768px) {
+        .wizard-container {
+            width: 100%;
+            height: 100%;
+            max-height: 100vh;
+            border-radius: 0;
+        }
+        .wizard-header {
+            padding: 1rem 1.25rem;
+            border-radius: 0;
+        }
+        .stepper-nav {
+            gap: 0.5rem;
+        }
+        .step-label {
+            display: none;
+        }
+        .step-bubble {
+            width: 36px;
+            height: 36px;
+        }
+        .step-bubble svg {
+            width: 16px;
+            height: 16px;
+        }
+        .wizard-body {
+            padding: 1rem 1.25rem;
+            min-height: 0;
+        }
+        .wizard-footer {
+            padding: 1rem;
+            flex-wrap: wrap;
+            border-radius: 0;
+            flex-shrink: 0;
+        }
+        .wizard-progress-section {
+            order: 3;
+            width: 100%;
+            max-width: 100%;
+            margin: 0.75rem 0 0 0;
+        }
+        .form-card {
+            padding: 1rem;
+        }
+        .pattern-lock {
+            width: 150px;
+            height: 150px;
+            padding: 15px;
+        }
+        #pattern-canvas {
+            width: 180px !important;
+            height: 180px !important;
+        }
+    }
+    
+    /* Tooltip per icone */
+    .icon-tooltip {
+        position: relative;
+    }
+    .icon-tooltip:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.8);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.75rem;
+        white-space: nowrap;
+        z-index: 10;
+    }
 
     /* Stili per il Modal/Popup (Nuovo Cliente) */
     .modal-overlay {
         position: fixed;
         inset: 0;
         background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
         display: flex;
         justify-content: center;
         align-items: center;
         z-index: 2010;
-        padding: 0.8rem;
+        padding: 1rem;
         opacity: 0;
         visibility: hidden;
         transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
@@ -1124,20 +1513,138 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
     }
     .modal-content {
         background: var(--bg-white);
-        padding: 0; /* Rimosso padding per far estendere header/footer */
-        border-radius: 12px;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        padding: 0;
+        border-radius: 16px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
         width: 95%;
-        max-width: 450px;
+        max-width: 480px;
         position: relative;
-        animation: scaleInPopup 0.4s ease;
-        max-height: 90vh;
-        overflow: hidden; /* Nasconde lo scroll del contenitore principale */
+        animation: slideUpPopup 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        max-height: 85vh;
+        overflow: hidden;
         display: flex;
         flex-direction: column;
     }
-     .modal-body {
-        overflow-y: auto; /* Abilita lo scroll solo per il corpo del modale */
+    
+    .modal-header {
+        padding: 1.5rem 2rem;
+        background: linear-gradient(135deg, var(--brand-color) 0%, #20c997 100%);
+        color: white;
+        border-radius: 16px 16px 0 0;
+        margin: 0;
+        position: relative;
+        flex-shrink: 0;
+    }
+    .modal-header h3 {
+        text-align: center;
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: white;
+    }
+    .modal-header .close-button {
+        position: absolute;
+        top: 50%;
+        right: 1rem;
+        transform: translateY(-50%);
+        width: 32px;
+        height: 32px;
+        background: rgba(255,255,255,0.2);
+        border: none;
+        border-radius: 50%;
+        font-size: 1.3rem;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+    }
+    .modal-header .close-button:hover {
+        background: rgba(255,255,255,0.3);
+        transform: translateY(-50%) rotate(90deg);
+    }
+    
+    .modal-body {
+        padding: 1.5rem 2rem;
+        overflow-y: auto;
+        flex: 1;
+        min-height: 200px;
+        background: #f8fafc;
+    }
+    .modal-body .form-group {
+        margin-bottom: 1rem;
+    }
+    .modal-body .form-group:last-child {
+        margin-bottom: 0;
+    }
+    .modal-body label {
+        display: block;
+        font-weight: 600;
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+    .modal-body input,
+    .modal-body textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        background: white;
+    }
+    .modal-body input:focus,
+    .modal-body textarea:focus {
+        border-color: var(--brand-color);
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.1);
+    }
+    .modal-body input::placeholder,
+    .modal-body textarea::placeholder {
+        color: #a0aec0;
+    }
+    
+    .modal-footer {
+        padding: 1.25rem 2rem;
+        background: white;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        flex-shrink: 0;
+        border-radius: 0 0 16px 16px;
+    }
+    .modal-footer .cancel-button,
+    .modal-footer .save-button {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .modal-footer .cancel-button {
+        background: #f1f5f9;
+        color: #64748b;
+        border: 2px solid #e2e8f0;
+    }
+    .modal-footer .cancel-button:hover {
+        background: #e2e8f0;
+    }
+    .modal-footer .save-button {
+        background: var(--brand-color);
+        color: white;
+    }
+    .modal-footer .save-button:hover {
+        background: var(--brand-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
     }
 
     .add-client-icon {
@@ -1160,45 +1667,78 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
     .tab-buttons {
         display: flex;
         justify-content: center;
-        margin-bottom: 1.2rem;
-        gap: 6px;
-        border-bottom: 1px solid #e2e8f0;
-        padding-bottom: 5px;
+        margin-bottom: 1.5rem;
+        gap: 8px;
+        background: white;
+        padding: 6px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
 
     .tab-button {
-        background-color: #e9ecef;
-        border: 1px solid #dee2e6;
-        padding: 8px 12px;
-        border-radius: 6px 6px 0 0;
+        background-color: transparent;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
         cursor: pointer;
-        font-size: 0.85em;
+        font-size: 0.85rem;
         font-weight: 600;
-        color: #495057;
-        transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        color: #64748b;
+        transition: all 0.2s ease;
         white-space: nowrap;
     }
 
     .tab-button.active {
-        background-color: #007bff;
+        background-color: #3b82f6;
         color: white;
-        border-color: #007bff;
-        border-bottom-color: transparent;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
     }
 
     .tab-button:hover:not(.active) {
-        background-color: #e2f0ff;
-        color: #0056b3;
+        background-color: #f1f5f9;
+        color: #334155;
     }
 
     .tab-content {
         display: none;
-        padding-top: 0.8rem;
         animation: fadeIn 0.3s ease-out;
     }
 
     .tab-content.active {
+        display: block !important;
+    }
+    
+    /* Assicura che i form-group dentro i tab siano visibili */
+    .modal-body .tab-content .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 1rem;
+    }
+    .modal-body .tab-content .form-group label {
         display: block;
+        font-weight: 600;
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-bottom: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+    .modal-body .tab-content .form-group input,
+    .modal-body .tab-content .form-group textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        background: white;
+        box-sizing: border-box;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .product-input-wrapper, .client-input-wrapper {
@@ -1704,78 +2244,310 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
 <!-- Qui inizia il blocco del popup/wizard della Nuova Scheda di Riparazione -->
 <div class="popup-overlay" id="riparazionePopup">
     <div class="wizard-container">
+        <button type="button" class="close-btn" id="close-riparazione-popup-btn">&times;</button>
+        
+        <!-- Header con icona -->
         <div class="wizard-header">
-            <h1>Nuova Scheda di Riparazione</h1>
-            <button type="button" class="close-btn" id="close-riparazione-popup-btn">&times;</button>
+            <div class="wizard-header-content">
+                <div class="wizard-header-icon">
+                    <svg viewBox="0 0 24 24" stroke-width="2">
+                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                    </svg>
+                </div>
+                <h1>Nuova Scheda di Riparazione</h1>
+            </div>
         </div>
 
+        <!-- Stepper con icone -->
         <div class="stepper-nav">
-            <div class="step active" data-step="1"><div class="step-icon">1</div><div class="step-label">Cliente</div></div>
-            <div class="step" data-step="2"><div class="step-icon">2</div><div class="step-label">Dispositivo</div></div>
-            <div class="step" data-step="3"><div class="step-icon">3</div><div class="step-label">Sblocco</div></div>
-            <div class="step" data-step="4"><div class="step-icon">4</div><div class="step-label">Laboratorio</div></div>
+            <div class="stepper-wrapper">
+                <div class="step active" data-step="1">
+                    <div class="step-bubble">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <div class="step-label">Cliente</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-bubble">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                            <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                        </svg>
+                    </div>
+                    <div class="step-label">Dispositivo</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-bubble">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                    </div>
+                    <div class="step-label">Sblocco</div>
+                </div>
+                <div class="step" data-step="4">
+                    <div class="step-bubble">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                        </svg>
+                    </div>
+                    <div class="step-label">Laboratorio</div>
+                </div>
+            </div>
         </div>
         
         <form method="POST" action="" id="riparazione-form">
             <input type="hidden" name="form_type" value="riparazione">
             <div class="wizard-body">
                 <?php if(!empty($feedback_message)) echo $feedback_message; ?>
+                
                 <!-- Step 1: Cliente -->
                 <div class="step-pane active" data-step="1">
-                    <div class="form-grid">
-                        <div class="form-group full-width">
-                            <label for="cliente_riparazione_autocomplete">Seleziona Cliente *</label>
-                            <div class="client-input-container">
-                                <input type="text" id="cliente_riparazione_autocomplete" name="cliente_display_riparazione" placeholder="Cerca o seleziona cliente" autocomplete="off" required>
-                                <input type="hidden" id="cliente_id_riparazione" name="cliente_id">
-                                <div id="cliente_suggestions_riparazione" class="autocomplete-list"></div>
-                                <i class="fas fa-plus-circle add-client-icon" id="open_new_client_modal_btn_riparazione" title="Aggiungi nuovo cliente"></i>
-                            </div>
+                    <div class="form-card">
+                        <div class="form-card-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            Dati Cliente
                         </div>
-                        <div class="form-group full-width">
-                            <label for="telefono_riparazione_display">Telefono</label>
-                            <input type="text" id="telefono_riparazione_display" name="telefono_display" readonly placeholder="Il telefono apparirà qui...">
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label for="cliente_riparazione_autocomplete">Seleziona Cliente *</label>
+                                <div class="client-input-container">
+                                    <input type="text" id="cliente_riparazione_autocomplete" name="cliente_display_riparazione" placeholder="Cerca o seleziona cliente..." autocomplete="off" required>
+                                    <input type="hidden" id="cliente_id_riparazione" name="cliente_id">
+                                    <div id="cliente_suggestions_riparazione" class="autocomplete-list"></div>
+                                    <i class="fas fa-plus-circle add-client-icon" id="open_new_client_modal_btn_riparazione" title="Aggiungi nuovo cliente"></i>
+                                </div>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Telefono</label>
+                                <div class="telefono-chip" id="telefono-chip-riparazione">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                                    </svg>
+                                    <span id="telefono_riparazione_text">Seleziona un cliente...</span>
+                                </div>
+                                <input type="hidden" id="telefono_riparazione_display" name="telefono_display">
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Step 2: Dispositivo -->
                 <div class="step-pane" data-step="2">
-                    <div class="form-grid">
-                        <div class="form-group"><label for="modello">Modello Dispositivo *</label><input type="text" id="modello" name="modello" required autocomplete="off"></div>
-                        <div class="form-group"><label for="imei_riparazione">IMEI / Seriale</label><input type="text" id="imei_riparazione" name="imei" autocomplete="off"></div>
-                        <div class="form-group full-width"><label for="diagnosi">Diagnosi / Problema riscontrato</label><textarea id="diagnosi" name="diagnosi" rows="4" required></textarea></div>
+                    <div class="form-card">
+                        <div class="form-card-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                            </svg>
+                            Informazioni Dispositivo
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="modello">Modello Dispositivo *</label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="modello" name="modello" required autocomplete="off" placeholder="es. iPhone 14 Pro">
+                                    <svg class="input-icon" viewBox="0 0 24 24">
+                                        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                                        <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="imei_riparazione">IMEI / Seriale</label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="imei_riparazione" name="imei" autocomplete="off" placeholder="Inserisci IMEI">
+                                    <svg class="input-icon" viewBox="0 0 24 24">
+                                        <rect x="3" y="4" width="18" height="4" rx="1"></rect>
+                                        <path d="M3 8h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="diagnosi">Diagnosi / Problema riscontrato *</label>
+                                <textarea id="diagnosi" name="diagnosi" rows="4" required placeholder="Descrivi il problema segnalato dal cliente..."></textarea>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Step 3: Sblocco -->
                 <div class="step-pane" data-step="3">
-                     <div class="form-grid">
-                        <div class="form-group">
-                            <label for="codice_sblocco">Codice Sblocco (PIN / Password)</label><input type="text" id="codice_sblocco" name="codice_sblocco" autocomplete="off">
-                            <label for="account" style="margin-top: 1.5rem;">Account collegati (Google, iCloud, etc.)</label><input type="text" id="account" name="account" autocomplete="off">
+                    <div class="form-card">
+                        <div class="form-card-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                            Codici di Sblocco
                         </div>
-                        <div class="form-group" style="align-items:center;"><label>Codice Sblocco Grafico (Pattern)</label><div id="pattern-lock" class="pattern-lock"><canvas id="pattern-canvas" width="180" height="180"></canvas><div class="pattern-dot" data-dot="1"></div><div class="pattern-dot" data-dot="2"></div><div class="pattern-dot" data-dot="3"></div><div class="pattern-dot" data-dot="4"></div><div class="pattern-dot" data-dot="5"></div><div class="pattern-dot" data-dot="6"></div><div class="pattern-dot" data-dot="7"></div><div class="pattern-dot" data-dot="8"></div><div class="pattern-dot" data-dot="9"></div></div><input type="hidden" id="unlock-pattern" name="codice_sblocco_grafico" /></div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="codice_sblocco">Codice PIN / Password</label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="codice_sblocco" name="codice_sblocco" autocomplete="off" placeholder="es. 123456">
+                                    <svg class="input-icon" viewBox="0 0 24 24">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="account">Account (Google, iCloud...)</label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="account" name="account" autocomplete="off" placeholder="es. email@esempio.com">
+                                    <svg class="input-icon" viewBox="0 0 24 24">
+                                        <circle cx="12" cy="12" r="4"></circle>
+                                        <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Codice Sblocco Grafico (Pattern)</label>
+                                <div class="pattern-section">
+                                    <div class="pattern-section-header">
+                                        <h4>🔒 Pattern Lock</h4>
+                                        <p>Trascinare per disegnare la sequenza</p>
+                                    </div>
+                                    <div id="pattern-lock" class="pattern-lock">
+                                        <canvas id="pattern-canvas" width="220" height="220"></canvas>
+                                        <div class="pattern-dot" data-dot="1"></div>
+                                        <div class="pattern-dot" data-dot="2"></div>
+                                        <div class="pattern-dot" data-dot="3"></div>
+                                        <div class="pattern-dot" data-dot="4"></div>
+                                        <div class="pattern-dot" data-dot="5"></div>
+                                        <div class="pattern-dot" data-dot="6"></div>
+                                        <div class="pattern-dot" data-dot="7"></div>
+                                        <div class="pattern-dot" data-dot="8"></div>
+                                        <div class="pattern-dot" data-dot="9"></div>
+                                    </div>
+                                    <input type="hidden" id="unlock-pattern" name="codice_sblocco_grafico" />
+                                    <p class="pattern-hint">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <path d="M12 16v-4"></path>
+                                            <path d="M12 8h.01"></path>
+                                        </svg>
+                                        Clicca su Reset per cancellare
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
                 <!-- Step 4: Laboratorio -->
                 <div class="step-pane" data-step="4">
-                    <div class="form-grid">
-                        <div class="form-group"><label for="costo_preventivato">Costo Preventivato (€)</label><input type="number" id="costo_preventivato" name="costo_preventivato" step="0.01" min="0"></div>
-                        <div class="form-group"><label for="costo_effettivo">Costo Effettivo (€)</label><input type="number" id="costo_effettivo" name="costo_effettivo" step="0.01" min="0"></div>
-                        <div class="form-group full-width"><label for="hardware_ritirato">Hardware ritirato</label><input type="text" id="hardware_ritirato" name="hardware_ritirato"></div>
-                        <div class="form-group"><label for="dispositivo_sostitutivo">Dispositivo sostitutivo</label><input type="text" id="dispositivo_sostitutivo" name="dispositivo_sostitutivo"></div>
-                        <div class="form-group"><label for="stato">Stato lavorazione</label><select id="stato" name="stato"><option value="In attesa">In attesa</option><option value="In lavorazione">In lavorazione</option><option value="Completata">Completata</option><option value="In attesa di ricambi">In attesa di ricambi</option><option value="Non riparabile">Non riparabile</option><option value="Consegnata">Consegnata</option><option value="Annullata">Annullata</option></select></div>
-                        <div class="form-group" style="flex-direction: row; align-items:center;"><input type="checkbox" id="salva_dati" name="salva_dati" value="1" style="width:auto;margin-right:10px;"><label for="salva_dati">Richiesto salvataggio dati</label></div>
+                    <div class="form-card">
+                        <div class="form-card-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="1" x2="12" y2="23"></line>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            </svg>
+                            Costi e Preventivo
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="costo_preventivato">Costo Preventivato (€)</label>
+                                <div class="input-wrapper">
+                                    <input type="number" id="costo_preventivato" name="costo_preventivato" step="0.01" min="0" placeholder="0.00">
+                                    <svg class="input-icon" viewBox="0 0 24 24">
+                                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="costo_effettivo">Costo Effettivo (€)</label>
+                                <div class="input-wrapper">
+                                    <input type="number" id="costo_effettivo" name="costo_effettivo" step="0.01" min="0" placeholder="0.00">
+                                    <svg class="input-icon" viewBox="0 0 24 24">
+                                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-card">
+                        <div class="form-card-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                            </svg>
+                            Dettagli Lavorazione
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="hardware_ritirato">Hardware ritirato</label>
+                                <input type="text" id="hardware_ritirato" name="hardware_ritirato" placeholder="es. Caricatore, cover...">
+                            </div>
+                            <div class="form-group">
+                                <label for="dispositivo_sostitutivo">Dispositivo sostitutivo</label>
+                                <input type="text" id="dispositivo_sostitutivo" name="dispositivo_sostitutivo" placeholder="Lasciato al cliente?">
+                            </div>
+                            <div class="form-group">
+                                <label for="stato">Stato lavorazione</label>
+                                <select id="stato" name="stato">
+                                    <option value="In attesa">⏳ In attesa</option>
+                                    <option value="In lavorazione">🔧 In lavorazione</option>
+                                    <option value="Completata">✅ Completata</option>
+                                    <option value="In attesa di ricambi">📦 In attesa ricambi</option>
+                                    <option value="Non riparabile">❌ Non riparabile</option>
+                                    <option value="Consegnata">📤 Consegnata</option>
+                                    <option value="Annullata">🚫 Annullata</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <label class="checkbox-wrapper-wizard">
+                                    <input type="checkbox" id="salva_dati" name="salva_dati" value="1">
+                                    <div class="checkbox-label">
+                                        <span>Salvataggio Dati</span>
+                                        <span>Il cliente richiede backup dei dati</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="wizard-footer">
-                <button type="button" class="wizard-btn prev" id="prev-btn" style="display: none;">Indietro</button>
-                <button type="button" class="wizard-btn next" id="next-btn">Avanti</button>
-                <button type="submit" class="wizard-btn submit" id="submit-riparazione-btn" style="display: none;">Salva Scheda</button>
+                <button type="button" class="wizard-btn prev" id="prev-btn" style="display: none;">
+                    <svg viewBox="0 0 24 24">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    Indietro
+                </button>
+                
+                <div class="wizard-progress-section">
+                    <div class="wizard-progress-bar">
+                        <div class="wizard-progress-fill" id="wizard-progress-fill"></div>
+                    </div>
+                    <div class="wizard-progress-text" id="wizard-progress-text">Step 1 di 4</div>
+                </div>
+                
+                <button type="button" class="wizard-btn next" id="next-btn">
+                    Avanti
+                    <svg viewBox="0 0 24 24">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </button>
+                <button type="submit" class="wizard-btn submit" id="submit-riparazione-btn" style="display: none;">
+                    <svg viewBox="0 0 24 24">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Salva Scheda
+                </button>
             </div>
         </form>
     </div>
@@ -2297,71 +3069,71 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
             <h3>Aggiungi Nuovo Cliente</h3>
             <button type="button" class="close-button" id="close_new_client_modal_btn">&times;</button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body" style="display: block; padding: 1.5rem;">
             <div class="tab-buttons">
                 <button type="button" class="tab-button active" data-tab="personal_data_tab">Dati Personali</button>
                 <button type="button" class="tab-button" data-tab="company_data_tab">Dati Aziendali</button>
             </div>
 
-            <div id="personal_data_tab" class="tab-content active">
-                <div class="form-group">
+            <div id="personal_data_tab" class="tab-content active" style="display: block;">
+                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
                     <label for="modal_nuovo_cliente_nome">Nome:</label>
-                    <input type="text" id="modal_nuovo_cliente_nome" placeholder="Nome" required>
+                    <input type="text" id="modal_nuovo_cliente_nome" placeholder="Nome" required style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
                     <label for="modal_nuovo_cliente_cognome">Cognome:</label>
-                    <input type="text" id="modal_nuovo_cliente_cognome" placeholder="Cognome" required>
+                    <input type="text" id="modal_nuovo_cliente_cognome" placeholder="Cognome" required style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
                     <label for="modal_nuovo_cliente_telefono">Telefono:</label>
-                    <input type="text" id="modal_nuovo_cliente_telefono" placeholder="Es: 3331234567" pattern="[0-9]{10,15}">
+                    <input type="text" id="modal_nuovo_cliente_telefono" placeholder="Es: 3331234567" pattern="[0-9]{10,15}" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
                     <label for="modal_nuovo_cliente_email">Email:</label>
-                    <input type="email" id="modal_nuovo_cliente_email" placeholder="nome@esempio.com">
+                    <input type="email" id="modal_nuovo_cliente_email" placeholder="nome@esempio.com" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
                     <label for="modal_nuovo_cliente_indirizzo">Indirizzo:</label>
-                    <input type="text" id="modal_nuovo_cliente_indirizzo" placeholder="Via Roma, 1">
+                    <input type="text" id="modal_nuovo_cliente_indirizzo" placeholder="Via Roma, 1" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
                     <label for="modal_nuovo_cliente_citta">Città:</label>
-                    <input type="text" id="modal_nuovo_cliente_citta" placeholder="Roma">
+                    <input type="text" id="modal_nuovo_cliente_citta" placeholder="Roma" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
                     <label for="modal_nuovo_cliente_note">Note:</label>
-                    <textarea id="modal_nuovo_cliente_note" rows="3" placeholder="Note aggiuntive sul cliente"></textarea>
+                    <textarea id="modal_nuovo_cliente_note" rows="3" placeholder="Note aggiuntive sul cliente" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;"></textarea>
                 </div>
             </div>
 
-            <div id="company_data_tab" class="tab-content">
-                <div class="form-group">
+            <div id="company_data_tab" class="tab-content" style="display: none;">
+                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
                     <label for="modal_nuovo_cliente_ragione_sociale">Ragione Sociale:</label>
-                    <input type="text" id="modal_nuovo_cliente_ragione_sociale" placeholder="Nome S.p.A.">
+                    <input type="text" id="modal_nuovo_cliente_ragione_sociale" placeholder="Nome S.p.A." style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
                     <label for="modal_nuovo_cliente_partita_iva">Partita IVA:</label>
-                    <input type="text" id="modal_nuovo_cliente_partita_iva" placeholder="IT12345678901">
+                    <input type="text" id="modal_nuovo_cliente_partita_iva" placeholder="IT12345678901" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
                     <label for="modal_nuovo_cliente_indirizzo_azienda">Indirizzo Azienda:</label>
-                    <input type="text" id="modal_nuovo_cliente_indirizzo_azienda" placeholder="Via dell'Industria, 5">
+                    <input type="text" id="modal_nuovo_cliente_indirizzo_azienda" placeholder="Via dell'Industria, 5" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
                     <label for="modal_nuovo_cliente_citta_azienda">Città Azienda:</label>
-                    <input type="text" id="modal_nuovo_cliente_citta_azienda" placeholder="Milano">
+                    <input type="text" id="modal_nuovo_cliente_citta_azienda" placeholder="Milano" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
                     <label for="modal_nuovo_cliente_telefono_azienda">Telefono Azienda:</label>
-                    <input type="text" id="modal_nuovo_cliente_telefono_azienda" placeholder="Es: 0212345678" pattern="[0-9]{10,15}">
+                    <input type="text" id="modal_nuovo_cliente_telefono_azienda" placeholder="Es: 0212345678" pattern="[0-9]{10,15}" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
                     <label for="modal_nuovo_cliente_email_azienda">Email Azienda:</label>
-                    <input type="email" id="modal_nuovo_cliente_email_azienda" placeholder="info@azienda.com">
+                    <input type="email" id="modal_nuovo_cliente_email_azienda" placeholder="info@azienda.com" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
                     <label for="modal_nuovo_cliente_note_azienda">Note Azienda:</label>
-                    <textarea id="modal_nuovo_cliente_note_azienda" rows="3" placeholder="Note aggiuntive sull'azienda"></textarea>
+                    <textarea id="modal_nuovo_cliente_note_azienda" rows="3" placeholder="Note aggiuntive sull'azienda" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;"></textarea>
                 </div>
             </div>
         </div>
@@ -2477,9 +3249,14 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         }
 
         function showTab(tabId) {
-            tabContents.forEach(c => c.classList.remove('active'));
+            tabContents.forEach(c => {
+                c.classList.remove('active');
+                c.style.display = 'none';
+            });
             tabButtons.forEach(b => b.classList.remove('active'));
-            modalOverlay.querySelector(`#${tabId}`).classList.add('active');
+            const targetTab = modalOverlay.querySelector(`#${tabId}`);
+            targetTab.classList.add('active');
+            targetTab.style.display = 'block';
             modalOverlay.querySelector(`.tab-button[data-tab="${tabId}"]`).classList.add('active');
         }
 
@@ -2595,6 +3372,8 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         const submitBtn = popup.querySelector('#submit-riparazione-btn');
         const steps = popup.querySelectorAll('.step-pane');
         const navSteps = popup.querySelectorAll('.stepper-nav .step');
+        const progressFill = popup.querySelector('#wizard-progress-fill');
+        const progressText = popup.querySelector('#wizard-progress-text');
         let currentStep = 1;
 
         window.showRiparazioneStep = (stepNumber) => {
@@ -2605,9 +3384,14 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
                 ns.classList.toggle('active', stepNum === currentStep);
                 ns.classList.toggle('completed', stepNum < currentStep);
             });
-            prevBtn.style.display = currentStep > 1 ? 'inline-block' : 'none';
-            nextBtn.style.display = currentStep < steps.length ? 'inline-block' : 'none';
-            submitBtn.style.display = currentStep === steps.length ? 'inline-block' : 'none';
+            prevBtn.style.display = currentStep > 1 ? 'flex' : 'none';
+            nextBtn.style.display = currentStep < steps.length ? 'flex' : 'none';
+            submitBtn.style.display = currentStep === steps.length ? 'flex' : 'none';
+            
+            // Aggiorna la progress bar
+            const progressPercent = (currentStep / steps.length) * 100;
+            if (progressFill) progressFill.style.width = progressPercent + '%';
+            if (progressText) progressText.textContent = `Step ${currentStep} di ${steps.length}`;
         };
 
         document.getElementById('openNuovaAssistenzaPopupBtn').addEventListener('click', () => {
@@ -2643,6 +3427,11 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         client => {
             document.getElementById('cliente_id_riparazione').value = client.id;
             document.getElementById('telefono_riparazione_display').value = client.telefono_principale || '';
+            // Aggiorna il telefono chip
+            const telefonoText = document.getElementById('telefono_riparazione_text');
+            if (telefonoText) {
+                telefonoText.textContent = client.telefono_principale || 'Nessun numero';
+            }
         }
     );
     setupAutocomplete(

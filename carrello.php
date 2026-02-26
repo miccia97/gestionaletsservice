@@ -277,53 +277,291 @@ foreach ($carrello as $item) {
         margin-bottom: 0;
     }
 
+    /* === RIEPILOGO PAGAMENTO - REDESIGN MODERNO === */
     .payment-summary-box h3 {
-        margin-top: 0;
-        font-size: 22px;
-        color: #333;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 10px;
-        margin-bottom: 20px;
+        margin: 0 0 20px 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: #1a1a2e;
         text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
     }
-    .payment-summary-box p {
+    .payment-summary-box h3::before {
+        content: '';
+        width: 24px;
+        height: 24px;
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Sezioni del riepilogo */
+    .summary-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    .summary-section.totals {
+        background: linear-gradient(135deg, #f0fff4 0%, #e6f4ea 100%);
+        border: 1px solid rgba(40, 167, 69, 0.2);
+    }
+    .summary-section.options {
+        background: #fff;
+        border: 1px solid #e9ecef;
+    }
+    .summary-section-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #6c757d;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .summary-section-title svg {
+        width: 14px;
+        height: 14px;
+        stroke: #6c757d;
+    }
+
+    /* Righe del riepilogo */
+    .summary-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 10px;
-        font-size: 15px;
+        padding: 8px 0;
+        border-bottom: 1px dashed #dee2e6;
     }
-    .payment-summary-box p strong {
-        color: #222;
-        font-weight: 600;
+    .summary-row:last-child {
+        border-bottom: none;
     }
-    .payment-summary-box p span {
-        color: #555;
-    }
-    .payment-summary-box #totale-vendita {
-        background-color:#28a745;
-        color:white;
-        padding:12px;
-        font-weight:bold;
-        font-size:1.3em;
-        margin: 15px 0;
-        border-radius: 8px;
-        text-align: center;
-    }
-    .payment-summary-box div label {
+    .summary-row .label {
+        font-size: 13px;
+        color: #495057;
         display: flex;
         align-items: center;
-        margin-bottom: 8px;
-        font-size: 14px;
-        color: #555;
-        cursor: pointer;
+        gap: 8px;
     }
-    .payment-summary-box input[type="checkbox"] {
-        margin-right: 8px;
+    .summary-row .label svg {
+        width: 16px;
+        height: 16px;
+        stroke: #6c757d;
+    }
+    .summary-row .value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #212529;
+    }
+
+    /* Totale vendita grande */
+    .total-vendita-box {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 16px 20px;
+        border-radius: 12px;
+        margin: 15px 0;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    .total-vendita-box::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    .total-vendita-box .total-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.9;
+        margin-bottom: 5px;
+    }
+    .total-vendita-box .total-amount {
+        font-size: 28px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    /* Da pagare */
+    .da-pagare-row {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 8px;
+        padding: 12px 15px;
+        margin: 10px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .da-pagare-row .label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #856404;
+    }
+    .da-pagare-row .value {
+        font-size: 16px;
+        font-weight: 700;
+        color: #856404;
+    }
+
+    /* Residuo */
+    .residuo-box {
+        border-radius: 8px;
+        padding: 12px 15px;
+        margin: 10px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+    /* Residuo - Design minimale */
+    .residuo-box.has-residuo {
+        background: transparent;
+        border: none;
+        border-left: 3px solid #e74c3c;
+        border-radius: 0;
+        padding: 10px 15px;
+    }
+    .residuo-box.has-resto {
+        background: transparent;
+        border: none;
+        border-left: 3px solid #3498db;
+        border-radius: 0;
+        padding: 10px 15px;
+    }
+    .residuo-box.no-residuo {
+        background: transparent;
+        border: none;
+        border-left: 3px solid #27ae60;
+        border-radius: 0;
+        padding: 10px 15px;
+    }
+    .residuo-box .label {
+        font-size: 13px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #666;
+    }
+    .residuo-box .value {
+        font-size: 18px;
+        font-weight: 700;
+    }
+    .residuo-box.has-residuo .value { color: #e74c3c; }
+    .residuo-box.has-resto .value { color: #3498db; }
+    .residuo-box.no-residuo .value { color: #27ae60; }
+    .residuo-box .icon {
+        width: 18px;
+        height: 18px;
+        stroke: #888;
+    }
+
+    /* Checkbox stilizzate */
+    .checkbox-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+    }
+    .checkbox-item:hover {
+        background: #e9ecef;
+        border-color: #dee2e6;
+    }
+    .checkbox-item.checked {
+        background: #e6f4ea;
+        border-color: #28a745;
+    }
+    .checkbox-item input[type="checkbox"] {
         width: 18px;
         height: 18px;
         accent-color: #28a745;
         cursor: pointer;
+        margin: 0;
+    }
+    .checkbox-item .checkbox-label {
+        font-size: 13px;
+        color: #495057;
+        flex: 1;
+    }
+    .checkbox-item .checkbox-icon {
+        width: 18px;
+        height: 18px;
+        stroke: #6c757d;
+    }
+
+    /* Opzioni stampa */
+    .print-options {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .print-option {
+        flex: 1;
+        min-width: 100px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+    }
+    .print-option:hover {
+        background: #e9ecef;
+    }
+    .print-option.checked {
+        background: #e0f2fe;
+        border-color: #0ea5e9;
+    }
+    .print-option input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #0ea5e9;
+        cursor: pointer;
+        margin: 0;
+    }
+    .print-option .print-label {
+        font-size: 12px;
+        color: #495057;
+    }
+
+    /* Divider */
+    .summary-divider {
+        height: 1px;
+        background: linear-gradient(to right, transparent, #dee2e6, transparent);
+        margin: 15px 0;
+    }
+
+    /* Vecchi stili per compatibilità */
+    .payment-summary-box p {
+        display: none; /* Nascosto - usiamo nuova struttura */
     }
 
     .cart-summary-main h2 {
@@ -871,35 +1109,147 @@ include 'header.php';
         </div>
     </div>
 
-    <!-- Riepilogo Pagamento Section Box -->
+    <!-- Riepilogo Pagamento Section Box - REDESIGN -->
     <div id="riepilogo-pagamento-box" class="payment-summary-box">
-        <h3>Riepilogo Pagamento</h3>
+        <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                <line x1="1" y1="10" x2="23" y2="10"></line>
+            </svg>
+            Riepilogo Pagamento
+        </h3>
 
-        <p><strong>Totale quantità:</strong> <span id="totale-quantita"><?= $quantitaTotaleIniziale ?></span></p>
-
-        <p><strong>Totale articoli:</strong> <span id="totale-articoli"><?= $totaleArticoliUniciIniziale ?></span></p>
-
-        <p><strong>Imponibile:</strong> € <span id="imponibile">0,00</span></p>
-
-        <p><strong>Totale vendita:</strong></p>
-        <div id="totale-vendita">
-            € <?= number_format($totaleVenditaIniziale, 2, ',', '.') ?>
+        <!-- Sezione Quantità -->
+        <div class="summary-section totals">
+            <div class="summary-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                </svg>
+                Dettagli Ordine
+            </div>
+            <div class="summary-row">
+                <span class="label">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                    Quantità totale
+                </span>
+                <span class="value" id="totale-quantita"><?= $quantitaTotaleIniziale ?></span>
+            </div>
+            <div class="summary-row">
+                <span class="label">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="3" y1="9" x2="21" y2="9"></line>
+                        <line x1="9" y1="21" x2="9" y2="9"></line>
+                    </svg>
+                    Articoli
+                </span>
+                <span class="value" id="totale-articoli"><?= $totaleArticoliUniciIniziale ?></span>
+            </div>
+            <div class="summary-row">
+                <span class="label">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                    Imponibile
+                </span>
+                <span class="value">€ <span id="imponibile">0,00</span></span>
+            </div>
         </div>
 
-        <p><strong>Totale da pagare:</strong> € <span id="totale-da-pagare">0,00</span></p>
-
-        <div>
-            <label><input type="checkbox" id="chk-saldo" name="pagamento" value="saldo"> Saldo</label><br>
-            <label><input type="checkbox" id="chk-acconto" name="pagamento" value="acconto"> Acconto</label>
+        <!-- Totale Vendita Grande -->
+        <div class="total-vendita-box" id="totale-vendita">
+            <div class="total-label">Totale Vendita</div>
+            <div class="total-amount">€ <?= number_format($totaleVenditaIniziale, 2, ',', '.') ?></div>
         </div>
 
-        <p><strong>Residuo:</strong> <span id="residuo">€ 0,00</span></p>
-        <div style="margin-top:20px;">
-            <label><input type="checkbox" id="chk-stampante2"> Stampante 2</label><br>
-            <label>
-                <input type="checkbox" id="chk-scontrino"> Scontrino
-                <input type="checkbox" id="chk-scontrino-cortesia" title="Scontrino Cortesia" style="margin-left: 10px;">
-            </label>
+        <!-- Da Pagare -->
+        <div class="da-pagare-row">
+            <span class="label">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                Da pagare
+            </span>
+            <span class="value">€ <span id="totale-da-pagare">0,00</span></span>
+        </div>
+
+        <!-- Opzioni Pagamento -->
+        <div class="summary-section options">
+            <div class="summary-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                Tipo Pagamento
+            </div>
+            <div class="checkbox-group">
+                <label class="checkbox-item" onclick="this.classList.toggle('checked')">
+                    <input type="checkbox" id="chk-saldo" name="pagamento" value="saldo">
+                    <svg class="checkbox-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    <span class="checkbox-label">Saldo (pagamento completo)</span>
+                </label>
+                <label class="checkbox-item" onclick="this.classList.toggle('checked')">
+                    <input type="checkbox" id="chk-acconto" name="pagamento" value="acconto">
+                    <svg class="checkbox-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span class="checkbox-label">Acconto (pagamento parziale)</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Residuo -->
+        <div class="residuo-box has-residuo" id="residuo-container">
+            <span class="label">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                Residuo
+            </span>
+            <span class="value" id="residuo">€ 0,00</span>
+        </div>
+
+        <div class="summary-divider"></div>
+
+        <!-- Opzioni Stampa -->
+        <div class="summary-section options">
+            <div class="summary-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+                Opzioni Stampa
+            </div>
+            <div class="print-options">
+                <label class="print-option" onclick="this.classList.toggle('checked')">
+                    <input type="checkbox" id="chk-stampante2">
+                    <span class="print-label">Stampante 2</span>
+                </label>
+                <label class="print-option" onclick="this.classList.toggle('checked')">
+                    <input type="checkbox" id="chk-scontrino">
+                    <span class="print-label">Scontrino</span>
+                </label>
+                <label class="print-option" onclick="this.classList.toggle('checked')">
+                    <input type="checkbox" id="chk-scontrino-cortesia" title="Scontrino Cortesia">
+                    <span class="print-label">Cortesia</span>
+                </label>
+            </div>
         </div>
     </div>
 
@@ -1157,25 +1507,52 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('totale-quantita').textContent = totaleQuantita;
         document.getElementById('totale-articoli').textContent = totaleArticoliUnici;
         document.getElementById('imponibile').textContent = imponibile.toFixed(2).replace('.', ',');
-        document.getElementById('totale-vendita').textContent = `€ ${totaleVenditaCalcolato.toFixed(2).replace('.', ',')}`;
+        
+        // Aggiorna il totale vendita con la nuova struttura
+        const totaleVenditaBox = document.getElementById('totale-vendita');
+        totaleVenditaBox.innerHTML = `
+            <div class="total-label">Totale Vendita</div>
+            <div class="total-amount">€ ${totaleVenditaCalcolato.toFixed(2).replace('.', ',')}</div>
+        `;
+        
         document.getElementById('totale-da-pagare').textContent = totaleDaPagare.toFixed(2).replace('.', ',');
 
+        // Aggiorna il residuo con la nuova struttura
         const residuoSpan = document.getElementById('residuo');
-        // Rimuovi tutte le classi highlight per resettare lo stile
-        residuoSpan.classList.remove('highlight-positive', 'highlight-negative');
+        const residuoContainer = document.getElementById('residuo-container');
+        
+        // Rimuovi tutte le classi per resettare lo stile
+        residuoContainer.classList.remove('has-residuo', 'has-resto', 'no-residuo');
 
         if (residuo > 0) { // C'è ancora un residuo da pagare
-            residuoSpan.textContent = `Residuo da pagare: € ${residuo.toFixed(2).replace('.', ',')}`;
-            residuoSpan.classList.add('highlight-positive'); // Applica lo stile per residuo positivo
+            residuoSpan.textContent = `€ ${residuo.toFixed(2).replace('.', ',')}`;
+            residuoContainer.classList.add('has-residuo');
+            residuoContainer.querySelector('.label').innerHTML = `
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                Da pagare
+            `;
         } else if (residuo < 0) { // C'è un resto da dare al cliente
-            residuoSpan.textContent = `Resto da dare: € ${Math.abs(residuo).toFixed(2).replace('.', ',')}`;
-            residuoSpan.classList.add('highlight-negative'); // Applica lo stile per residuo negativo (resto)
-        } else { // Pagato esattamente, residuo zero
+            residuoSpan.textContent = `€ ${Math.abs(residuo).toFixed(2).replace('.', ',')}`;
+            residuoContainer.classList.add('has-resto');
+            residuoContainer.querySelector('.label').innerHTML = `
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="19" x2="12" y2="5"></line>
+                    <polyline points="5 12 12 5 19 12"></polyline>
+                </svg>
+                Resto
+            `;
+        } else { // Pagato esattamente
             residuoSpan.textContent = `€ 0,00`;
-            residuoSpan.style.background = 'none'; // Rimuovi sfondo se è zero
-            residuoSpan.style.color = 'inherit'; // Rimuovi colore forzato
-            residuoSpan.style.fontWeight = 'normal'; // Rimuovi grassetto forzato
-            residuoSpan.style.boxShadow = 'none'; // Rimuovi ombra
+            residuoContainer.classList.add('no-residuo');
+            residuoContainer.querySelector('.label').innerHTML = `
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Saldato
+            `;
         }
     }
 
