@@ -218,25 +218,182 @@ function formatCurrency($value) {
 
   .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background-color: rgba(30, 41, 59, 0.5); display: flex;
+      background-color: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex;
       justify-content: center; align-items: center; z-index: 1000;
-      opacity: 0; visibility: hidden; transition: opacity 0.3s ease;
+      opacity: 0; visibility: hidden; transition: all 0.3s ease;
+      padding: 1rem;
   }
   .modal-overlay.show { opacity: 1; visibility: visible; }
   .modal-content {
-      background-color: var(--card-bg); padding: 2rem; border-radius: var(--card-radius);
-      box-shadow: var(--card-shadow); max-width: 90%; width: 950px;
-      max-height: 90vh; overflow-y: auto; position: relative;
-      transform: scale(0.95); transition: transform 0.3s ease;
+      background-color: var(--card-bg); 
+      padding: 0; 
+      border-radius: 20px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      max-width: 95%; 
+      width: 900px;
+      max-height: 90vh; 
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transform: translateY(20px) scale(0.95); 
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .modal-overlay.show .modal-content { transform: scale(1); }
-  .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem; }
-  .modal-header h2 { font-size: 1.5rem; font-weight: 600; }
-  .modal-close-button { background: none; border: none; font-size: 1.8rem; color: #9ca3af; cursor: pointer; }
-  .modal-footer { display: flex; justify-content: flex-end; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem; margin-top: 1.5rem; }
-  .modal-footer .btn { padding: 0.6rem 1.5rem; border-radius: 0.5rem; font-weight: 600; }
-  .modal-footer .btn-cancel { background-color: #e2e8f0; color: #334155; }
-  .modal-footer .btn-save { background-color: var(--brand-green); color: white; }
+  .modal-overlay.show .modal-content { transform: translateY(0) scale(1); }
+  
+  .modal-header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      padding: 1.5rem 2rem;
+      background: linear-gradient(135deg, var(--brand-green) 0%, #10b981 100%);
+      color: white;
+      flex-shrink: 0;
+  }
+  .modal-header h2 { 
+      font-size: 1.35rem; 
+      font-weight: 700;
+      color: white;
+      margin: 0;
+  }
+  .modal-close-button { 
+      background: rgba(255,255,255,0.2); 
+      border: none; 
+      font-size: 1.5rem; 
+      color: white; 
+      cursor: pointer;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      line-height: 1;
+  }
+  .modal-close-button:hover {
+      background: rgba(255,255,255,0.3);
+      transform: rotate(90deg);
+  }
+  
+  .modal-content .tab-buttons { 
+      display: flex; 
+      justify-content: center;
+      gap: 8px;
+      padding: 1rem 2rem;
+      background: #f8fafc;
+      border-bottom: none;
+      margin-bottom: 0;
+      flex-shrink: 0;
+  }
+  .modal-content .tab-button { 
+      padding: 0.65rem 1.25rem; 
+      cursor: pointer; 
+      border: none; 
+      background: white;
+      border-radius: 10px;
+      font-weight: 600; 
+      font-size: 0.85rem;
+      color: var(--text-secondary); 
+      margin-bottom: 0;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .modal-content .tab-button:hover:not(.active) {
+      background: #f1f5f9;
+      color: var(--text-primary);
+  }
+  .modal-content .tab-button.active { 
+      color: white; 
+      background: var(--brand-green);
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+  }
+  
+  .modal-content form,
+  .modal-content > div:not(.modal-header):not(.modal-footer):not(.tab-buttons) {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 2rem;
+      background: #f8fafc;
+  }
+  
+  .modal-content .tab-content { 
+      display: none; 
+  } 
+  .modal-content .tab-content.active { 
+      display: block; 
+  }
+  
+  /* Form fields nel modal */
+  .modal-content label.font-medium,
+  .modal-content label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+  }
+  .modal-content input[type="text"],
+  .modal-content input[type="number"],
+  .modal-content input[type="email"],
+  .modal-content select,
+  .modal-content textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      background: white;
+      margin-top: 0;
+  }
+  .modal-content input:focus,
+  .modal-content select:focus,
+  .modal-content textarea:focus {
+      border-color: var(--brand-green);
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+  }
+  
+  .modal-footer { 
+      display: flex; 
+      justify-content: flex-end; 
+      gap: 0.75rem; 
+      border-top: 1px solid var(--border-color); 
+      padding: 1.25rem 2rem;
+      background: white;
+      flex-shrink: 0;
+  }
+  .modal-footer .btn { 
+      padding: 0.75rem 1.5rem; 
+      border-radius: 10px; 
+      font-weight: 600;
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+  }
+  .modal-footer .btn-cancel { 
+      background-color: #f1f5f9; 
+      color: #64748b;
+      border: 2px solid #e2e8f0;
+  }
+  .modal-footer .btn-cancel:hover {
+      background-color: #e2e8f0;
+  }
+  .modal-footer .btn-save { 
+      background-color: var(--brand-green); 
+      color: white; 
+  }
+  .modal-footer .btn-save:hover {
+      background-color: var(--brand-green-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+  }
 
   .tab-buttons { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 1.5rem; }
   .tab-button { padding: 0.75rem 1.25rem; cursor: pointer; border: none; background: none; font-weight: 600; color: var(--text-secondary); border-bottom: 3px solid transparent; margin-bottom: -2px; }
@@ -333,55 +490,57 @@ function formatCurrency($value) {
         <!-- Edit Modal -->
         <div id="editRepairModalContent" class="modal-content" style="display: none;">
             <div class="modal-header">
-                <h2>Modifica Riparazione #<span id="modalRepairId"></span></h2>
+                <h2>✏️ Modifica Riparazione #<span id="modalRepairId"></span></h2>
                 <button class="modal-close-button" onclick="closeModal()">&times;</button>
             </div>
             <div class="tab-buttons">
-                <button type="button" class="tab-button active" data-tab="anagrafe">Anagrafe</button>
-                <button type="button" class="tab-button" data-tab="articoli">Articoli</button>
-                <button type="button" class="tab-button" data-tab="scheda">Scheda</button>
+                <button type="button" class="tab-button active" data-tab="anagrafe">👤 Anagrafe</button>
+                <button type="button" class="tab-button" data-tab="articoli">📦 Articoli</button>
+                <button type="button" class="tab-button" data-tab="scheda">📋 Scheda</button>
             </div>
             <form id="editRepairForm">
                  <input type="hidden" id="editRepairId" name="id">
                  <div id="anagrafeTabContent" class="tab-content active">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div><label class="font-medium">Nome Cliente</label><input type="text" id="editClienteNome" name="cliente_nome" class="w-full mt-1 p-2 border rounded"></div>
-                        <div><label class="font-medium">Cognome Cliente</label><input type="text" id="editClienteCognome" name="cliente_cognome" class="w-full mt-1 p-2 border rounded"></div>
-                        <div><label class="font-medium">Telefono</label><input type="text" id="editTelefono" name="telefono" class="w-full mt-1 p-2 border rounded"></div>
-                        <div><label class="font-medium">Modello</label><input type="text" id="editModello" name="modello" class="w-full mt-1 p-2 border rounded"></div>
-                        <div><label class="font-medium">Stato</label>
-                            <select id="editStato" name="stato" class="w-full mt-1 p-2 border rounded bg-white">
-                                <option value="In Attesa">In Attesa</option><option value="In Lavorazione">In Lavorazione</option>
-                                <option value="Completata">Completata</option><option value="Consegnata">Consegnata</option>
-                                <option value="Annullata">Annullata</option>
+                        <div><label>Nome Cliente</label><input type="text" id="editClienteNome" name="cliente_nome"></div>
+                        <div><label>Cognome Cliente</label><input type="text" id="editClienteCognome" name="cliente_cognome"></div>
+                        <div><label>Telefono</label><input type="text" id="editTelefono" name="telefono"></div>
+                        <div><label>Modello</label><input type="text" id="editModello" name="modello"></div>
+                        <div><label>Stato</label>
+                            <select id="editStato" name="stato">
+                                <option value="In Attesa">⏳ In Attesa</option>
+                                <option value="In Lavorazione">🔧 In Lavorazione</option>
+                                <option value="Completata">✅ Completata</option>
+                                <option value="Consegnata">📤 Consegnata</option>
+                                <option value="Annullata">❌ Annullata</option>
                             </select>
                         </div>
-                        <div><label class="font-medium">Costo (€)</label><input type="number" step="0.01" id="editCostoEffettivo" name="costo_effettivo" class="w-full mt-1 p-2 border rounded"></div>
-                        <div class="md:col-span-2"><label class="font-medium">Diagnosi/Difetto</label><textarea id="editDiagnosi" name="diagnosi" rows="3" class="w-full mt-1 p-2 border rounded"></textarea></div>
+                        <div><label>Costo (€)</label><input type="number" step="0.01" id="editCostoEffettivo" name="costo_effettivo"></div>
+                        <div class="md:col-span-2"><label>Diagnosi/Difetto</label><textarea id="editDiagnosi" name="diagnosi" rows="3"></textarea></div>
                     </div>
                  </div>
                  <div id="articoliTabContent" class="tab-content">
-                    <h4 class="text-lg font-medium mb-4">Gestione Articoli</h4>
-                    <div id="stockManagementSection" class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end mb-6 border-b pb-4">
+                    <h4 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">📦 Gestione Articoli</h4>
+                    <div id="stockManagementSection" class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end mb-6 p-4 bg-white rounded-xl" style="border: 2px dashed var(--border-color);">
                         <div class="relative">
-                            <label>Cerca Prodotto</label><input type="text" id="searchProductToUnload" placeholder="Nome prodotto..." class="w-full mt-1 p-2 border rounded">
+                            <label>Cerca Prodotto</label><input type="text" id="searchProductToUnload" placeholder="Nome prodotto...">
                             <input type="hidden" id="selectedProductIdToUnload"><div id="productToUnloadAutocompleteList" class="absolute bg-white border rounded shadow-lg w-full z-10"></div>
                         </div>
-                        <div><label>Giacenza</label><input type="text" id="productCurrentStock" readonly value="N/D" class="w-full mt-1 p-2 border rounded bg-gray-100"></div>
-                        <div><label>Quantità da Associare</label><input type="number" id="quantityToUnload" min="1" value="1" class="w-full mt-1 p-2 border rounded"></div>
-                        <button type="button" id="unloadFromStockBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Associa & Scarica</button>
+                        <div><label>Giacenza</label><input type="text" id="productCurrentStock" readonly value="N/D" style="background: #f1f5f9;"></div>
+                        <div><label>Quantità da Associare</label><input type="number" id="quantityToUnload" min="1" value="1"></div>
+                        <button type="button" id="unloadFromStockBtn" style="background: var(--brand-blue); color: white; padding: 0.75rem 1rem; border-radius: 10px; font-weight: 600; border: none; cursor: pointer;">Associa & Scarica</button>
                     </div>
-                    <h5 class="text-md font-medium mb-3">Riepilogo Articoli Associati:</h5>
-                    <div id="repairMovementsList" class="space-y-2 max-h-60 overflow-y-auto p-2 bg-gray-50 rounded"></div>
+                    <h5 class="text-md font-semibold mb-3" style="color: var(--text-primary);">Riepilogo Articoli Associati:</h5>
+                    <div id="repairMovementsList" class="space-y-2 max-h-60 overflow-y-auto p-3 bg-white rounded-xl" style="border: 1px solid var(--border-color);"></div>
                  </div>
                  <div id="schedaTabContent" class="tab-content">
-                    <h4 class="text-lg font-medium mb-4">Cronologia Eventi</h4>
-                    <div id="repairHistoryList" class="space-y-3 max-h-80 overflow-y-auto p-2 bg-gray-50 rounded"></div>
+                    <h4 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">📋 Cronologia Eventi</h4>
+                    <div id="repairHistoryList" class="space-y-3 max-h-80 overflow-y-auto p-3 bg-white rounded-xl" style="border: 1px solid var(--border-color);"></div>
                  </div>
             </form>
             <div class="modal-footer">
                 <button class="btn btn-cancel" onclick="closeModal()">Annulla</button>
-                <button class="btn btn-save" onclick="saveRepair()">Salva Modifiche</button>
+                <button class="btn btn-save" onclick="saveRepair()">💾 Salva Modifiche</button>
             </div>
         </div>
         

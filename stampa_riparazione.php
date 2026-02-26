@@ -109,7 +109,7 @@ function scheda_assistenza($riparazione, $id_riparazione, $copy_label = '') {
           <!-- Logo aziendale -->
           <!-- Assicurati che 'logo.png' sia nella cartella 'images/' relativa a questo file PHP. -->
           <!-- Se il logo non dovesse caricarsi, verrà visualizzato un placeholder grigio con testo 'LOGO'. -->
-          <img src="images/logo.png" alt="Logo TS Service" class="w-24 h-10 object-contain" onerror="this.onerror=null;this.src='https://placehold.co/96x40/cccccc/333333?text=LOGO';">
+          <img src="images/LOGO PNG2.png" alt="Logo TS Service" class="w-64 h-24 object-contain" onerror="this.onerror=null;this.src='https://placehold.co/96x40/cccccc/333333?text=LOGO';">
           <div>
             <h2 class="text-xl font-bold text-green-800">TS SERVICE</h2>
             <p class="text-xs text-gray-600">Contrada Castromurro - 217</p>
@@ -289,6 +289,16 @@ function scheda_assistenza($riparazione, $id_riparazione, $copy_label = '') {
       print-color-adjust: exact;
       font-size: 8pt; /* Dimensione base del font per la stampa */
     }
+    
+    /* Logo visibile e grande in stampa */
+    .scheda img[alt="Logo TS Service"] {
+      width: 180px !important;
+      height: 70px !important;
+      object-fit: contain !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    
     .print-container {
       width: 210mm; /* Larghezza A4 */
       /* Altezza non fissa, gestita dal browser con i page-break */
