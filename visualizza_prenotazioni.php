@@ -207,1010 +207,1333 @@ try {
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Variabili CSS per il tema verde e stili generali */
+        /* ========== MODERN DESIGN SYSTEM ========== */
         :root {
-            --brand-green: #28a745;        /* Base Green */
-            --brand-green-dark: #1e8449;   /* Darker shade for gradients */
-            --brand-green-light: #e0f2e8;  /* Very light green for backgrounds/hovers */
-            --brand-green-accent: #34d399; /* A brighter, more lively green for accents */
-            --brand-green-text: #065f46;   /* Darker green for text on light backgrounds */
-            --brand-green-hover-bg: #d1fae5; /* Very light green for hover backgrounds */
-
-            --bg-color-page: #f3f4f6; /* Consistent background for the entire page */
-            --text-color-primary: #1f2937; /* Darker primary text for readability */
-            --text-color-secondary: #6b7280; /* Muted text for secondary info */
-            --border-color-light: #e5e7eb; /* Light border for subtle separation */
-            --card-bg: #fff;              /* White background for cards */
-            --card-radius: 0.75rem;       /* Consistent radius for elements */
-            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Consistent shadow */
-
-            /* Specific status colors (updated for consistent naming) */
-            --status-pending: #f59e0b;     /* Orange for In Attesa */
-            --status-completed: #10b981;   /* Brighter Green for Completata */
-            --status-cancelled: #ef4444;   /* Red for Annullata */
+            --primary: #22c55e;
+            --primary-dark: #16a34a;
+            --primary-light: #dcfce7;
+            --secondary: #3b82f6;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --purple: #8b5cf6;
+            --bg-page: #f0fdf4;
+            --bg-card: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.1);
+            --shadow-xl: 0 25px 50px -12px rgba(0,0,0,0.15);
+            --transition-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+            
+            --status-pending: #f59e0b;
+            --status-completed: #22c55e;
+            --status-cancelled: #ef4444;
         }
+
+        * { box-sizing: border-box; }
 
         body {
             margin: 0;
             font-family: 'Inter', sans-serif;
-            background: var(--bg-color-page);
-            color: var(--text-color-primary);
-            padding-top: 90px; /* Space for top-bar */
-            line-height: 1.6;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 50%, #d1fae5 100%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            padding-top: 90px;
+            min-height: 100vh;
         }
-        
-        /* Stili della top-bar (presupposti da header.php) */
-        .top-bar {
-            background-color: var(--brand-green);
-            color: white;
-            padding: 30px 30px;
-            font-size: 18px;
-            width: 100vw;
-            box-sizing: border-box;
-            display: flex;
-            align-items: center;
-            gap: 150px;
+
+        /* ========== FLOATING PARTICLES ========== */
+        .particles-container {
             position: fixed;
             top: 0;
             left: 0;
-            z-index: 1000;
-        }
-        .logo {
-            font-size: 36px;
-            font-weight: bold;
-            white-space: nowrap;
-            color: white;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .logo:hover {
-            color: white;
-            text-decoration: none;
-        }
-        nav ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            gap: 15px;
-        }
-        nav ul li {
-            position: relative;
-        }
-        nav ul li button,
-        nav ul li a {
-            background-color: white;
-            border: none;
-            color: #1a1a1a73;
-            font-size: 16px;
-            padding: 15px 30px;
-            cursor: pointer;
-            border-radius: 5px;
-            user-select: none;
-            text-decoration: none;
-            display: block;
-        }
-        button.no-arrow::after {
-            content: "";
-        }
-        nav ul li.has-dropdown > button::after,
-        nav ul li.has-dropdown > a::after {
-            content: " ▼";
-            font-size: 10px;
-            color: #1a1a1a73;
-        }
-        nav ul li ul.dropdown {
-            display: none;
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background-color: white;
-            min-width: 180px;
-            border-radius: 8px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            padding: 0;
-            margin: 0;
-            list-style: none;
-            z-index: 1000;
-        }
-        nav ul li:hover > ul.dropdown {
-            display: block;
-        }
-        nav ul li ul.dropdown li a {
-            padding: 8px 12px;
-            color: #333;
-        }
-        nav ul li ul.dropdown li a:hover {
-            background-color: var(--brand-green);
-            color: white;
-        }
-        nav ul li ul.dropdown li.has-submenu > a::after {
-            content: " ▶";
-            float: right;
-            font-size: 12px;
-            margin-left: 10px;
-            color: #333;
-        }
-        nav ul li ul.dropdown li ul.submenu {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 100%;
-            background-color: white;
-            min-width: 160px;
-            border-radius: 8px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            padding: 0;
-            margin: 0;
-            list-style: none;
-            z-index: 1100;
-        }
-        nav ul li ul.dropdown li:hover > ul.submenu {
-            display: block;
-        }
-        nav ul li ul.submenu li a {
-            padding: 8px 12px;
-            color: #333;
-        }
-        nav ul li ul.submenu li a:hover {
-            background-color: var(--brand-green);
-            color: white;
-        }
-        /* Fine stili top-bar */
-
-        /* Contenitore principale della pagina (come in visualizza_riparazioni.php) */
-        .main-content-container {
-            max-width: 1400px; /* Increased max-width */
-            margin: 2rem auto;
-            padding: 2rem;
-            background-color: var(--card-bg);
-            border-radius: var(--card-radius);
-            box-shadow: var(--card-shadow);
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 2rem;
-            font-weight: 700;
-            color: var(--text-color-primary);
-            font-size: 2rem; /* Ridotto ulteriormente per farlo più piccolo */
-        }
-
-        /* Stili per la barra di ricerca/filtro (come in visualizza_riparazioni.php) */
-        .filter-search-card {
-            background-color: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: var(--card-radius);
-            margin-bottom: 1.5rem;
-            box-shadow: var(--card-shadow);
-            border: 1px solid var(--border-color-light);
-        }
-        .filter-search-card h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--text-color-primary);
-            margin-bottom: 1.25rem;
-        }
-        .filter-search-card label {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--text-color-secondary);
-        }
-        .filter-search-card input[type="text"] {
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            font-size: 1rem;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
         }
-        .filter-search-card input[type="text"]:focus {
-            border-color: var(--brand-green);
-            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
-            outline: none;
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 50%;
+            opacity: 0.15;
+            animation: floatParticle 20s infinite ease-in-out;
         }
-        .filter-search-card button[type="submit"] {
-            background-color: var(--brand-green);
-            color: white;
-            font-weight: 700;
-            padding: 0.4rem 0.8rem; /* Ridotto il padding per renderli più piccoli */
-            border-radius: 0; /* Rimosso il bordo arrotondato */
-            border: none; /* Rimosso il bordo */
-            transition: background-color 0.2s ease;
-            box-shadow: none; /* Rimosso l'ombra */
-        }
-        .filter-search-card button[type="submit"]:hover {
-            background-color: var(--brand-green-dark);
-            box-shadow: none; /* Rimosso l'ombra */
-        }
-        .filter-search-card a.reset-btn {
-            background-color: #e5e7eb;
-            color: #4b5563;
-            font-weight: 600;
-            padding: 0.4rem 0.8rem; /* Ridotto il padding per renderli più piccoli */
-            border-radius: 0; /* Rimosso il bordo arrotondato */
-            border: none; /* Rimosso il bordo */
-            transition: background-color 0.2s ease;
-            box-shadow: none; /* Rimosso l'ombra */
-        }
-        .filter-search-card a.reset-btn:hover {
-            background-color: #d1d5db;
+        .particle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; }
+        .particle:nth-child(2) { left: 80%; top: 40%; animation-delay: -5s; width: 12px; height: 12px; }
+        .particle:nth-child(3) { left: 30%; top: 70%; animation-delay: -10s; width: 6px; height: 6px; }
+        .particle:nth-child(4) { left: 70%; top: 80%; animation-delay: -15s; }
+        
+        @keyframes floatParticle {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(30px, -30px) rotate(90deg); }
+            50% { transform: translate(-20px, 20px) rotate(180deg); }
+            75% { transform: translate(20px, 10px) rotate(270deg); }
         }
 
-        /* Contenitore della tabella (come in visualizza_riparazioni.php) */
-        .table-container-card {
-            border-radius: var(--card-radius);
-            box-shadow: var(--card-shadow);
-            overflow-x: auto; /* Permette lo scroll orizzontale su schermi piccoli */
-            border: 1px solid var(--border-color-light);
-            background-color: var(--card-bg);
-            padding: 1.5rem; /* Padding interno alla card della tabella */
-        }
-        .table-container-card h2 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--text-color-primary);
-            margin-bottom: 1.25rem;
-        }
-
-        /* CUSTOM TABLE GRID STYLES */
-        .custom-table-grid {
+        /* ========== TOAST NOTIFICATIONS ========== */
+        .toast-container {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 9999;
             display: flex;
             flex-direction: column;
-            gap: 0.75rem; /* Spazio tra le righe */
+            gap: 10px;
         }
-
-        .custom-table-head,
-        .custom-table-row {
-            display: grid;
-            /* ORDER: ID, Prodotto, Quantità, Totale Prodotto, Acconto, Saldo, Cliente, Telefono Cliente, Data Prenotazione, Stato, Azioni, Data Creazione */
-            grid-template-columns: 50px 2fr 1fr 1fr 1fr 1.5fr 1.5fr 1fr 1.2fr 110px 100px 140px; /* Adjusted column order and widths */
+        .toast {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
             align-items: center;
-            padding: 0.75rem 0.5rem; /* Padding delle celle */
-            border-radius: 0.375rem; /* Bordi arrotondati per le singole righe */
-            font-size: 0.825rem; /* Dimensione del font */
-            color: var(--text-color-primary);
-            position: relative; /* Crucial for stacking context of rows */
-            z-index: 1; /* Default stacking order for rows */
+            gap: 12px;
+            min-width: 300px;
+            transform: translateX(120%);
+            animation: slideInToast 0.4s var(--transition-spring) forwards;
+            border-left: 4px solid var(--primary);
         }
-
-        .custom-table-head {
-            font-weight: 600;
-            color: white;
-            background: linear-gradient(135deg, var(--brand-green), var(--brand-green-dark));
-            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.25); /* Ombra per l'header */
-            text-transform: uppercase;
-            letter-spacing: 0.025em;
-        }
-
-        .custom-table-row {
-            background: var(--card-bg);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* Ombra leggera per le righe */
-            border: 1px solid var(--border-color-light);
-            transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.2s ease;
-            cursor: default;
-        }
-        .custom-table-row:nth-child(even) {
-            background-color: #f8fafc; /* Sfondo leggermente diverso per righe pari */
-        }
-        .custom-table-row:hover {
-            transform: translateY(-3px); /* Effetto lift al hover */
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Ombra più forte al hover */
-            background-color: var(--brand-green-hover-bg); /* Tinta verde al hover */
-        }
-
-        /* New class for active row z-index */
-        .custom-table-row.z-index-active-row {
-            z-index: 10; /* Bring active row to front */
-        }
-
-        /* Stato badge */
-        .status {
-            display: inline-flex;
+        .toast.error { border-left-color: var(--danger); }
+        .toast.warning { border-left-color: var(--warning); }
+        .toast-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0.25rem 0.75rem;
-            border-radius: 999px;
+            flex-shrink: 0;
+        }
+        .toast-icon.success { background: var(--primary-light); color: var(--primary); }
+        .toast-icon.error { background: #fee2e2; color: var(--danger); }
+        .toast-message { flex: 1; font-size: 0.9rem; color: var(--text-primary); }
+        @keyframes slideInToast {
+            to { transform: translateX(0); }
+        }
+
+        /* ========== MAIN CONTAINER ========== */
+        .main-content-container {
+            max-width: 1500px;
+            margin: 2rem auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ========== PAGE HEADER ========== */
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0 0 0.5rem 0;
+            letter-spacing: -0.5px;
+        }
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        /* ========== SUMMARY CARDS ========== */
+        .summary-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .summary-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.25rem;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s var(--transition-spring);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+        }
+        .summary-card:hover::before { opacity: 1; }
+        .summary-card.active {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+        .summary-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.75rem;
+        }
+        .summary-icon svg { width: 26px; height: 26px; }
+        .summary-card--total .summary-icon { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563eb; }
+        .summary-card--pending .summary-icon { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #d97706; }
+        .summary-card--completed .summary-icon { background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #16a34a; }
+        .summary-card--cancelled .summary-icon { background: linear-gradient(135deg, #fee2e2, #fecaca); color: #dc2626; }
+        .summary-card--value .summary-icon { background: linear-gradient(135deg, #f3e8ff, #e9d5ff); color: #9333ea; }
+        .summary-label {
             font-size: 0.75rem;
             font-weight: 600;
-            white-space: nowrap;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
         }
-        .status.status-pending { background-color: var(--status-pending); color: white; }
-        .status.status-completed { background-color: var(--status-completed); color: white; }
-        .status.status-cancelled { background-color: var(--status-cancelled); color: white; }
-
-        .total-cost { /* For monetary values like total product price, deposit, remaining */
-            font-weight: 600;
-            color: var(--brand-green-text);
-            text-align: center;
-            font-size: 1rem;
+        .summary-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-primary);
         }
 
-        /* Bottone azioni e popup (stilizzati come dropdown di riparazioni) */
-        .actions-wrapper {
-            position: relative;
-            user-select: none;
+        /* ========== FILTER BAR ========== */
+        .filter-bar {
+            background: white;
+            border-radius: 16px;
+            padding: 1.25rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 1.5rem;
             display: flex;
-            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
             align-items: center;
-            height: 100%;
         }
-        .btn-actions {
-            background-color: #e5e7eb; /* Colore di default come in prenotazioni */
-            color: #4b5563;
-            border: none;
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.375rem;
-            font-weight: 500;
-            font-size: 0.875rem;
-            cursor: pointer;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        .filter-search {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+        .filter-search input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 3rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 0.95rem;
             transition: all 0.2s ease;
-            display: inline-flex;
+            background: #f8fafc;
+        }
+        .filter-search input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+        }
+        .filter-search svg {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            color: var(--text-secondary);
+        }
+        .filter-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .btn-search {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
             align-items: center;
-            gap: 0.25rem;
+            gap: 0.5rem;
         }
-        .btn-actions:hover {
-            background-color: #d1d5db;
-            color: #1f2937;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
         }
-        .btn-actions svg {
-            width: 1rem;
-            height: 1rem;
-            transition: transform 0.2s ease;
+        .btn-reset {
+            padding: 0.75rem 1.5rem;
+            background: #f1f5f9;
+            color: var(--text-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
-        .btn-actions.open svg {
-            transform: rotate(180deg);
+        .btn-reset:hover {
+            background: #e2e8f0;
         }
 
-        .popup {
-            position: absolute;
-            top: 100%; /* Sotto il bottone */
-            right: 0; /* Align to the right of the button's wrapper */
-            background: var(--card-bg);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            border-radius: 0.5rem;
-            width: 180px; /* Larghezza adeguata */
-            display: none;
-            z-index: 999; /* Supera qualsiasi altro elemento per essere sempre visibile */
+        /* ========== PRENOTAZIONI GRID ========== */
+        .prenotazioni-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 1.25rem;
+        }
+        
+        .prenotazione-card {
+            background: white;
+            border-radius: 16px;
             overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s var(--transition-spring);
+            animation: cardFadeIn 0.5s ease forwards;
             opacity: 0;
-            transform: translateY(10px); /* Inizia leggermente più in basso per l'animazione */
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            border: 1px solid var(--border-color-light);
+            border: 1px solid var(--border-color);
         }
-        .popup.show {
-            display: block;
-            opacity: 1;
-            transform: translateY(0); /* Torna alla posizione originale */
+        .prenotazione-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
         }
-        .popup ul {
-            list-style: none;
-            margin: 0; padding: 0;
+        @keyframes cardFadeIn {
+            to { opacity: 1; }
         }
-        .popup ul li {
-            padding: 0.75rem 1rem;
-            cursor: pointer;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--text-color-primary);
+        
+        .prenotazione-card-header {
+            padding: 1rem 1.25rem;
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .prenotazione-id {
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            transition: background-color 0.15s ease;
         }
-        .popup ul li:hover {
-            background-color: var(--brand-green-light);
-            color: var(--brand-green-text);
+        .prenotazione-id-badge {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
         }
-        .popup ul li.delete {
-            color: var(--status-cancelled);
+        .prenotazione-date {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
         }
-        .popup ul li.delete:hover {
-            background-color: #fee2e2;
-            color: #991b1b;
+        .prenotazione-date svg { width: 14px; height: 14px; }
+        
+        .prenotazione-status {
+            padding: 0.35rem 0.875rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        .popup ul li svg {
-            width: 1rem;
-            height: 1rem;
-            fill: currentColor;
-            stroke: currentColor;
+        .prenotazione-status.pending { background: #fef3c7; color: #92400e; }
+        .prenotazione-status.completed { background: #dcfce7; color: #166534; }
+        .prenotazione-status.cancelled { background: #fee2e2; color: #991b1b; }
+        
+        .prenotazione-card-body {
+            padding: 1.25rem;
+        }
+        
+        .prenotazione-product {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        .product-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-light), #bbf7d0);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .product-icon svg { width: 24px; height: 24px; color: var(--primary-dark); }
+        .product-info { flex: 1; }
+        .product-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+            line-height: 1.3;
+        }
+        .product-qty {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .prenotazione-client {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .client-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #2563eb;
+        }
+        .client-info { flex: 1; }
+        .client-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+        .client-phone {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .client-phone svg { width: 12px; height: 12px; }
+        
+        .prenotazione-amounts {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .amount-box {
+            text-align: center;
+            padding: 0.75rem;
+            border-radius: 10px;
+            background: #f8fafc;
+        }
+        .amount-box.total { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+        .amount-box.deposit { background: linear-gradient(135deg, #dcfce7, #bbf7d0); }
+        .amount-box.remaining { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+        .amount-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 0.25rem;
+        }
+        .amount-value {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+        .amount-box.total .amount-value { color: #2563eb; }
+        .amount-box.deposit .amount-value { color: #16a34a; }
+        .amount-box.remaining .amount-value { color: #d97706; }
+        
+        .prenotazione-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+        .prenotazione-created {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .prenotazione-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .btn-action {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: #f1f5f9;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .btn-action:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.1);
+        }
+        .btn-action svg { width: 18px; height: 18px; }
+        
+        /* Card Actions Dropdown */
+        .card-actions-wrapper {
+            position: relative;
+        }
+        .card-popup {
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border-color);
+            min-width: 160px;
+            display: none;
+            z-index: 100;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        .card-popup.show { display: block; }
+        .card-popup-item {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .card-popup-item:hover {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+        }
+        .card-popup-item.danger:hover {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .card-popup-item svg { width: 16px; height: 16px; }
+
+        /* ========== EMPTY STATE ========== */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+        }
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--primary-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+        .empty-icon svg { width: 40px; height: 40px; color: var(--primary); }
+        .empty-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        .empty-text {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
         }
 
-        /* Stili dei modali (copiati da visualizza_riparazioni.php) */
+        /* ========== MESSAGE BOX (Legacy) ========== */
+        .message-container { display: none; }
+        .message-box {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            z-index: 9999;
+            font-weight: 600;
+            display: none;
+        }
+        .message-box.error { background-color: var(--danger); }
+        .message-box.show { display: block; }
+
+        /* ========== MODALS ========== */
         .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 2000;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
+            transition: all 0.3s ease;
         }
         .modal-overlay.show {
             opacity: 1;
             visibility: visible;
         }
+        .hidden {
+            display: none !important;
+        }
+        .modal-overlay.hidden {
+            display: flex !important;
+            opacity: 0;
+            visibility: hidden;
+        }
+        .modal-overlay.show.hidden {
+            display: flex !important;
+        }
+        .modal-content.hidden {
+            display: none !important;
+        }
         .modal-content {
-            background-color: var(--card-bg);
-            padding: 2rem;
-            border-radius: var(--card-radius);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-xl);
             max-width: 90%;
-            width: 950px; /* Increased max-width for tabs, consistent with previous prenotazioni */
+            width: 900px;
             max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            transform: translateY(-20px);
-            transition: transform 0.3s ease;
+            height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(20px) scale(0.95);
+            transition: transform 0.3s var(--transition-spring);
+        }
+        #editReservationForm {
+            flex: 1 1 auto;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
         }
         .modal-overlay.show .modal-content {
-            transform: translateY(0);
+            transform: translateY(0) scale(1);
         }
         .modal-header {
+            padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border-color-light);
-            padding-bottom: 1rem;
-            margin-bottom: 1.25rem;
         }
         .modal-header h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--text-color-primary);
             margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
         }
         .modal-close-button {
-            background: none;
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.2);
             border: none;
-            font-size: 1.8rem;
-            color: #9ca3af;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.5rem;
             cursor: pointer;
-            line-height: 1;
-            transition: color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
         }
         .modal-close-button:hover {
-            color: #4b5563;
+            background: rgba(255,255,255,0.3);
         }
         .modal-body {
-            padding: 1.25rem 0;
+            padding: 1.5rem 2rem;
+            overflow-y: auto;
+            flex: 1 1 auto;
+            min-height: 0;
+            max-height: 100%;
         }
         .modal-footer {
+            padding: 1rem 2rem;
+            background: #f8fafc;
+            border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: flex-end;
-            gap: 1rem;
-            border-top: 1px solid var(--border-color-light);
-            padding-top: 1.25rem;
-            margin-top: 1.25rem;
+            gap: 0.75rem;
         }
-        .modal-footer button {
-            padding: 0.625rem 1.5rem;
-            border-radius: 0.625rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-        }
-        .modal-footer .btn-cancel {
-            background-color: #e5e7eb;
-            color: #4b5563;
-            border: 1px solid #d1d5db;
-        }
-        .modal-footer .btn-cancel:hover {
-            background-color: #d1d5db;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
-        }
-        .modal-footer .btn-primary {
-            background: linear-gradient(135deg, var(--brand-green), var(--brand-green-dark));
-            color: white;
-            border: none;
-            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.25);
-        }
-        .modal-footer .btn-primary:hover {
-            background: linear-gradient(135deg, var(--brand-green-dark), var(--brand-green));
-            box-shadow: 0 6px 15px rgba(34, 153, 84, 0.35);
-            transform: translateY(-1px);
-        }
-
-        /* Form elements inside modal */
-        .modal-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-        .modal-form-group {
-            margin-bottom: 0.8rem;
-        }
-        .modal-form-group label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--text-color-secondary);
-            margin-bottom: 0.3rem;
-        }
-        .modal-form-group input,
-        .modal-form-group textarea,
-        .modal-form-group select {
-            width: 100%;
-            padding: 0.625rem 0.75rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            font-size: 0.9375rem;
-            color: var(--text-color-primary);
-            background-color: #f9fafb;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-        .modal-form-group input:focus,
-        .modal-form-group textarea:focus,
-        .modal-form-group select:focus {
-            border-color: var(--brand-green);
-            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
-            outline: none;
-            background-color: #fff;
-        }
-        .modal-form-group input[readonly] {
-            background-color: #eceff1;
-            color: #000; /* Forzato colore nero */
-            cursor: not-allowed;
-            opacity: 1; /* Forzata opacità completa */
-        }
-        .modal-form-group textarea {
-            min-height: 80px;
-            resize: vertical;
-        }
-
-        /* Message Box Styles (copiati da visualizza_riparazioni.php) */
-        .message-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            pointer-events: none;
-            background-color: rgba(0,0,0,0.0);
-            transition: background-color 0.3s ease;
-        }
-        .message-container.active {
-            background-color: rgba(0,0,0,0.3);
-        }
-        .message-box {
-            background-color: #ffffff;
-            color: #333;
-            padding: 1.5rem 2.5rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            z-index: 10001;
-            max-width: 90%;
-            text-align: center;
-            font-size: 1.1rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            opacity: 0;
-            transform: translateY(-50px);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            pointer-events: auto;
-        }
-        .message-box.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .message-box.success {
-            border: 2px solid var(--brand-green);
-            color: var(--brand-green-text);
-        }
-        .message-box.error {
-            border: 2px solid var(--status-cancelled);
-            color: #c0392b; /* Darker red text */
-        }
-        .message-box svg {
-            width: 28px;
-            height: 28px;
-            flex-shrink: 0;
-        }
-        .message-box.success svg {
-            color: var(--brand-green);
-        }
-        .message-box.error svg {
-            color: var(--status-cancelled);
-        }
-        @keyframes fadeOutAnimation {
-            from { opacity: 1; transform: translateY(0); }
-            to { opacity: 0; transform: translateY(-50px); }
-        }
-        @keyframes fadeInAnimation {
-            from { opacity: 0; transform: translateY(-50px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Stili per le schede (tabs) nel modale */
+        
+        /* Tab Buttons */
         .tab-buttons {
             display: flex;
-            border-bottom: 1px solid #e5e7eb;
-            margin-bottom: 1.5rem;
+            gap: 0.5rem;
+            padding: 0 2rem;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border-color);
         }
         .tab-button {
-            padding: 0.75rem 1.25rem;
-            cursor: pointer;
+            padding: 1rem 1.5rem;
             border: none;
-            background: none;
-            font-weight: 500;
-            color: #6b7280;
-            transition: all 0.2s ease;
-            border-bottom: 2px solid transparent;
-        }
-        .tab-button:hover {
-            color: var(--brand-green);
-            border-color: #bfdbfe;
-        }
-        .tab-button.active {
-            color: var(--brand-green);
-            border-color: var(--brand-green);
+            background: transparent;
+            font-size: 0.9rem;
             font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        .tab-button::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary);
+            transform: scaleX(0);
+            transition: transform 0.2s ease;
+        }
+        .tab-button:hover { color: var(--primary); }
+        .tab-button.active {
+            color: var(--primary);
+        }
+        .tab-button.active::after {
+            transform: scaleX(1);
         }
         .tab-content {
-            display: none; /* Hidden by default */
+            display: none;
         }
         .tab-content.active {
             display: block;
         }
-        /* Style for autocomplete list */
+
+        /* Modal Form */
+        .modal-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        .modal-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+        .modal-form-group.col-span-2 {
+            grid-column: span 2;
+        }
+        .modal-form-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .modal-form-group input,
+        .modal-form-group select,
+        .modal-form-group textarea {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            background: #f8fafc;
+        }
+        .modal-form-group input:focus,
+        .modal-form-group select:focus,
+        .modal-form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+        }
+        .modal-form-group input[readonly] {
+            background: #e2e8f0;
+            color: var(--text-secondary);
+        }
+
+        .modal-footer button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+        .btn-cancel {
+            background: #f1f5f9;
+            color: var(--text-secondary);
+            border: 2px solid var(--border-color) !important;
+        }
+        .btn-cancel:hover { background: #e2e8f0; }
+        .btn-save {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
+        }
+
+        /* Autocomplete */
         .autocomplete-list {
             position: absolute;
-            background-color: white !important; /* Force white background */
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
             max-height: 200px;
             overflow-y: auto;
-            z-index: 2000 !important; /* Increased z-index to be on top of modal */
-            width: 100%;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            top: 100%; /* Position explicitly below the input */
-            display: none; /* Initially hidden, controlled by JS */
+            z-index: 100;
+            box-shadow: var(--shadow-lg);
+            display: none;
         }
+        .autocomplete-list.show { display: block; }
         .autocomplete-list div {
-            padding: 0.5rem 0.75rem;
+            padding: 0.75rem 1rem;
             cursor: pointer;
-            border-bottom: 1px solid #e5e7eb;
-            color: var(--text-color-primary) !important; /* Ensure text is visible */
-        }
-        .autocomplete-list div:last-child {
-            border-bottom: none;
+            transition: all 0.15s ease;
         }
         .autocomplete-list div:hover {
-            background-color: #f3f4f6;
-            color: var(--brand-green);
-            font-weight: 500;
+            background: var(--primary-light);
+            color: var(--primary-dark);
         }
 
-        /* History Entry styles from previous version */
-        .history-entry {
-            background-color: #ffffff;
-            border: 1px solid #e2e8f0;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
+        /* Status badges in modal */
+        .status {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.35rem 0.875rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .status.status-pending, .status-pending { background: #fef3c7; color: #92400e; }
+        .status.status-completed, .status-completed { background: #dcfce7; color: #166534; }
+        .status.status-cancelled, .status-cancelled { background: #fee2e2; color: #991b1b; }
+
+        /* ========== MODAL EDIT ENHANCEMENTS ========== */
+        .deposit-section {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-top: 1.5rem;
+            border: 1px solid #bbf7d0;
+        }
+        .deposit-section-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
             display: flex;
             align-items: center;
-            font-size: 0.875rem;
-            color: var(--text-color-primary);
-            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+            gap: 0.5rem;
         }
-        .history-entry .timestamp {
-            font-weight: 600;
-            color: #4a5568;
-            margin-right: 1rem;
-            min-width: 150px; /* Ensure timestamp is visible */
-            flex-shrink: 0;
-        }
-        .history-entry .description {
-            flex-grow: 1;
-            color: #4a5568;
+        .deposit-section-title::before {
+            content: '💰';
         }
         
-        /* Responsive adjustments */
-        @media (max-width: 1500px) {
-            .custom-table-head, .custom-table-row {
-                /* ORDER: ID, Prodotto, Quantità, Totale Prodotto, Acconto, Saldo, Cliente, Telefono Cliente, Data Prenotazione, Stato, Azioni, Data Creazione */
-                grid-template-columns: 50px 2fr 1fr 1fr 1fr 1.5fr 1.5fr 1fr 1.2fr 110px 100px 140px; 
-            }
+        .add-deposit-group .add-deposit-wrapper {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .add-deposit-group .add-deposit-wrapper input {
+            flex: 1;
+        }
+        .btn-add-deposit {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        .btn-add-deposit:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+        }
+        
+        .readonly-highlight {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0) !important;
+            border-color: #86efac !important;
+            font-weight: 600 !important;
+            color: #166534 !important;
+        }
+        .saldo-highlight {
+            background: linear-gradient(135deg, #fef3c7, #fde68a) !important;
+            border-color: #fcd34d !important;
+            font-weight: 700 !important;
+            color: #92400e !important;
+            font-size: 1.1rem !important;
+        }
+        
+        /* Stock Management in Articoli Tab */
+        .stock-management-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            padding: 1.25rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+        .btn-unload {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        .btn-unload:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+        .btn-show-stock {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            margin-bottom: 1rem;
+        }
+        .btn-show-stock:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+        }
+        .btn-show-stock.hidden {
+            display: none;
+        }
+        
+        .movements-section h5 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+        }
+        .movements-list {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .empty-movements, .empty-history {
+            color: var(--text-secondary);
+            font-style: italic;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 1rem;
+        }
+        
+        .tab-section-header {
+            margin-bottom: 1.5rem;
+        }
+        .tab-section-header h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 0.25rem 0;
+        }
+        .tab-section-header p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+        
+        .history-list {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .history-entry {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border: 1px solid var(--border-color);
+        }
+        .history-entry .timestamp {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            white-space: nowrap;
+        }
+        .history-entry .description {
+            flex: 1;
+            font-size: 0.875rem;
+            color: var(--text-primary);
         }
 
+        /* ========== RESPONSIVE ========== */
         @media (max-width: 1200px) {
-            body { padding: 15px; padding-top: 80px; } /* Reduce padding */
-            h1 { font-size: 2rem; margin-bottom: 30px; }
-            .main-content-container { margin: 1.5rem auto; padding: 1.5rem; }
-            .filter-search-card { padding: 1.25rem; margin-bottom: 1rem; }
-            .filter-search-card h2 { font-size: 1.3rem; margin-bottom: 1rem; }
-            .table-container-card { padding: 1.25rem; }
-            .table-container-card h2 { font-size: 1.1rem; margin-bottom: 1rem; }
-
-            .custom-table-head, .custom-table-row {
-                /* ORDER: ID, Prodotto, Quantità, Totale Prodotto, Acconto, Saldo, Cliente, Telefono Cliente, Data Prenotazione, Stato, Azioni, Data Creazione */
-                grid-template-columns: 40px 1.5fr 0.8fr 0.8fr 0.8fr 1.2fr 1.2fr 0.8fr 1fr 90px 80px 110px; /* Adjusted column widths for smaller screens */
-                padding: 0.6rem 0.8rem;
-                font-size: 0.8rem;
-            }
-            .status {
-                padding: 0.2rem 0.6rem;
-                font-size: 0.7rem;
-            }
-            .btn-actions {
-                padding: 0.4rem 0.6rem;
-                font-size: 0.8rem;
-                gap: 0.2rem;
-            }
-            .btn-actions svg {
-                width: 0.9rem; height: 0.9rem;
-            }
-            .popup {
-                width: 160px; /* Reduced popup width */
-                border-radius: 0.375rem;
-            }
-            .popup ul li {
-                padding: 0.6rem 0.8rem;
-                font-size: 0.8rem;
-                gap: 0.5rem;
-            }
-            .popup ul li svg {
-                width: 0.9rem; height: 0.9rem;
-            }
-
-            /* Modal responsive adjustments */
-            .modal-content {
-                width: 800px; /* Adjust modal width for tablet */
+            .prenotazioni-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
-
         @media (max-width: 900px) {
-            body { padding: 10px; padding-top: 70px; }
-            h1 { font-size: 1.8rem; margin-bottom: 25px; }
-            .main-content-container { margin: 1rem auto; padding: 1rem; }
-            .filter-search-card { padding: 1rem; margin-bottom: 0.8rem; }
-            .filter-search-card h2 { font-size: 1.2rem; margin-bottom: 0.8rem; }
-            .filter-search-card button, .filter-search-card a { padding: 0.6rem 1rem; font-size: 0.9rem; }
-            .table-container-card { padding: 1rem; }
-            .table-container-card h2 { font-size: 1rem; margin-bottom: 0.8rem; }
-            
-            .custom-table-head { display: none; } /* Nasconde l'header tradizionale su mobile */
-            
-            .custom-table-row {
-                grid-template-columns: none; /* Disabilita la griglia */
-                display: flex; 
-                flex-direction: column; /* Impila le colonne verticalmente */
-                align-items: flex-start;
-                gap: 0.4rem;
-                padding: 0.8rem;
-                font-size: 0.85rem;
-                border-bottom: 1px solid var(--border-color-light);
-                border-radius: 0.75rem; /* Mantiene le righe come "card" */
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); /* Ombra per le card mobile */
+            .main-content-container {
+                padding: 1rem;
+                margin: 1rem;
             }
-
-            .custom-table-row > div {
+            .summary-panel {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .prenotazioni-grid {
+                grid-template-columns: 1fr;
+            }
+            .filter-bar {
+                flex-direction: column;
+            }
+            .filter-search {
                 width: 100%;
-                text-align: left !important;
-                white-space: normal; /* Permette al testo di andare a capo */
-                overflow: visible; /* Assicura che il contenuto non sia nascosto */
-                text-overflow: clip; /* Nessun ellipsis quando il testo va a capo */
             }
-            .custom-table-row > div::before {
-                content: attr(data-label);
-                font-weight: 700;
-                color: var(--text-color-secondary);
-                margin-right: 0.5rem;
-                display: inline-block;
-                min-width: 60px; /* Allinea le etichette */
+            .filter-actions {
+                width: 100%;
             }
-            /* Etichette specifiche per mobile */
-            .custom-table-row > div:nth-child(1)::before { content: 'ID: '; }
-            .custom-table-row > div:nth-child(2)::before { content: 'Prodotto: '; }
-            .custom-table-row > div:nth-child(3)::before { content: 'Quantità: '; }
-            /* div:nth-child(4) 'Prezzo Unit.' removed */
-            .custom-table-row > div:nth-child(4)::before { content: 'Totale Prod.: '; } /* Re-indexed */
-            .custom-table-row > div:nth-child(5)::before { content: 'Acconto: '; } /* Re-indexed */
-            .custom-table-row > div:nth-child(6)::before { content: 'Saldo: '; } /* Re-indexed */
-            .custom-table-row > div:nth-child(7)::before { content: 'Cliente: '; } /* Re-indexed */
-            .custom-table-row > div:nth-child(8)::before { content: 'Telefono Cliente: '; } /* Re-indexed */
-            .custom-table-row > div:nth-child(9)::before { content: 'Data Pren.: '; } /* Re-indexed */
-            .custom-table-row > div:nth-child(10)::before { content: 'Stato: '; } /* Re-indexed */
-            .custom-table-row > div:nth-child(11)::before { content: 'Azioni: '; } /* Re-indexed */
-            .custom-table-row > div:nth-child(12)::before { content: 'Data Creazione: '; } /* Re-indexed */
-
-
-            .total-cost { text-align: left !important; }
-            .status { margin: 0; }
-            .actions-wrapper { 
-                width: 100%; 
-                text-align: left; 
-                margin-top: 0.8rem; 
-                justify-content: flex-start;
-                padding-left: 0;
+            .filter-actions button {
+                flex: 1;
             }
-            .btn-actions { width: auto; min-width: 140px; margin: 0;}
-            .popup { 
-                left: 0; 
-                right: auto;
-                transform: translateY(10px);
-                width: 90%; max-width: 200px;
+            .modal-grid {
+                grid-template-columns: 1fr;
             }
-
-            /* Modali su mobile */
+            .modal-form-group.col-span-2 {
+                grid-column: span 1;
+            }
+            .stock-management-grid {
+                grid-template-columns: 1fr;
+            }
             .modal-content {
-                padding: 1.25rem;
-                border-radius: 0.5rem;
-                width: 90%; /* Smaller modal width for phone */
-            }
-            .modal-header h2 { font-size: 1.3rem; }
-            .modal-close-button { font-size: 1.5rem; }
-            .modal-body { padding: 1rem 0; }
-            .modal-footer { gap: 0.8rem; padding-top: 1rem; margin-top: 1rem;}
-            .modal-footer button { padding: 0.5rem 1rem; font-size: 0.9rem; border-radius: 0.5rem;}
-            .modal-grid { grid-template-columns: 1fr; gap: 0.8rem;} /* Una colonna su mobile */
-            .modal-form-group input, .modal-form-group textarea, .modal-form-group select {
-                padding: 0.5rem; font-size: 0.9rem; border-radius: 0.3rem;
+                width: 95%;
+                max-height: 95vh;
             }
         }
-
-        @media (max-width: 500px) {
-            body { padding: 8px; padding-top: 60px; }
-            h1 { font-size: 1.5rem; margin-bottom: 20px; }
-            .main-content-container { margin: 0.8rem auto; padding: 0.8rem; border-radius: 0.5rem;}
-            .filter-search-card { padding: 0.8rem; margin-bottom: 0.6rem; }
-            .filter-search-card h2 { font-size: 1rem; margin-bottom: 0.6rem; }
-            .filter-search-card button, .filter-search-card a { padding: 0.5rem 0.8rem; font-size: 0.85rem; }
-            .table-container-card { padding: 0.8rem; border-radius: 0.5rem;}
-            .table-container-card h2 { font-size: 0.9rem; margin-bottom: 0.6rem; }
-
-            .custom-table-row { padding: 0.6rem; border-radius: 0.5rem;}
-            .status { font-size: 0.65rem; padding: 0.15rem 0.5rem; }
-            .btn-actions { font-size: 0.75rem; padding: 0.3rem 0.5rem;}
-            .popup { width: 140px; }
-            .popup ul li { padding: 0.5rem 0.7rem; font-size: 0.75rem;}
+        @media (max-width: 600px) {
+            .page-header h1 { font-size: 1.75rem; }
+            .summary-panel { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+            .summary-card { padding: 1rem; }
+            .summary-value { font-size: 1.5rem; }
+            .prenotazione-amounts { grid-template-columns: 1fr; }
         }
-
     </style>
 </head>
 <body>
     <?php include 'header.php'; // Includi la barra di navigazione ?>
 
+    <!-- Floating Particles -->
+    <div class="particles-container">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <div class="main-content-container">
-        <h1>Visualizza Prenotazioni</h1>
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>📦 Prenotazioni Prodotti</h1>
+            <p>Gestisci tutte le prenotazioni e i depositi dei clienti</p>
+        </div>
 
         <?php echo $message; // Mostra messaggi di sistema (se presenti da PHP) ?>
 
-        <div class="filter-search-card">
-            <h2>Filtra e Cerca Prenotazioni</h2>
-            <form id="searchForm" method="GET" action="visualizza_prenotazioni.php" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                <div class="md:col-span-2">
-                    <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Cerca per Prodotto, Cliente o Telefono</label>
-                    <input type="text" id="search" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>" placeholder="Es. Smartphone, Mario Rossi, 342..." class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base">
-                </div>
-                <div class="flex items-end space-x-2">
-                    <button type="submit" class="flex-grow bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-5 rounded-md transition duration-200 ease-in-out shadow-lg">
-                        Cerca
-                    </button>
-                    <a href="#" id="resetBtn" class="flex-shrink-0 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-5 rounded-md transition duration-200 ease-in-out reset-btn">
-                        Reset
-                    </a>
-                </div>
-            </form>
-        </div>
+        <?php
+        // Calcola statistiche
+        $totalPrenotazioni = count($prenotazioni);
+        $pending = 0;
+        $completed = 0;
+        $cancelled = 0;
+        $valoreTotale = 0;
+        foreach ($prenotazioni as $p) {
+            switch ($p['status'] ?? '') {
+                case 'In Attesa': $pending++; break;
+                case 'Completata': $completed++; break;
+                case 'Annullata': $cancelled++; break;
+            }
+            $valoreTotale += floatval($p['product_total_price'] ?? 0);
+        }
+        ?>
 
-        <div class="table-container-card">
-            <h2>Lista Prenotazioni</h2>
-            <div class="custom-table-grid" id="reservationsTableBody" role="grid" aria-label="Lista delle prenotazioni">
-                <div class="custom-table-head" role="row">
-                    <div role="columnheader" tabindex="0" data-sort="id">ID</div>
-                    <div role="columnheader" tabindex="0" data-sort="product_name">Prodotto</div>
-                    <div role="columnheader" tabindex="0" data-sort="quantity">Quantità</div>
-                    <!-- Prezzo Unitario rimosso -->
-                    <div role="columnheader" tabindex="0" data-sort="product_total_price">Totale Prodotto</div>
-                    <div role="columnheader" tabindex="0" data-sort="deposit_amount">Acconto</div>
-                    <div role="columnheader" tabindex="0" data-sort="remaining_amount">Saldo</div>
-                    <div role="columnheader" tabindex="0" data-sort="customer_name">Cliente</div>
-                    <div role="columnheader" tabindex="0" data-sort="customer_phone">Telefono Cliente</div>
-                    <div role="columnheader" tabindex="0" data-sort="reservation_date">Data Prenotazione</div>
-                    <div role="columnheader" tabindex="0" data-sort="status">Stato</div>
-                    <div role="columnheader">Azioni</div>
-                    <div role="columnheader" tabindex="0" data-sort="created_at">Data Creazione</div>
+        <!-- Summary Panel -->
+        <div class="summary-panel">
+            <div class="summary-card summary-card--total" onclick="filterByStatus('all')">
+                <div class="summary-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
                 </div>
-
-                <?php if (empty($prenotazioni)): ?>
-                    <div class="custom-table-row" role="row" tabindex="0" style="justify-content:center; color: var(--text-color-secondary);">
-                        Nessuna prenotazione trovata.
-                    </div>
-                <?php else: ?>
-                    <?php foreach ($prenotazioni as $prenotazione): ?>
-                        <?php
-                            $prod_name = htmlspecialchars($prenotazione['product_name'] ?? '');
-                            $qty = htmlspecialchars($prenotazione['quantity'] ?? '');
-                            // $unit_p = formatCurrency($prenotazione['unit_price'] ?? 0); // Rimosso
-                            $total_p = number_format($prenotazione['product_total_price'] ?? 0, 2, ',', '.') . ' €';
-                            $deposit_a = number_format($prenotazione['deposit_amount'] ?? 0, 2, ',', '.') . ' €';
-                            $remaining_a = number_format($prenotazione['remaining_amount'] ?? 0, 2, ',', '.') . ' €';
-                            $cust_name = htmlspecialchars($prenotazione['customer_name'] ?? '');
-                            $cust_phone = htmlspecialchars($prenotazione['customer_phone'] ?? '');
-                            $res_date = htmlspecialchars(isset($prenotazione['reservation_date']) ? date('d/m/Y', strtotime($prenotazione['reservation_date'])) : '');
-                            
-                            // PHP version of getStatusClasses (for initial load)
-                            $status_class = '';
-                            switch ($prenotazione['status'] ?? '') {
-                                case 'In Attesa':
-                                    $status_class = 'status-pending';
-                                    break;
-                                case 'Completata':
-                                    $status_class = 'status-completed';
-                                    break;
-                                case 'Annullata':
-                                    $status_class = 'status-cancelled';
-                                    break;
-                                default:
-                                    $status_class = 'status-pending';
-                                    break;
-                            }
-
-                            $created_at_fmt = htmlspecialchars(isset($prenotazione['created_at']) ? date('d/m/Y H:i', strtotime($prenotazione['created_at'])) : '');
-                        ?>
-                        <div class="custom-table-row" role="row" tabindex="0" aria-rowindex="<?= $prenotazione['id'] ?>">
-                            <div role="gridcell" data-label="ID:"><?= $prenotazione['id'] ?></div>
-                            <div role="gridcell" data-label="Prodotto:"><?= $prod_name ?></div>
-                            <div role="gridcell" data-label="Quantità:"><?= $qty ?></div>
-                            <!-- Prezzo Unitario Cell rimosso -->
-                            <div role="gridcell" data-label="Totale Prodotto:"><?= $total_p ?></div>
-                            <div role="gridcell" data-label="Acconto:"><?= $deposit_a ?></div>
-                            <div role="gridcell" data-label="Saldo:"><?= $remaining_a ?></div>
-                            <div role="gridcell" data-label="Cliente:"><?= $cust_name ?></div>
-                            <div role="gridcell" data-label="Telefono Cliente:"><?= $cust_phone ?></div>
-                            <div role="gridcell" data-label="Data Prenotazione:"><?= $res_date ?></div>
-                            <div role="gridcell" data-label="Stato:">
-                                <span class="status <?= $status_class ?>" aria-label="Stato prenotazione: <?= htmlspecialchars($prenotazione['status'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
-                                    <?= ucfirst($prenotazione['status'] ?? '') ?>
-                                </span>
-                            </div>
-                            <div role="gridcell" class="actions-wrapper">
-                                <button class="btn-actions" aria-haspopup="true" aria-expanded="false" aria-controls="popup-<?= $prenotazione['id'] ?>" aria-label="Apri menu azioni prenotazione ID <?= $prenotazione['id'] ?>">
-                                    Azioni
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 10l5 5 5-5z"/></svg>
-                                </button>
-                                <div class="popup" id="popup-<?= $prenotazione['id'] ?>" role="menu" aria-label="Azioni prenotazione <?= $prenotazione['id'] ?>">
-                                    <ul>
-                                        <li role="menuitem" tabindex="-1" onclick="openEditReservationModal(<?= $prenotazione['id'] ?>)">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                                <path d="M12.146.146a.5.5 0 01.708 0l3 3a.5.5 0 010 .708l-9.793 9.793a.5.5 0 01-.168.11l-5 2a.5.5 0 01-.65-.65l2-5a.5.5 0 01.11-.168L12.146.146zM11.207 2L4 9.207V11h1.793L14 3.793 11.207 2z"/>
-                                            </svg>
-                                            Modifica
-                                        </li>
-                                        <li role="menuitem" tabindex="-1" onclick="window.open('stampa_prenotazione.php?id=<?= $prenotazione['id'] ?>','_blank')">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                                <path d="M2 2h12v10H2V2zm1 1v8h10V3H3z"/>
-                                                <path d="M5 12h6v1H5v-1z"/>
-                                            </svg>
-                                            Stampa scheda
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div role="gridcell" data-label="Data Creazione:"><?= $created_at_fmt ?></div>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+                <div class="summary-label">Totale</div>
+                <div class="summary-value"><?= $totalPrenotazioni ?></div>
+            </div>
+            <div class="summary-card summary-card--pending" onclick="filterByStatus('In Attesa')">
+                <div class="summary-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                    </svg>
+                </div>
+                <div class="summary-label">In Attesa</div>
+                <div class="summary-value"><?= $pending ?></div>
+            </div>
+            <div class="summary-card summary-card--completed" onclick="filterByStatus('Completata')">
+                <div class="summary-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/>
+                    </svg>
+                </div>
+                <div class="summary-label">Completate</div>
+                <div class="summary-value"><?= $completed ?></div>
+            </div>
+            <div class="summary-card summary-card--cancelled" onclick="filterByStatus('Annullata')">
+                <div class="summary-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+                    </svg>
+                </div>
+                <div class="summary-label">Annullate</div>
+                <div class="summary-value"><?= $cancelled ?></div>
+            </div>
+            <div class="summary-card summary-card--value">
+                <div class="summary-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                </div>
+                <div class="summary-label">Valore Totale</div>
+                <div class="summary-value"><?= number_format($valoreTotale, 0, ',', '.') ?>€</div>
             </div>
         </div>
+
+        <!-- Filter Bar -->
+        <form id="searchForm" method="GET" action="visualizza_prenotazioni.php" class="filter-bar">
+            <div class="filter-search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input type="text" id="search" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>" placeholder="Cerca per prodotto, cliente, telefono...">
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="btn-search">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                    </svg>
+                    Cerca
+                </button>
+                <a href="visualizza_prenotazioni.php" class="btn-reset" id="resetBtn">Reset</a>
+            </div>
+        </form>
+
+        <!-- Prenotazioni Grid -->
+        <?php if (empty($prenotazioni)): ?>
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                </div>
+                <div class="empty-title">Nessuna prenotazione trovata</div>
+                <div class="empty-text">Prova a modificare i filtri di ricerca o crea una nuova prenotazione</div>
+            </div>
+        <?php else: ?>
+            <div class="prenotazioni-grid" id="reservationsGrid">
+                <?php 
+                $cardIndex = 0;
+                foreach ($prenotazioni as $prenotazione): 
+                    $prod_name = htmlspecialchars($prenotazione['product_name'] ?? '');
+                    $qty = htmlspecialchars($prenotazione['quantity'] ?? '');
+                    $total_p = number_format($prenotazione['product_total_price'] ?? 0, 2, ',', '.');
+                    $deposit_a = number_format($prenotazione['deposit_amount'] ?? 0, 2, ',', '.');
+                    $remaining_a = number_format($prenotazione['remaining_amount'] ?? 0, 2, ',', '.');
+                    $cust_name = htmlspecialchars($prenotazione['customer_name'] ?? '');
+                    $cust_phone = htmlspecialchars($prenotazione['customer_phone'] ?? '');
+                    $res_date = isset($prenotazione['reservation_date']) ? date('d/m/Y', strtotime($prenotazione['reservation_date'])) : '';
+                    $created_at_fmt = isset($prenotazione['created_at']) ? date('d/m/Y H:i', strtotime($prenotazione['created_at'])) : '';
+                    
+                    // Status class
+                    $status_class = '';
+                    $status_text = '';
+                    switch ($prenotazione['status'] ?? '') {
+                        case 'In Attesa':
+                            $status_class = 'pending';
+                            $status_text = 'In Attesa';
+                            break;
+                        case 'Completata':
+                            $status_class = 'completed';
+                            $status_text = 'Completata';
+                            break;
+                        case 'Annullata':
+                            $status_class = 'cancelled';
+                            $status_text = 'Annullata';
+                            break;
+                        default:
+                            $status_class = 'pending';
+                            $status_text = ucfirst($prenotazione['status'] ?? 'N/D');
+                            break;
+                    }
+                    
+                    // Client initials
+                    $nameParts = explode(' ', $cust_name);
+                    $initials = '';
+                    foreach ($nameParts as $part) {
+                        $initials .= strtoupper(substr($part, 0, 1));
+                    }
+                    $initials = substr($initials, 0, 2);
+                ?>
+                <div class="prenotazione-card" style="animation-delay: <?= $cardIndex * 0.05 ?>s" data-status="<?= htmlspecialchars($prenotazione['status'] ?? '') ?>">
+                    <div class="prenotazione-card-header">
+                        <div class="prenotazione-id">
+                            <span class="prenotazione-id-badge">#<?= $prenotazione['id'] ?></span>
+                            <span class="prenotazione-date">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                <?= $res_date ?>
+                            </span>
+                        </div>
+                        <span class="prenotazione-status <?= $status_class ?>"><?= $status_text ?></span>
+                    </div>
+                    <div class="prenotazione-card-body">
+                        <div class="prenotazione-product">
+                            <div class="product-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                </svg>
+                            </div>
+                            <div class="product-info">
+                                <div class="product-name"><?= $prod_name ?: 'Prodotto non specificato' ?></div>
+                                <div class="product-qty">Quantità: <?= $qty ?: '1' ?></div>
+                            </div>
+                        </div>
+                        
+                        <div class="prenotazione-client">
+                            <div class="client-avatar"><?= $initials ?: '?' ?></div>
+                            <div class="client-info">
+                                <div class="client-name"><?= $cust_name ?: 'Cliente non specificato' ?></div>
+                                <div class="client-phone">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                                    </svg>
+                                    <?= $cust_phone ?: 'N/D' ?>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="prenotazione-amounts">
+                            <div class="amount-box total">
+                                <div class="amount-label">Totale</div>
+                                <div class="amount-value"><?= $total_p ?> €</div>
+                            </div>
+                            <div class="amount-box deposit">
+                                <div class="amount-label">Acconto</div>
+                                <div class="amount-value"><?= $deposit_a ?> €</div>
+                            </div>
+                            <div class="amount-box remaining">
+                                <div class="amount-label">Saldo</div>
+                                <div class="amount-value"><?= $remaining_a ?> €</div>
+                            </div>
+                        </div>
+                        
+                        <div class="prenotazione-footer">
+                            <span class="prenotazione-created">Creata: <?= $created_at_fmt ?></span>
+                            <div class="prenotazione-actions">
+                                <button type="button" class="btn-action" onclick="openEditReservationModal(<?= $prenotazione['id'] ?>)" title="Modifica">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    </svg>
+                                </button>
+                                <button type="button" class="btn-action" onclick="window.open('stampa_prenotazione.php?id=<?= $prenotazione['id'] ?>','_blank')" title="Stampa">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+                                    </svg>
+                                </button>
+                                <div class="card-actions-wrapper">
+                                    <button type="button" class="btn-action" onclick="toggleCardPopup(this, <?= $prenotazione['id'] ?>)" title="Altre azioni">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>
+                                        </svg>
+                                    </button>
+                                    <div class="card-popup" id="cardPopup-<?= $prenotazione['id'] ?>">
+                                        <div class="card-popup-item" onclick="openEditReservationModal(<?= $prenotazione['id'] ?>)">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                            </svg>
+                                            Modifica
+                                        </div>
+                                        <div class="card-popup-item" onclick="window.open('stampa_prenotazione.php?id=<?= $prenotazione['id'] ?>','_blank')">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+                                            </svg>
+                                            Stampa scheda
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php $cardIndex++; endforeach; ?>
+            </div>
+        <?php endif; ?>
     </div>
 
     <!-- Message Box Container -->
@@ -1224,7 +1547,7 @@ try {
         <div id="editReservationModalContent" class="modal-content hidden">
             <div class="modal-header">
                 <h2 id="editModalTitle">Modifica Prenotazione #<span id="modalReservationId"></span></h2>
-                <button class="modal-close-button" onclick="closeModal()">&times;</button>
+                <button class="modal-close-button" onclick="closeModal()">×</button>
             </div>
             <div class="tab-buttons">
                 <button type="button" class="tab-button active" data-tab="anagrafe">Anagrafe</button>
@@ -1234,138 +1557,158 @@ try {
 
             <form id="editReservationForm">
                 <input type="hidden" id="editReservationId" name="id">
-
-                <!-- Tab: Anagrafe -->
-                <div id="anagrafeTabContent" class="tab-content active">
-                    <div class="modal-grid">
-                        <div class="modal-form-group">
-                            <label for="editReservationDisplayId">ID Prenotazione</label>
-                            <input type="text" id="editReservationDisplayId" class="w-full" readonly>
-                        </div>
-                        <div class="modal-form-group">
-                            <label for="editProductName">Nome Prodotto</label>
-                            <input type="text" id="editProductName" name="product_name" required>
-                        </div>
-                        <div class="modal-form-group">
-                            <label for="editQuantity">Quantità</label>
-                            <input type="number" step="1" id="editQuantity" name="quantity" required>
-                        </div>
-                        <!-- Prezzo Unitario rimosso -->
-                        <div class="modal-form-group">
-                            <label for="editProductTotalPrice">Totale Prodotto (€)</label>
-                            <input type="number" step="0.01" id="editProductTotalPrice" name="product_total_price">
-                        </div>
-
-                        <!-- Gestione Acconti -->
-                        <div class="modal-form-group col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4 mt-4 border-gray-200">
-                            <div>
-                                <label for="editDepositAmount">Totale Acconti Pagati (€)</label>
-                                <input type="number" step="0.01" id="editDepositAmount" name="deposit_amount" readonly>
+                
+                <div class="modal-body">
+                    <!-- Tab: Anagrafe -->
+                    <div id="anagrafeTabContent" class="tab-content active">
+                        <div class="modal-grid">
+                            <div class="modal-form-group">
+                                <label for="editReservationDisplayId">ID Prenotazione</label>
+                                <input type="text" id="editReservationDisplayId" readonly>
                             </div>
-                            <div class="flex items-end space-x-2">
-                                <div class="flex-grow">
-                                    <label for="editNewDepositAmount">Aggiungi Nuovo Acconto (€)</label>
-                                    <input type="number" step="0.01" id="editNewDepositAmount" value="0.00">
+                            <div class="modal-form-group">
+                                <label for="editProductName">Nome Prodotto</label>
+                                <input type="text" id="editProductName" name="product_name" required>
+                            </div>
+                            <div class="modal-form-group">
+                                <label for="editQuantity">Quantità</label>
+                                <input type="number" step="1" id="editQuantity" name="quantity" required>
+                            </div>
+                            <div class="modal-form-group">
+                                <label for="editProductTotalPrice">Totale Prodotto (€)</label>
+                                <input type="number" step="0.01" id="editProductTotalPrice" name="product_total_price">
+                            </div>
+                        </div>
+
+                        <!-- Sezione Acconti -->
+                        <div class="deposit-section">
+                            <div class="deposit-section-title">Gestione Pagamenti</div>
+                            <div class="modal-grid">
+                                <div class="modal-form-group">
+                                    <label for="editDepositAmount">Totale Acconti Pagati (€)</label>
+                                    <input type="number" step="0.01" id="editDepositAmount" name="deposit_amount" readonly class="readonly-highlight">
                                 </div>
-                                <button type="button" id="addDepositBtn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 px-4 rounded-md transition duration-200 ease-in-out">
-                                    +
+                                <div class="modal-form-group add-deposit-group">
+                                    <label for="editNewDepositAmount">Aggiungi Nuovo Acconto (€)</label>
+                                    <div class="add-deposit-wrapper">
+                                        <input type="number" step="0.01" id="editNewDepositAmount" value="0.00">
+                                        <button type="button" id="addDepositBtn" class="btn-add-deposit">
+                                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="modal-form-group col-span-2">
+                                    <label for="editRemainingAmount">Saldo da Dare (€)</label>
+                                    <input type="number" step="0.01" id="editRemainingAmount" name="remaining_amount" readonly class="saldo-highlight">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cliente e Dettagli -->
+                        <div class="modal-grid" style="margin-top: 1.5rem;">
+                            <div class="modal-form-group">
+                                <label for="editCustomerName">Nome Cliente</label>
+                                <input type="text" id="editCustomerName" name="customer_name" required>
+                            </div>
+                            <div class="modal-form-group">
+                                <label for="editCustomerPhone">Telefono Cliente</label>
+                                <input type="text" id="editCustomerPhone" name="customer_phone">
+                            </div>
+                            <div class="modal-form-group col-span-2" style="position: relative;">
+                                <label for="editSupplierName">Fornitore</label>
+                                <input type="text" id="editSupplierName" placeholder="Cerca o seleziona fornitore">
+                                <input type="hidden" id="editSupplierId" name="fornitore_id">
+                                <div id="editSupplierAutocompleteList" class="autocomplete-list"></div>
+                            </div>
+                            <div class="modal-form-group">
+                                <label for="editReservationDate">Data Prenotazione</label>
+                                <input type="date" id="editReservationDate" name="reservation_date" required>
+                            </div>
+                            <div class="modal-form-group">
+                                <label for="editExpectedArrivalDate">Data Arrivo Previsto</label>
+                                <input type="date" id="editExpectedArrivalDate" name="data_arrivo_previsto">
+                            </div>
+                            <div class="modal-form-group col-span-2">
+                                <label for="editNotes">Note</label>
+                                <textarea id="editNotes" name="notestext" rows="3"></textarea>
+                            </div>
+                            <div class="modal-form-group">
+                                <label for="editStatus">Stato</label>
+                                <select id="editStatus" name="status">
+                                    <option value="In Attesa">In Attesa</option>
+                                    <option value="Completata">Completata</option>
+                                    <option value="Annullata">Annullata</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Articoli -->
+                    <div id="articoliTabContent" class="tab-content">
+                        <div class="tab-section-header">
+                            <h4>Gestione Articoli Magazzino</h4>
+                            <p>Scarica prodotti dal magazzino per questa prenotazione</p>
+                        </div>
+
+                        <button type="button" id="showStockManagementBtn" class="btn-show-stock hidden">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 5v14M5 12h14"/>
+                            </svg>
+                            Mostra Gestione Magazzino
+                        </button>
+
+                        <div id="stockManagementSection" class="stock-management-grid">
+                            <div class="modal-form-group" style="position: relative;">
+                                <label for="searchProductToUnload">Cerca Prodotto</label>
+                                <input type="text" id="searchProductToUnload" placeholder="Nome prodotto...">
+                                <input type="hidden" id="selectedProductIdToUnload">
+                                <div id="productToUnloadAutocompleteList" class="autocomplete-list"></div>
+                            </div>
+                            <div class="modal-form-group">
+                                <label for="productCurrentStock">Giacenza Attuale</label>
+                                <input type="text" id="productCurrentStock" readonly value="N/D" class="readonly-highlight">
+                            </div>
+                            <div class="modal-form-group">
+                                <label for="quantityToUnload">Quantità da Scaricare</label>
+                                <input type="number" step="1" id="quantityToUnload" min="1" value="1">
+                            </div>
+                            <div class="modal-form-group" style="display: flex; align-items: flex-end;">
+                                <button type="button" id="unloadFromStockBtn" class="btn-unload">
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                        <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+                                    </svg>
+                                    Scarica
                                 </button>
                             </div>
-                            <div>
-                                <label for="editRemainingAmount">Saldo da Dare (€)</label>
-                                <input type="number" step="0.01" id="editRemainingAmount" name="remaining_amount" readonly>
+                        </div>
+
+                        <div class="movements-section">
+                            <h5>Articoli Scaricati</h5>
+                            <div id="reservationMovementsList" class="movements-list">
+                                <p class="empty-movements" id="noMovementsMessage">Nessun articolo scaricato per questa prenotazione.</p>
                             </div>
                         </div>
-
-                        <!-- Cliente e Dettagli Aggiuntivi -->
-                        <div class="modal-form-group">
-                            <label for="editCustomerName">Nome Cliente</label>
-                            <input type="text" id="editCustomerName" name="customer_name" required>
-                        </div>
-                        <div class="modal-form-group">
-                            <label for="editCustomerPhone">Telefono Cliente</label>
-                            <input type="text" id="editCustomerPhone" name="customer_phone">
-                        </div>
-                        <div class="modal-form-group col-span-2 relative">
-                            <label for="editSupplierName">Fornitore</label>
-                            <input type="text" id="editSupplierName" placeholder="Cerca o seleziona fornitore">
-                            <input type="hidden" id="editSupplierId" name="fornitore_id">
-                            <div id="editSupplierAutocompleteList" class="autocomplete-list w-full mt-1"></div>
-                        </div>
-                        <div class="modal-form-group">
-                            <label for="editReservationDate">Data Prenotazione</label>
-                            <input type="date" id="editReservationDate" name="reservation_date" required>
-                        </div>
-                        <div class="modal-form-group">
-                            <label for="editExpectedArrivalDate">Data Arrivo Previsto</label>
-                            <input type="date" id="editExpectedArrivalDate" name="data_arrivo_previsto">
-                        </div>
-                        <div class="modal-form-group col-span-2">
-                            <label for="editNotes">Note</label>
-                            <textarea id="editNotes" name="notestext" rows="3"></textarea>
-                        </div>
-                        <div class="modal-form-group">
-                            <label for="editStatus">Stato</label>
-                            <select id="editStatus" name="status">
-                                <option value="In Attesa">In Attesa</option>
-                                <option value="Completata">Completata</option>
-                                <option value="Annullata">Annullata</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab: Articoli -->
-                <div id="articoliTabContent" class="tab-content">
-                    <h4 class="text-lg font-medium text-gray-700 mb-4">Gestione Articoli Magazzino per questa Prenotazione</h4>
-                    <p class="text-sm text-gray-600 mb-4">Usa questa sezione per scaricare prodotti dal magazzino e registrarli per questa prenotazione.</p>
-
-                    <div id="stockManagementSection" class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end mb-6 border-b pb-4 border-gray-200">
-                        <div class="relative modal-form-group">
-                            <label for="searchProductToUnload">Cerca Prodotto da Scaricare</label>
-                            <input type="text" id="searchProductToUnload" placeholder="Nome prodotto">
-                            <input type="hidden" id="selectedProductIdToUnload">
-                            <div id="productToUnloadAutocompleteList" class="autocomplete-list w-full mt-1"></div>
-                        </div>
-                        <div class="modal-form-group">
-                            <label for="productCurrentStock">Giacenza Attuale</label>
-                            <input type="text" id="productCurrentStock" readonly value="N/D">
-                        </div>
-                        <div class="modal-form-group">
-                            <label for="quantityToUnload">Quantità da Scaricare</label>
-                            <input type="number" step="1" id="quantityToUnload" min="1" value="1">
-                        </div>
-                        <button type="button" id="unloadFromStockBtn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-md transition duration-200 ease-in-out">
-                            Scarica da Magazzino
-                        </button>
                     </div>
 
-                    <h5 class="text-md font-medium text-gray-700 mb-3">Riepilogo Articoli Scaricati per questa Prenotazione:</h5>
-                    <div id="reservationMovementsList" class="space-y-3 max-h-60 overflow-y-auto border border-gray-200 rounded-md p-3 bg-gray-50">
-                        <!-- Qui verranno caricati gli articoli già associati a questa prenotazione -->
-                        <p class="text-sm text-gray-500 italic" id="noMovementsMessage">Nessun articolo scaricato per questa prenotazione.</p>
-                    </div>
-
-                    <!-- Button to show stock management section -->
-                    <button type="button" id="showStockManagementBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-md transition duration-200 ease-in-out mt-4 hidden">
-                        Aggiungi Articolo da Scaricare
-                    </button>
-                </div>
-
-                <!-- Tab: Scheda -->
-                <div id="schedaTabContent" class="tab-content">
-                    <h4 class="text-lg font-medium text-gray-700 mb-4">Cronologia Prenotazione</h4>
-                    <p class="text-sm text-gray-600 mb-4">Visualizza gli eventi importanti relativi a questa prenotazione.</p>
-                    <div id="reservationHistoryList" class="space-y-3 max-h-80 overflow-y-auto border border-gray-200 rounded-md p-3 bg-gray-50">
-                        <!-- Qui verranno caricati gli eventi della cronologia -->
-                        <p class="text-sm text-gray-500 italic" id="noHistoryEntriesMessage">Nessun evento registrato per questa prenotazione.</p>
+                    <!-- Tab: Scheda -->
+                    <div id="schedaTabContent" class="tab-content">
+                        <div class="tab-section-header">
+                            <h4>Cronologia Prenotazione</h4>
+                            <p>Eventi e modifiche registrati</p>
+                        </div>
+                        <div id="reservationHistoryList" class="history-list">
+                            <p class="empty-history" id="noHistoryEntriesMessage">Nessun evento registrato.</p>
+                        </div>
                     </div>
                 </div>
             </form>
 
             <div class="modal-footer">
                 <button class="btn-cancel" onclick="closeModal()">Annulla</button>
-                <button class="btn-primary" onclick="saveReservation()">Salva Modifiche</button>
+                <button class="btn-save" onclick="saveReservation()">Salva Modifiche</button>
             </div>
         </div>
     </div>
@@ -1821,6 +2164,7 @@ try {
             modalToShow.classList.remove('hidden');
         }
 
+        mainModal.classList.remove('hidden'); // Remove hidden class
         mainModal.classList.add('show'); // Show the overlay
         currentModalReservationId = relatedId; // Store the ID for the active reservation
     }
@@ -1832,6 +2176,7 @@ try {
         mainModal.classList.remove('show'); // Hide the overlay
         setTimeout(() => {
             editReservationModalContent.classList.add('hidden');
+            mainModal.classList.add('hidden'); // Add hidden class back
         }, 300); // Should match CSS transition duration
         currentModalReservationId = null; // Clear the stored ID
         // Reset autocomplete lists in the modal
@@ -2412,6 +2757,83 @@ try {
             showMessage(`Errore di rete o server durante lo salvataggio: ${error.message}`, true);
         }
     };
+
+    // ========== NEW CARD LAYOUT FUNCTIONS ==========
+    
+    // Show toast notification
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+        
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        const iconHtml = type === 'success' 
+            ? '<div class="toast-icon success">✓</div>'
+            : type === 'error'
+            ? '<div class="toast-icon error">✕</div>'
+            : '<div class="toast-icon warning">!</div>';
+        
+        toast.innerHTML = `${iconHtml}<span class="toast-message">${message}</span>`;
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.transform = 'translateX(120%)';
+            setTimeout(() => toast.remove(), 400);
+        }, 3000);
+    }
+    
+    // Filter by status
+    function filterByStatus(status) {
+        const cards = document.querySelectorAll('.prenotazione-card');
+        const summaryCards = document.querySelectorAll('.summary-card');
+        
+        summaryCards.forEach(card => card.classList.remove('active'));
+        
+        if (status === 'all') {
+            cards.forEach(card => card.style.display = 'block');
+            document.querySelector('.summary-card--total')?.classList.add('active');
+        } else {
+            cards.forEach(card => {
+                const cardStatus = card.getAttribute('data-status');
+                card.style.display = (cardStatus === status) ? 'block' : 'none';
+            });
+            
+            // Highlight active summary card
+            if (status === 'In Attesa') {
+                document.querySelector('.summary-card--pending')?.classList.add('active');
+            } else if (status === 'Completata') {
+                document.querySelector('.summary-card--completed')?.classList.add('active');
+            } else if (status === 'Annullata') {
+                document.querySelector('.summary-card--cancelled')?.classList.add('active');
+            }
+        }
+    }
+    
+    // Toggle card popup menu
+    let activeCardPopup = null;
+    function toggleCardPopup(btn, id) {
+        event.stopPropagation();
+        const popup = document.getElementById(`cardPopup-${id}`);
+        
+        // Close other popups
+        document.querySelectorAll('.card-popup.show').forEach(p => {
+            if (p !== popup) p.classList.remove('show');
+        });
+        
+        if (popup) {
+            popup.classList.toggle('show');
+            activeCardPopup = popup.classList.contains('show') ? popup : null;
+        }
+    }
+    
+    // Close popups on outside click
+    document.addEventListener('click', function(e) {
+        if (activeCardPopup && !e.target.closest('.card-actions-wrapper')) {
+            activeCardPopup.classList.remove('show');
+            activeCardPopup = null;
+        }
+    });
 </script>
 </body>
 </html>

@@ -113,547 +113,1195 @@ function getPermutaStatusClasses($status) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Elenco Permute</title>
+  <title>Dashboard Permute | TS Service</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-  <!-- JsBarcode CDN per la generazione di codici a barre -->
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    /* Variabili CSS per il tema verde e stili generali (da storico_riparazioni.php) */
+    /* ========== MODERN CSS VARIABLES ========== */
     :root {
-        --brand-green: #28a745;        /* Base Green */
-        --brand-green-dark: #1e8449;   /* Darker shade for gradients */
-        --brand-green-light: #e0f2e8;  /* Very light green for backgrounds/hovers */
-        --brand-green-accent: #34d399; /* A brighter, more lively green for accents */
-        --brand-green-text: #065f46;   /* Darker green for text on light backgrounds */
-        --brand-green-hover-bg: #d1fae5; /* Very light green for hover backgrounds */
-
-        --bg-color-page: #f3f4f6; /* Consistent background for the entire page */
-        --text-color-primary: #1f2937; /* Darker primary text for readability */
-        --text-color-secondary: #6b7280; /* Muted text for secondary info */
-        --border-color-light: #e5e7eb; /* Light border for subtle separation */
-        --card-bg: #fff;              /* White background for cards */
-        --card-radius: 0.75rem;       /* Consistent radius for elements */
-        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Consistent shadow */
-
-        /* Specific status colors for Permute */
-        --status-in-trattativa: #2563eb; /* Blue */
-        --status-accettata: #f59e0b;     /* Orange */
-        --status-rifiutata: #dc2626;     /* Red */
-        --status-completata: #10b981;    /* Green */
-        --status-annullata: #6b7280;     /* Grey */
-
-        /* Specific styles for table headers and rows */
-        --table-header-bg: linear-gradient(135deg, var(--brand-green), var(--brand-green-dark));
-        --table-row-hover-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        --table-border: 1px solid var(--border-color-light);
+        /* Primary Colors */
+        --primary: #22c55e;
+        --primary-dark: #16a34a;
+        --primary-light: #dcfce7;
+        --primary-glow: rgba(34, 197, 94, 0.4);
+        
+        /* Secondary Colors */
+        --secondary: #3b82f6;
+        --secondary-dark: #2563eb;
+        --secondary-light: #dbeafe;
+        
+        /* Status Colors */
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --info: #3b82f6;
+        --purple: #8b5cf6;
+        
+        /* Neutral Colors */
+        --bg-page: #f8fafc;
+        --bg-card: #ffffff;
+        --text-primary: #0f172a;
+        --text-secondary: #64748b;
+        --text-muted: #94a3b8;
+        --border-color: #e2e8f0;
+        --border-light: #f1f5f9;
+        
+        /* Shadows */
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        --shadow-glow: 0 0 40px rgba(34, 197, 94, 0.15);
+        
+        /* Transitions */
+        --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+        --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+        
+        /* Border Radius */
+        --radius-sm: 0.375rem;
+        --radius: 0.5rem;
+        --radius-md: 0.75rem;
+        --radius-lg: 1rem;
+        --radius-xl: 1.5rem;
+        
+        /* Legacy mappings */
+        --brand-green: #22c55e;
+        --brand-green-dark: #16a34a;
+        --brand-green-light: #dcfce7;
+        --brand-green-accent: #34d399;
+        --brand-green-text: #065f46;
+        --brand-green-hover-bg: #d1fae5;
+        --bg-color-page: #f8fafc;
+        --text-color-primary: #0f172a;
+        --text-color-secondary: #64748b;
+        --border-color-light: #e2e8f0;
+        --card-bg: #ffffff;
+        --card-radius: 1rem;
+        --card-shadow: var(--shadow-md);
+        
+        /* Status colors for permute */
+        --status-in-trattativa: #3b82f6;
+        --status-accettata: #f59e0b;
+        --status-rifiutata: #ef4444;
+        --status-completata: #22c55e;
+        --status-annullata: #64748b;
     }
 
-    /* Utility class per nascondere elementi */
-    .hidden {
-        display: none !important;
+    /* ========== RESET & BASE ========== */
+    *, *::before, *::after {
+        box-sizing: border-box;
     }
+
+    .hidden { display: none !important; }
 
     body {
         margin: 0;
         font-family: 'Inter', sans-serif;
-        background: var(--bg-color-page);
-        color: var(--text-color-primary);
-        padding-top: 90px; /* Space for top-bar */
+        background: linear-gradient(135deg, var(--bg-page) 0%, #e2e8f0 100%);
+        min-height: 100vh;
+        color: var(--text-primary);
+        padding-top: 80px;
         line-height: 1.6;
+        overflow-x: hidden;
     }
 
-    /* Modifica per rendere più ampio (come storico_riparazioni.php) */
-    .main-content-container {
-        max-width: 1400px; /* Aumentato per un layout più ampio */
-        margin: 2rem auto; /* Aumentato il margine verticale */
-        padding: 2rem; /* Aumentato il padding */
-        background-color: var(--card-bg);
-        border-radius: var(--card-radius);
-        box-shadow: var(--card-shadow);
-    }
-
-    h1 {
-        text-align: center;
-        margin-bottom: 2rem; /* Aumentato il margine inferiore */
-        font-weight: 700;
-        color: var(--text-color-primary);
-        font-size: 2.5rem; /* Aumentato il font size */
-    }
-
-    /* Stili per la barra di ricerca/filtro (da storico_riparazioni.php) */
-    .filter-search-card {
-        background-color: var(--card-bg);
-        padding: 1.5rem; /* Aumentato il padding */
-        border-radius: var(--card-radius);
-        margin-bottom: 1.5rem; /* Aumentato il margine inferiore */
-        box-shadow: var(--card-shadow);
-        border: 1px solid var(--border-color-light);
-    }
-    .filter-search-card h2 {
-        font-size: 1.5rem; /* Aumentato il font size */
-        font-weight: 600;
-        color: var(--text-color-primary);
-        margin-bottom: 1.2rem; /* Aumentato il margine inferiore */
-    }
-    .filter-search-card label {
-        font-size: 0.9rem; /* leggermente aumentato */
-        font-weight: 500;
-        color: var(--text-color-secondary);
-    }
-    .filter-search-card input[type="text"] {
+    /* ========== FLOATING PARTICLES ========== */
+    .particles-container {
+        position: fixed;
+        top: 0;
+        left: 0;
         width: 100%;
-        padding: 0.75rem; /* Aumentato il padding */
-        border: 1px solid #d1d5db;
-        border-radius: 0.375rem;
-        font-size: 1rem; /* Aumentato il font size */
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-    .filter-search-card input[type="text"]:focus {
-        border-color: var(--brand-green);
-        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
-        outline: none;
-    }
-    .filter-search-card button[type="submit"] {
-        background-color: var(--brand-green);
-        color: white;
-        font-weight: 700;
-        padding: 0.6rem 1rem; /* Aumentato il padding */
-        border-radius: 0.5rem; /* Reintrodotto il bordo arrotondato */
-        border: none;
-        transition: background-color 0.2s ease;
-        box-shadow: var(--card-shadow); /* Reintrodotto l'ombra */
-    }
-    .filter-search-card button[type="submit"]:hover {
-        background-color: var(--brand-green-dark);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Ombra più pronunciata al hover */
-    }
-    .filter-search-card a.reset-btn {
-        background-color: #e5e7eb;
-        color: #4b5563;
-        font-weight: 600;
-        padding: 0.6rem 1rem; /* Aumentato il padding */
-        border-radius: 0.5rem; /* Reintrodotto il bordo arrotondato */
-        border: none;
-        transition: background-color 0.2s ease;
-        box-shadow: var(--card-shadow); /* Reintrodotto l'ombra */
-    }
-    .filter-search-card a.reset-btn:hover {
-        background-color: #d1d5db;
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+        overflow: hidden;
     }
 
-    /* Contenitore della tabella (da storico_riparazioni.php) */
-    .table-container-card {
-        border-radius: var(--card-radius);
-        box-shadow: var(--card-shadow);
-        overflow-x: auto;
-        border: 1px solid var(--border-color-light);
-        background-color: var(--card-bg);
-        padding: 1.5rem; /* Aumentato il padding */
-    }
-    .table-container-card h2 {
-        font-size: 1.3rem; /* Aumentato il font size */
-        font-weight: 600;
-        color: var(--text-color-primary);
-        margin-bottom: 1.2rem; /* Aumentato il margine inferiore */
+    .particle {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.15;
+        animation: floatParticle 20s infinite ease-in-out;
     }
 
-    /* CUSTOM TABLE GRID STYLES (Adattato per permute e reso più ampio) */
-    .custom-table-grid {
+    .particle:nth-child(1) {
+        width: 300px;
+        height: 300px;
+        background: var(--primary);
+        top: -100px;
+        left: -100px;
+        animation-delay: 0s;
+    }
+
+    .particle:nth-child(2) {
+        width: 200px;
+        height: 200px;
+        background: var(--secondary);
+        top: 50%;
+        right: -50px;
+        animation-delay: -5s;
+    }
+
+    .particle:nth-child(3) {
+        width: 150px;
+        height: 150px;
+        background: var(--purple);
+        bottom: 10%;
+        left: 20%;
+        animation-delay: -10s;
+    }
+
+    .particle:nth-child(4) {
+        width: 100px;
+        height: 100px;
+        background: var(--warning);
+        top: 30%;
+        left: 60%;
+        animation-delay: -15s;
+    }
+
+    @keyframes floatParticle {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        25% { transform: translate(30px, -30px) scale(1.05); }
+        50% { transform: translate(-20px, 20px) scale(0.95); }
+        75% { transform: translate(15px, 15px) scale(1.02); }
+    }
+
+    /* ========== TOAST NOTIFICATIONS ========== */
+    .toast-container {
+        position: fixed;
+        top: 100px;
+        right: 24px;
+        z-index: 10000;
         display: flex;
         flex-direction: column;
-        gap: 0.8rem; /* Aumentato il gap tra le righe */
+        gap: 12px;
+        pointer-events: none;
     }
 
-    .custom-table-head,
-    .custom-table-row {
-        display: grid;
-        /* Colonne adattate per la tabella permute - Maggiori larghezze */
-        grid-template-columns: 
-            50px    /* ID */
-            110px   /* Data */
-            1.6fr   /* Cliente */
-            1.6fr   /* Modello Nuovo */
-            1.6fr   /* Modello Usato */
-            120px   /* Prezzo Nuovo */
-            120px   /* Prezzo Permuta */
-            110px   /* Status */
-            150px;  /* Azioni */
+    .toast {
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        padding: 16px 20px;
+        box-shadow: var(--shadow-lg);
+        display: flex;
         align-items: center;
-        padding: 0.8rem 0.6rem; /* Aumentato il padding delle celle */
-        border-radius: 0.5rem; /* Aumentato il border radius */
-        font-size: 0.9rem; /* Aumentato il font size */
-        color: var(--text-color-primary);
+        gap: 12px;
+        min-width: 320px;
+        max-width: 450px;
+        pointer-events: auto;
+        transform: translateX(120%);
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        border-left: 4px solid var(--primary);
+    }
+
+    .toast.show {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    .toast.toast-success { border-left-color: var(--success); }
+    .toast.toast-error { border-left-color: var(--danger); }
+    .toast.toast-warning { border-left-color: var(--warning); }
+    .toast.toast-info { border-left-color: var(--info); }
+
+    .toast-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .toast-success .toast-icon { background: var(--primary-light); color: var(--primary); }
+    .toast-error .toast-icon { background: #fee2e2; color: var(--danger); }
+    .toast-warning .toast-icon { background: #fef3c7; color: var(--warning); }
+    .toast-info .toast-icon { background: var(--secondary-light); color: var(--secondary); }
+
+    .toast-content {
+        flex: 1;
+    }
+
+    .toast-title {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--text-primary);
+        margin-bottom: 2px;
+    }
+
+    .toast-message {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .toast-close {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 4px;
+        border-radius: var(--radius-sm);
+        transition: var(--transition);
+    }
+
+    .toast-close:hover {
+        background: var(--border-light);
+        color: var(--text-primary);
+    }
+
+    /* ========== MAIN CONTAINER ========== */
+    .main-content-container {
+        max-width: 1500px;
+        margin: 0 auto;
+        padding: 24px 32px;
         position: relative;
         z-index: 1;
     }
 
-    .custom-table-head {
-        font-weight: 600;
-        color: white;
-        background: var(--table-header-bg);
-        box-shadow: 0 2px 8px rgba(40, 167, 69, 0.25);
-        text-transform: uppercase;
-        letter-spacing: 0.025em;
-    }
-
-    .custom-table-row {
-        background: var(--card-bg);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        border: 1px solid var(--border-color-light);
-        transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.2s ease;
-        cursor: default;
-    }
-    .custom-table-row:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--table-row-hover-shadow);
-        background-color: var(--brand-green-hover-bg);
-    }
-
-    /* New class for active row z-index */
-    .custom-table-row.z-index-active-row {
-        z-index: 10;
-    }
-
-    /* Stato badge (adattato per permute e reso più grande) */
-    .status {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0.3rem 0.8rem; /* Aumentato il padding */
-        border-radius: 999px;
-        font-size: 0.75rem; /* Aumentato il font size */
-        font-weight: 600;
-        white-space: nowrap;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-    }
-    .status.in_trattativa { background-color: var(--status-in-trattativa); color: white; }
-    .status.accettata { background-color: var(--status-accettata); color: white; }
-    .status.rifiutata { background-color: var(--status-rifiutata); color: white; }
-    .status.completata { background-color: var(--status-completata); color: white; }
-    .status.annullata { background-color: var(--status-annullata); color: white; }
-
-    .price-display {
-        font-weight: 600;
-        color: var(--brand-green-text);
+    /* ========== PAGE HEADER ========== */
+    .page-header {
         text-align: center;
-        font-size: 0.95rem; /* Aumentato il font size */
+        margin-bottom: 32px;
+        animation: fadeInUp 0.6s ease-out;
     }
 
-    /* Bottone azioni e popup (da storico_riparazioni.php e reso più grande) */
-    .actions-wrapper {
-        position: relative;
-        user-select: none;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100%;
+    .page-header h1 {
+        font-size: 2.75rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 8px;
+        letter-spacing: -0.02em;
     }
-    .btn-actions {
-        background-color: #e5e7eb;
-        color: #4b5563;
-        border: none;
-        padding: 0.4rem 0.8rem; /* Aumentato il padding */
-        border-radius: 0.5rem; /* Aumentato il border radius */
-        font-weight: 500;
-        font-size: 0.8rem; /* Aumentato il font size */
+
+    .page-header p {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        margin: 0;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ========== SUMMARY CARDS ========== */
+    .summary-panel {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 20px;
+        margin-bottom: 28px;
+    }
+
+    .summary-card {
+        background: var(--bg-card);
+        border-radius: var(--radius-xl);
+        padding: 24px;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border-color);
+        position: relative;
+        overflow: hidden;
         cursor: pointer;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        opacity: 0;
+        transform: translateY(30px);
+        animation: cardSlideIn 0.5s ease-out forwards;
+    }
+
+    .summary-card:nth-child(1) { animation-delay: 0.1s; }
+    .summary-card:nth-child(2) { animation-delay: 0.15s; }
+    .summary-card:nth-child(3) { animation-delay: 0.2s; }
+    .summary-card:nth-child(4) { animation-delay: 0.25s; }
+    .summary-card:nth-child(5) { animation-delay: 0.3s; }
+
+    @keyframes cardSlideIn {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .summary-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--card-accent), var(--card-accent-light, var(--card-accent)));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .summary-card:hover::before {
+        opacity: 1;
+    }
+
+    .summary-card:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--shadow-lg), 0 0 0 1px var(--card-accent);
+    }
+
+    .summary-card.active {
+        box-shadow: var(--shadow-lg), 0 0 0 2px var(--card-accent);
+    }
+
+    .summary-card.active::before {
+        opacity: 1;
+    }
+
+    .summary-card--total { --card-accent: var(--primary); --card-accent-light: var(--primary-light); }
+    .summary-card--trattativa { --card-accent: var(--secondary); --card-accent-light: var(--secondary-light); }
+    .summary-card--accettata { --card-accent: var(--warning); --card-accent-light: #fef3c7; }
+    .summary-card--completata { --card-accent: var(--success); --card-accent-light: #d1fae5; }
+    .summary-card--valore { --card-accent: var(--purple); --card-accent-light: #ede9fe; }
+
+    .summary-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+        transition: transform 0.3s ease;
+    }
+
+    .summary-card:hover .summary-icon {
+        transform: scale(1.1) rotate(-5deg);
+    }
+
+    .summary-card--total .summary-icon { background: var(--primary-light); color: var(--primary); }
+    .summary-card--trattativa .summary-icon { background: var(--secondary-light); color: var(--secondary); }
+    .summary-card--accettata .summary-icon { background: #fef3c7; color: var(--warning); }
+    .summary-card--completata .summary-icon { background: #d1fae5; color: var(--success); }
+    .summary-card--valore .summary-icon { background: #ede9fe; color: var(--purple); }
+
+    .summary-icon svg {
+        width: 26px;
+        height: 26px;
+    }
+
+    .summary-label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .summary-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        line-height: 1.1;
+    }
+
+    .summary-card--valore .summary-value {
+        font-size: 1.6rem;
+        color: var(--purple);
+    }
+
+    /* ========== FILTER BAR ========== */
+    .filter-bar {
+        background: var(--bg-card);
+        border-radius: var(--radius-xl);
+        padding: 20px 24px;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border-color);
+        margin-bottom: 24px;
+        display: flex;
+        gap: 16px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+        animation: fadeInUp 0.6s ease-out 0.3s both;
+    }
+
+    .filter-group {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .filter-group label {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .filter-input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-md);
+        font-size: 0.95rem;
+        background: var(--bg-page);
+        color: var(--text-primary);
         transition: all 0.2s ease;
+    }
+
+    .filter-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-glow);
+        background: var(--bg-card);
+    }
+
+    .filter-input::placeholder {
+        color: var(--text-muted);
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn {
         display: inline-flex;
         align-items: center;
-        gap: 0.25rem; /* Aumentato il gap */
-    }
-    .btn-actions:hover {
-        background-color: #d1d5db;
-        color: #1f2937;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-    }
-    .btn-actions svg {
-        width: 0.8rem; /* Aumentato la dimensione dell'icona */
-        height: 0.8rem;
-        transition: transform 0.2s ease;
-    }
-    .btn-actions.open svg {
-        transform: rotate(180deg);
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 24px;
+        border-radius: var(--radius-md);
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        position: relative;
+        overflow: hidden;
     }
 
-    .popup {
+    .btn::after {
+        content: '';
         position: absolute;
-        top: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        background: var(--card-bg);
-        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-        border-radius: 0.5rem; /* Aumentato il border radius */
-        width: 150px; /* Aumentata la larghezza del popup */
-        display: none;
-        z-index: 999;
-        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background: linear-gradient(rgba(255,255,255,0.2), rgba(255,255,255,0));
         opacity: 0;
-        transform: translateY(10px) translateX(-50%); /* Aumentato il translateY */
-        transition: opacity 0.3s ease, transform 0.3s ease;
-        border: 1px solid var(--border-color-light);
+        transition: opacity 0.2s;
     }
-    .popup.show {
-        display: block;
+
+    .btn:hover::after {
         opacity: 1;
-        transform: translateY(0) translateX(-50%);
     }
-    .popup ul {
-        list-style: none;
-        margin: 0; padding: 0;
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        box-shadow: 0 4px 14px var(--primary-glow);
     }
-    .popup ul li {
-        padding: 0.6rem 0.9rem; /* Aumentato il padding */
-        cursor: pointer;
-        font-size: 0.85rem; /* Aumentato il font size */
-        font-weight: 500;
-        color: var(--text-color-primary);
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px var(--primary-glow);
+    }
+
+    .btn-secondary {
+        background: var(--border-light);
+        color: var(--text-secondary);
+    }
+
+    .btn-secondary:hover {
+        background: var(--border-color);
+        color: var(--text-primary);
+    }
+
+    .btn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* ========== PERMUTE GRID ========== */
+    .permute-section {
+        animation: fadeInUp 0.6s ease-out 0.4s both;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--text-primary);
         display: flex;
         align-items: center;
-        gap: 0.5rem; /* Aumentato il gap */
-        transition: background-color 0.15s ease;
-    }
-    .popup ul li:hover {
-        background-color: var(--brand-green-light);
-        color: var(--brand-green-text);
-    }
-    .popup ul li.delete {
-        color: var(--status-rifiutata); /* Rosso per elimina */
-    }
-    .popup ul li.delete:hover {
-        background-color: #fee2e2;
-        color: #991b1b;
-    }
-    .popup ul li svg {
-        width: 0.9rem; /* Aumentato la dimensione dell'icona */
-        height: 0.9rem;
-        fill: currentColor;
-        stroke: currentColor;
+        gap: 10px;
     }
 
-    /* Stili dei modali (da storico_riparazioni.php e reso più grande) */
+    .section-title svg {
+        width: 24px;
+        height: 24px;
+        color: var(--primary);
+    }
+
+    .permute-count {
+        background: var(--primary-light);
+        color: var(--primary-dark);
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .permute-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 20px;
+    }
+
+    /* ========== PERMUTA CARD ========== */
+    .permuta-card {
+        background: var(--bg-card);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+        animation: permutaCardIn 0.4s ease-out forwards;
+        transform-style: preserve-3d;
+        perspective: 1000px;
+    }
+
+    @keyframes permutaCardIn {
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .permuta-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-lg), var(--shadow-glow);
+    }
+
+    .permuta-card-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        padding: 16px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .permuta-card-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+        animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+        0%, 100% { transform: rotate(0deg); }
+        50% { transform: rotate(180deg); }
+    }
+
+    .permuta-id {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: white;
+        position: relative;
+        z-index: 1;
+    }
+
+    .permuta-id-badge {
+        background: rgba(255,255,255,0.2);
+        padding: 6px 14px;
+        border-radius: var(--radius);
+        font-weight: 700;
+        font-size: 1rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .permuta-progressivo {
+        font-size: 0.85rem;
+        opacity: 0.9;
+    }
+
+    .permuta-status {
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .permuta-status.in_trattativa { background: var(--secondary); color: white; }
+    .permuta-status.accettata { background: var(--warning); color: white; }
+    .permuta-status.rifiutata { background: var(--danger); color: white; }
+    .permuta-status.completata { background: var(--success); color: white; }
+    .permuta-status.annullata { background: var(--text-muted); color: white; }
+
+    .permuta-card-body {
+        padding: 20px;
+    }
+
+    .permuta-client {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .client-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--primary-dark);
+        flex-shrink: 0;
+    }
+
+    .client-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .client-name {
+        font-weight: 600;
+        font-size: 1.05rem;
+        color: var(--text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .client-date {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .permuta-devices {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .device-box {
+        background: var(--bg-page);
+        border-radius: var(--radius-md);
+        padding: 14px;
+        border: 1px solid var(--border-light);
+    }
+
+    .device-label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .device-label svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .device-label.nuovo { color: var(--primary); }
+    .device-label.usato { color: var(--warning); }
+
+    .device-model {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .device-price {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-top: 4px;
+    }
+
+    .device-price strong {
+        color: var(--primary);
+        font-weight: 700;
+    }
+
+    .permuta-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 16px;
+        border-top: 1px solid var(--border-light);
+    }
+
+    .permuta-diff {
+        text-align: left;
+    }
+
+    .diff-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 2px;
+    }
+
+    .diff-value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .permuta-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-action {
+        width: 38px;
+        height: 38px;
+        border-radius: var(--radius);
+        border: 1px solid var(--border-color);
+        background: var(--bg-card);
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-action:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+    }
+
+    .btn-action.danger:hover {
+        border-color: var(--danger);
+        color: var(--danger);
+        background: #fee2e2;
+    }
+
+    .btn-action svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* Action dropdown for card */
+    .card-actions-wrapper {
+        position: relative;
+    }
+
+    .card-popup {
+        position: absolute;
+        bottom: 100%;
+        right: 0;
+        margin-bottom: 8px;
+        background: var(--bg-card);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--border-color);
+        min-width: 180px;
+        z-index: 100;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: all 0.2s ease;
+    }
+
+    .card-popup.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .card-popup-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        font-size: 0.9rem;
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .card-popup-item:first-child {
+        border-radius: var(--radius-md) var(--radius-md) 0 0;
+    }
+
+    .card-popup-item:last-child {
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+    }
+
+    .card-popup-item:hover {
+        background: var(--primary-light);
+        color: var(--primary-dark);
+    }
+
+    .card-popup-item.danger {
+        color: var(--danger);
+    }
+
+    .card-popup-item.danger:hover {
+        background: #fee2e2;
+    }
+
+    .card-popup-item svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    /* ========== EMPTY STATE ========== */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: var(--bg-card);
+        border-radius: var(--radius-xl);
+        border: 2px dashed var(--border-color);
+    }
+
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 20px;
+        background: var(--primary-light);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+    }
+
+    .empty-icon svg {
+        width: 40px;
+        height: 40px;
+    }
+
+    .empty-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+
+    .empty-text {
+        color: var(--text-secondary);
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    /* ========== MODALS ========== */
     .modal-overlay {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.4);
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(4px);
         display: flex;
         justify-content: center;
         align-items: center;
         z-index: 1000;
         opacity: 0;
         visibility: hidden;
-        transition: opacity 0.3s ease, visibility 0.3s ease;
+        transition: all 0.3s ease;
     }
+
     .modal-overlay.show {
         opacity: 1;
         visibility: visible;
     }
+
     .modal-content {
-        background-color: var(--card-bg);
-        padding: 2rem; /* Aumentato il padding */
-        border-radius: 1rem; /* Aumentato il border radius */
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        background: var(--bg-card);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg);
         max-width: 90%;
-        width: 900px; /* Aumentata la larghezza */
+        width: 900px;
         max-height: 90vh;
-        overflow-y: auto;
-        position: relative;
-        transform: translateY(-20px); /* Aumentato il translateY */
-        transition: transform 0.3s ease;
+        overflow: hidden;
+        transform: scale(0.9) translateY(20px);
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
+
     .modal-overlay.show .modal-content {
-        transform: translateY(0);
+        transform: scale(1) translateY(0);
     }
+
+    /* Legacy modal styles for compatibility */
     .modal-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 1px solid var(--border-color-light);
-        padding-bottom: 1.2rem;
-        margin-bottom: 1.2rem; /* Aumentato il margine inferiore */
-    }
-    .modal-header h2 {
-        font-size: 1.6rem; /* Aumentato il font size */
-        font-weight: 600;
-        color: var(--text-color-primary);
-        margin: 0;
-    }
-    .modal-close-button {
-        background: none;
-        border: none;
-        font-size: 1.8rem; /* Aumentato il font size */
-        color: #9ca3af;
-        cursor: pointer;
-        line-height: 1;
-        transition: color 0.2s ease;
-    }
-    .modal-close-button:hover {
-        color: #4b5563;
-    }
-    .modal-body {
-        padding: 1.2rem 0; /* Aumentato il padding */
-    }
-    .modal-footer {
-        display: flex;
-        justify-content: flex-end;
-        gap: 1rem; /* Aumentato il gap */
-        border-top: 1px solid var(--border-color-light);
-        padding-top: 1.2rem; /* Aumentato il padding */
-        margin-top: 1.2rem; /* Aumentato il margine superiore */
-    }
-    .modal-footer button {
-        padding: 0.6rem 1.5rem; /* Aumentato il padding */
-        border-radius: 0.6rem; /* Aumentato il border radius */
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-    }
-    .modal-footer .btn-cancel {
-        background-color: #e5e7eb;
-        color: #4b5563;
-        border: 1px solid #d1d5db;
-    }
-    .modal-footer .btn-cancel:hover {
-        background-color: #d1d5db;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
-    }
-    .modal-footer .btn-primary {
-        background: linear-gradient(135deg, var(--brand-green), var(--brand-green-dark));
-        color: white;
-        border: none;
-        box-shadow: 0 4px 10px rgba(40, 167, 69, 0.25);
-    }
-    .modal-footer .btn-primary:hover {
-        background: linear-gradient(135deg, var(--brand-green-dark), var(--brand-green));
-        box-shadow: 0 6px 15px rgba(34, 153, 84, 0.35);
-        transform: translateY(-1px);
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border-color);
     }
 
-    /* Form elements inside modal */
-    .modal-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem; /* Aumentato il gap */
+    .modal-header h2 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
     }
+
+    .modal-close-button {
+        background: var(--border-light);
+        border: none;
+        width: 36px;
+        height: 36px;
+        border-radius: var(--radius);
+        font-size: 1.5rem;
+        color: var(--text-secondary);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+    }
+
+    .modal-close-button:hover {
+        background: var(--border-color);
+        color: var(--text-primary);
+    }
+
+    .modal-body {
+        padding: 24px;
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+
+    .modal-footer {
+        padding: 16px 24px;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        background: var(--bg-page);
+    }
+
+    .modal-footer .btn-cancel {
+        padding: 10px 20px;
+        background: var(--border-light);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        color: var(--text-secondary);
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .modal-footer .btn-cancel:hover {
+        background: var(--border-color);
+        color: var(--text-primary);
+    }
+
+    .modal-footer .btn-primary {
+        padding: 10px 20px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border: none;
+        border-radius: var(--radius-md);
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 12px var(--primary-glow);
+        transition: all 0.2s ease;
+    }
+
+    .modal-footer .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px var(--primary-glow);
+    }
+
+    /* Delete modal */
+    .delete-modal-content {
+        width: 480px;
+        text-align: center;
+    }
+
+    .delete-modal-content .modal-body {
+        padding: 32px 24px;
+    }
+
+    .delete-modal-content .modal-body p {
+        font-size: 1.05rem;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+
+    .delete-modal-content .modal-footer {
+        justify-content: center;
+    }
+
+    .delete-modal-content .modal-footer .btn-primary {
+        background: linear-gradient(135deg, var(--danger), #dc2626);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .delete-modal-content .modal-footer .btn-primary:hover {
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+    }
+
+    /* Form groups */
     .modal-form-group {
-        margin-bottom: 0.8rem; /* Aumentato il margine inferiore */
+        margin-bottom: 16px;
     }
+
     .modal-form-group label {
         display: block;
-        font-size: 0.9rem; /* Aumentato il font size */
-        font-weight: 500;
-        color: var(--text-color-secondary);
-        margin-bottom: 0.3rem; /* Aumentato il margine inferiore */
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
     }
+
     .modal-form-group input,
     .modal-form-group textarea,
     .modal-form-group select {
         width: 100%;
-        padding: 0.6rem 0.8rem; /* Aumentato il padding */
-        border: 1px solid #d1d5db;
-        border-radius: 0.375rem;
-        font-size: 1rem; /* Aumentato il font size */
-        color: var(--text-color-primary);
-        background-color: #f9fafb;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        padding: 12px 16px;
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-md);
+        font-size: 0.95rem;
+        background: var(--bg-page);
+        color: var(--text-primary);
+        transition: all 0.2s ease;
     }
+
     .modal-form-group input:focus,
     .modal-form-group textarea:focus,
     .modal-form-group select:focus {
-        border-color: var(--brand-green);
-        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
         outline: none;
-        background-color: #fff;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-glow);
+        background: var(--bg-card);
     }
+
     .modal-form-group textarea {
-        min-height: 90px; /* Aumentato l'altezza minima */
+        min-height: 100px;
         resize: vertical;
     }
+
     .modal-form-group input[readonly] {
-        background-color: #eceff1;
-        color: #000;
+        background: var(--border-light);
+        color: var(--text-secondary);
         cursor: not-allowed;
-        opacity: 1;
     }
 
-    /* Delete Modal Specifics */
-    .delete-modal-content {
-        width: 550px; /* Larghezza aumentata */
-        text-align: center;
-    }
-    .delete-modal-content .modal-body {
-        padding: 1.5rem 0; /* Aumentato il padding */
-        font-size: 1.1rem; /* Aumentato il font size */
-        color: var(--text-color-primary);
-    }
-    .delete-modal-content .modal-footer {
-        justify-content: center;
-    }
-    .delete-modal-content .btn-primary {
-        background: linear-gradient(135deg, var(--status-rifiutata), #dc2626); /* Red gradient */
-        box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25);
-    }
-    .delete-modal-content .btn-primary:hover {
-        background: linear-gradient(135deg, #dc2626, var(--status-rifiutata));
-        box-shadow: 0 6px 15px rgba(220, 38, 38, 0.35);
-    }
-
-    /* Message Box Styles (da storico_riparazioni.php) */
+    /* Message Box (legacy support) */
     .message-container {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        display: flex;
+        display: none;
         justify-content: center;
         align-items: center;
         z-index: 10000;
         pointer-events: none;
-        background-color: rgba(0,0,0,0.0);
-        transition: background-color 0.3s ease;
+        background: rgba(0,0,0,0);
+        transition: background 0.3s ease;
     }
+    
     .message-container.active {
-        background-color: rgba(0,0,0,0.3);
+        display: flex;
+        background: rgba(0,0,0,0.3);
     }
+    
     .message-box {
-        background-color: #ffffff;
-        color: #333;
-        padding: 1.8rem 3rem; /* Aumentato il padding */
-        border-radius: 0.85rem; /* Aumentato il border radius */
-        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25); /* Ombra più pronunciata */
-        z-index: 10001;
+        background: var(--bg-card);
+        padding: 24px 40px;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
         max-width: 90%;
         text-align: center;
-        font-size: 1.2rem; /* Aumentato il font size */
+        font-size: 1.1rem;
         font-weight: 500;
         display: flex;
         align-items: center;
-        justify-content: center;
-        gap: 1.2rem; /* Aumentato il gap */
+        gap: 16px;
         opacity: 0;
-        transform: translateY(-60px); /* Aumentato il translateY */
-        transition: opacity 0.3s ease, transform 0.3s ease;
+        transform: translateY(-40px);
+        transition: all 0.3s ease;
         pointer-events: auto;
     }
+    
     .message-box.show {
         opacity: 1;
         transform: translateY(0);
     }
+    
     .message-box.success {
-        border: 2px solid var(--brand-green);
-        color: var(--brand-green-text);
+        border: 2px solid var(--primary);
+        color: var(--primary-dark);
+    }
+    
+    .message-box.error {
+        border: 2px solid var(--danger);
+        color: var(--danger);
+    }
+    
+    .message-box svg {
+        width: 28px;
+        height: 28px;
+        flex-shrink: 0;
+    }
+
+    @keyframes fadeOutAnimation {
+        to {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
     }
     .message-box.error {
         border: 2px solid var(--status-rifiutata);
@@ -1460,145 +2108,495 @@ function getPermutaStatusClasses($status) {
         }
     }
 
+    /* ========== RESPONSIVE MEDIA QUERIES FOR NEW CARD LAYOUT ========== */
+    @media (max-width: 1400px) {
+        .summary-panel {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .permute-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 1100px) {
+        .summary-panel {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .permute-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .filter-bar {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .filter-bar .filter-search {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 900px) {
+        body {
+            padding: 10px;
+            padding-top: 70px;
+        }
+        .main-content-container {
+            padding: 1.25rem;
+            border-radius: 16px;
+        }
+        .page-header h1 {
+            font-size: 2rem;
+        }
+        .summary-panel {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        .summary-card {
+            padding: 1rem;
+        }
+        .summary-value {
+            font-size: 1.8rem;
+        }
+        .permute-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        .permuta-card-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .permuta-header-right {
+            width: 100%;
+            justify-content: space-between;
+        }
+    }
+
+    @media (max-width: 600px) {
+        body {
+            padding: 8px;
+            padding-top: 60px;
+        }
+        .main-content-container {
+            padding: 1rem;
+            border-radius: 12px;
+        }
+        .page-header h1 {
+            font-size: 1.6rem;
+        }
+        .page-header p {
+            font-size: 0.9rem;
+        }
+        .summary-panel {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+        .summary-card {
+            padding: 0.875rem;
+        }
+        .summary-icon {
+            width: 40px;
+            height: 40px;
+        }
+        .summary-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+        .summary-value {
+            font-size: 1.5rem;
+        }
+        .summary-label {
+            font-size: 0.7rem;
+        }
+        .filter-bar {
+            padding: 1rem;
+        }
+        .filter-search input {
+            font-size: 0.9rem;
+            padding: 0.6rem 0.6rem 0.6rem 2.5rem;
+        }
+        .filter-buttons {
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            padding: 0.5rem 0.875rem;
+            font-size: 0.8rem;
+        }
+        .permuta-card {
+            border-radius: 12px;
+        }
+        .permuta-card-header {
+            padding: 0.875rem;
+        }
+        .permuta-card-body {
+            padding: 0.875rem;
+        }
+        .permuta-id {
+            font-size: 0.85rem;
+        }
+        .permuta-date {
+            font-size: 0.7rem;
+        }
+        .device-info strong {
+            font-size: 0.85rem;
+        }
+        .device-price {
+            font-size: 0.9rem;
+        }
+        .permuta-footer {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .permuta-footer-info {
+            width: 100%;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .permuta-differenza {
+            width: 100%;
+            text-align: center;
+            padding: 0.5rem;
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.1));
+            border-radius: 8px;
+        }
+        .permuta-actions {
+            width: 100%;
+            justify-content: center;
+        }
+        .card-menu-dropdown {
+            right: 0;
+            left: auto;
+            min-width: 140px;
+        }
+        .toast {
+            min-width: 280px;
+            max-width: 90vw;
+            font-size: 0.85rem;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .summary-panel {
+            grid-template-columns: 1fr;
+        }
+        .summary-card {
+            flex-direction: row;
+            justify-content: flex-start;
+            gap: 1rem;
+            text-align: left;
+        }
+        .summary-card .summary-icon {
+            margin-bottom: 0;
+        }
+        .summary-card-content {
+            display: flex;
+            flex-direction: column;
+        }
+    }
+
   </style>
 </head>
 <body>
-  <?php include 'header.php'; // Includi il tuo header ?>
+  <?php include 'header.php'; ?>
+
+  <!-- Floating Particles Background -->
+  <div class="particles-container">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
 
   <div class="main-content-container">
-    <h1>Elenco Permute</h1>
+    <?php echo $message; ?>
 
-    <?php echo $message; // Mostra messaggi di sistema ?>
-
-    <div class="filter-search-card">
-        <h2>Cerca e Filtra Permute</h2>
-        <form method="GET" action="storico_permute.php" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-            <div class="md:col-span-2">
-                <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Cerca per Cliente, Modello, IMEI, Telefono o Progressivo</label>
-                <input type="text" id="search" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>" placeholder="Es. Mario Rossi, iPhone, IMEI123..." class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-base">
-            </div>
-            <div class="flex items-end space-x-2">
-                <button type="submit" class="flex-grow bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-5 rounded-md transition duration-200 ease-in-out shadow-lg">
-                    Cerca
-                </button>
-                <a href="storico_permute.php" class="flex-shrink-0 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-5 rounded-md transition duration-200 ease-in-out reset-btn">
-                    Reset
-                </a>
-            </div>
-        </form>
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>Dashboard Permute</h1>
+        <p>Gestisci tutte le operazioni di permuta in un unico posto</p>
     </div>
 
-    <div class="table-container-card">
-      <h2>Lista Permute</h2>
-      <div class="custom-table-grid" role="grid" aria-label="Elenco delle permute">
+    <?php
+    // Calculate statistics
+    $totalPermute = count($permute_data);
+    $inTrattativa = count(array_filter($permute_data, fn($p) => ($p['status'] ?? '') === 'In Trattativa'));
+    $accettate = count(array_filter($permute_data, fn($p) => ($p['status'] ?? '') === 'Accettata'));
+    $completate = count(array_filter($permute_data, fn($p) => ($p['status'] ?? '') === 'Completata'));
+    $valoreTotale = array_sum(array_map(fn($p) => (float)($p['differenza'] ?? 0), array_filter($permute_data, fn($p) => ($p['status'] ?? '') === 'Completata')));
+    ?>
 
-        <div class="custom-table-head" role="row">
-          <div>ID</div>
-          <div>Data</div>
-          <div>Cliente</div>
-          <div>Modello Nuovo</div>
-          <div>Modello Usato</div>
-          <div>Prezzo Nuovo</div>
-          <div>Prezzo Permuta</div>
-          <div>Status</div>
-          <div>Azioni</div>
+    <!-- Summary Cards -->
+    <div class="summary-panel">
+        <div class="summary-card summary-card--total" onclick="filterByStatus('')" data-status="">
+            <div class="summary-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 1l4 4-4 4"></path>
+                    <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                    <path d="M7 23l-4-4 4-4"></path>
+                    <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                </svg>
+            </div>
+            <div class="summary-label">Totale Permute</div>
+            <div class="summary-value" data-count="<?php echo $totalPermute; ?>">0</div>
+        </div>
+
+        <div class="summary-card summary-card--trattativa" onclick="filterByStatus('In Trattativa')" data-status="In Trattativa">
+            <div class="summary-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+            </div>
+            <div class="summary-label">In Trattativa</div>
+            <div class="summary-value" data-count="<?php echo $inTrattativa; ?>">0</div>
+        </div>
+
+        <div class="summary-card summary-card--accettata" onclick="filterByStatus('Accettata')" data-status="Accettata">
+            <div class="summary-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+            </div>
+            <div class="summary-label">Accettate</div>
+            <div class="summary-value" data-count="<?php echo $accettate; ?>">0</div>
+        </div>
+
+        <div class="summary-card summary-card--completata" onclick="filterByStatus('Completata')" data-status="Completata">
+            <div class="summary-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+            <div class="summary-label">Completate</div>
+            <div class="summary-value" data-count="<?php echo $completate; ?>">0</div>
+        </div>
+
+        <div class="summary-card summary-card--valore">
+            <div class="summary-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+            </div>
+            <div class="summary-label">Valore Completate</div>
+            <div class="summary-value"><?php echo formatCurrency($valoreTotale); ?></div>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <form method="GET" action="storico_permute.php" class="filter-bar" id="filterForm">
+        <div class="filter-group" style="flex: 2;">
+            <label for="search">Cerca Permuta</label>
+            <input type="text" id="search" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>" 
+                   placeholder="Cliente, modello, IMEI, progressivo..." class="filter-input">
+        </div>
+        <input type="hidden" id="statusFilter" name="status" value="">
+        <div class="filter-actions">
+            <button type="submit" class="btn btn-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+                Cerca
+            </button>
+            <a href="storico_permute.php" class="btn btn-secondary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                    <path d="M3 3v5h5"></path>
+                </svg>
+                Reset
+            </a>
+        </div>
+    </form>
+
+    <!-- Permute Section -->
+    <div class="permute-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                    <line x1="9" y1="21" x2="9" y2="9"></line>
+                </svg>
+                Elenco Permute
+            </h2>
+            <span class="permute-count"><?php echo $totalPermute; ?> permute</span>
         </div>
 
         <?php if (!empty($permute_data)): ?>
-          <?php foreach ($permute_data as $row): ?>
+        <div class="permute-grid" id="permuteGrid">
+            <?php foreach ($permute_data as $index => $row): ?>
             <?php
             $dataVis = !empty($row['data']) ? date('d/m/Y', strtotime($row['data'])) : '-';
             $statusClass = getPermutaStatusClasses($row['status'] ?? '');
             $clienteNome = htmlspecialchars($row['cliente'] ?? 'N/A');
-            $prezzoNuovo = formatCurrency((float)($row['prezzo_nuovo'] ?? 0));
-            $prezzoPermuta = formatCurrency((float)($row['prezzo_permuta'] ?? 0));
+            $clienteIniziali = strtoupper(substr($clienteNome, 0, 2));
+            $prezzoNuovo = (float)($row['prezzo_nuovo'] ?? 0);
+            $prezzoPermuta = (float)($row['prezzo_permuta'] ?? 0);
+            $differenza = (float)($row['differenza'] ?? 0);
             ?>
-            <div class="custom-table-row" role="row" tabindex="0" aria-rowindex="<?= $row['id'] ?>">
-              <div data-label="ID:"><?= htmlspecialchars($row['id']) ?></div>
-              <div data-label="Data:"><?= $dataVis ?></div>
-              <div data-label="Cliente:"><?= $clienteNome ?></div>
-              <div data-label="Modello Nuovo:"><?= htmlspecialchars($row['modello_nuovo'] ?? 'N/A') ?></div>
-              <div data-label="Modello Usato:"><?= htmlspecialchars($row['modello_usato'] ?? 'N/A') ?></div>
-              <div data-label="Prezzo Nuovo:" class="price-display"><?= $prezzoNuovo ?></div>
-              <div data-label="Prezzo Permuta:" class="price-display"><?= $prezzoPermuta ?></div>
-              <div data-label="Status:">
-                  <span class="status <?= $statusClass ?>">
-                      <?= htmlspecialchars($row['status'] ?? 'N/A') ?>
-                  </span>
-              </div>
-              <div class="actions-wrapper">
-                <button class="btn-actions" aria-haspopup="true" aria-expanded="false" aria-controls="popup-permuta-<?= $row['id'] ?>" aria-label="Apri menu azioni permuta ID <?= $row['id'] ?>">
-                  <span>Azioni</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.25 8.27a.75.75 0 01-.02-1.06z"/></svg>
-                </button>
-                <div class="popup" id="popup-permuta-<?= $row['id'] ?>" role="menu" aria-label="Azioni permuta <?= $row['id'] ?>">
-                  <ul>
-                    <li role="menuitem" tabindex="-1" onclick="openPrintPermutaModal(<?= $row['id'] ?>)">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M2 2h12v10H2V2zm1 1v8h10V3H3z"/>
-                        <path d="M5 12h6v1H5v-1z"/>
-                      </svg>
-                      Stampa
-                    </li>
-                    <li role="menuitem" tabindex="-1" onclick="openEditPermutaModal(<?= $row['id'] ?>)">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M12.146.146a.5.5 0 01.708 0l3 3a.5.5 0 010 .708l-9.793 9.793a.5.5 0 01-.168.11l-5 2a.5.5 0 01-.65-.65l2-5a.5.5 0 01.11-.168L12.146.146zM11.207 2L4 9.207V11h1.793L14 3.793 11.207 2z"/>
-                      </svg>
-                      Modifica
-                    </li>
-                    <li role="menuitem" tabindex="-1" onclick="openViewPermutaModal(<?= $row['id'] ?>)">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM8 13a5 5 0 110-10 5 5 0 010 10zm0-8a3 3 0 100 6 3 3 0 000-6z"/>
-                      </svg>
-                      Visualizza
-                    </li>
-                    <li role="menuitem" tabindex="-1" onclick="openAllegatiPermutaModal(<?= $row['id'] ?>)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M4.5 3a.5.5 0 000 1h7a2.5 2.5 0 110 5h-1v1h1a3.5 3.5 0 100-7h-7z"/>
-                            <path d="M4 7v6a2 2 0 104 0V7H4z"/>
-                        </svg>
-                        Allegati
-                    </li>
-                    <li role="menuitem" tabindex="-1" onclick="openBarcodePermutaModal(<?= $row['id'] ?>)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M1 2h1v12H1V2zm3 0h1v12H4V2zm2 0h1v12H6V2zm2 0h1v12H8V2zm2 0h1v12h-1V2zm2 0h1v12h-1V2z"/>
-                        </svg>
-                        Barcode
-                    </li>
-                    <li role="menuitem" tabindex="-1" onclick="openEmailPermutaModal(<?= $row['id'] ?>)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M0 4a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H2a2 2 0 01-2-2V4z"/>
-                            <path fill-rule="evenodd" d="M.05 4.555L8 9.414l7.95-4.86A1 1 0 0015 4H1a1 1 0 00-.95.555z"/>
-                        </svg>
-                        Invia Email
-                    </li>
-                    <li role="menuitem" tabindex="-1" onclick="openPrivacyPermutaModal(<?= $row['id'] ?>)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M8 0a5 5 0 00-5 5v3a5 5 0 0010 0V5a5 5 0 00-5-5zM3 5a5 5 0 015-5 5 5 0 015 5v3a5 5 0 01-10 0V5z"/>
-                            <path d="M8 8a2 2 0 110-4 2 2 0 010 4z"/>
-                        </svg>
-                        Privacy
-                    </li>
-                    <li role="menuitem" tabindex="-1" class="delete" onclick="openDeletePermutaModal(<?= $row['id'] ?>)">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M5.5 5.5a.5.5 0 00-.707.707L7.293 8l-2.5 2.5a.5.5 0 10.707.707L8 8.707l2.5 2.5a.5.5 0 00.707-.707L8.707 8l2.5-2.5a.5.5 0 00-.707-.707L8 7.293 5.5 5.5z"/>
-                        <path fill-rule="evenodd" d="M1 2.5A1.5 1.5 0 012.5 1h11A1.5 1.5 0 0115 2.5v1a.5.5 0 01-1 0v-1a.5.5 0 00-.5-.5h-11a.5.5 0 00-.5.5v1a.5.5 0 01-1 0v-1z"/>
-                      </svg>
-                      Elimina
-                    </li>
-                  </ul>
+            <div class="permuta-card" style="animation-delay: <?php echo $index * 0.05; ?>s" data-status="<?php echo htmlspecialchars($row['status'] ?? ''); ?>">
+                <div class="permuta-card-header">
+                    <div class="permuta-id">
+                        <span class="permuta-id-badge">#<?php echo htmlspecialchars($row['id']); ?></span>
+                        <?php if (!empty($row['progressivo'])): ?>
+                        <span class="permuta-progressivo"><?php echo htmlspecialchars($row['progressivo']); ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <span class="permuta-status <?php echo $statusClass; ?>">
+                        <?php echo htmlspecialchars($row['status'] ?? 'N/A'); ?>
+                    </span>
                 </div>
-              </div>
+                
+                <div class="permuta-card-body">
+                    <div class="permuta-client">
+                        <div class="client-avatar"><?php echo $clienteIniziali; ?></div>
+                        <div class="client-info">
+                            <div class="client-name"><?php echo $clienteNome; ?></div>
+                            <div class="client-date">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                <?php echo $dataVis; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="permuta-devices">
+                        <div class="device-box">
+                            <div class="device-label nuovo">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                                    <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                                </svg>
+                                Nuovo
+                            </div>
+                            <div class="device-model"><?php echo htmlspecialchars($row['modello_nuovo'] ?? 'N/A'); ?></div>
+                            <div class="device-price">Prezzo: <strong><?php echo formatCurrency($prezzoNuovo); ?></strong></div>
+                        </div>
+                        <div class="device-box">
+                            <div class="device-label usato">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="17 1 21 5 17 9"></polyline>
+                                    <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                                    <polyline points="7 23 3 19 7 15"></polyline>
+                                    <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                                </svg>
+                                Usato
+                            </div>
+                            <div class="device-model"><?php echo htmlspecialchars($row['modello_usato'] ?? 'N/A'); ?></div>
+                            <div class="device-price">Valutato: <strong><?php echo formatCurrency($prezzoPermuta); ?></strong></div>
+                        </div>
+                    </div>
+
+                    <div class="permuta-footer">
+                        <div class="permuta-diff">
+                            <div class="diff-label">Differenza</div>
+                            <div class="diff-value"><?php echo formatCurrency($differenza); ?></div>
+                        </div>
+                        <div class="permuta-actions">
+                            <button class="btn-action" onclick="openViewPermutaModal(<?php echo $row['id']; ?>)" title="Visualizza">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                            <button class="btn-action" onclick="openEditPermutaModal(<?php echo $row['id']; ?>)" title="Modifica">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
+                            <button class="btn-action" onclick="openPrintPermutaModal(<?php echo $row['id']; ?>)" title="Stampa">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                                    <rect x="6" y="14" width="12" height="8"></rect>
+                                </svg>
+                            </button>
+                            <div class="card-actions-wrapper">
+                                <button class="btn-action" onclick="toggleCardMenu(event, <?php echo $row['id']; ?>)" title="Altre azioni">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="1"></circle>
+                                        <circle cx="19" cy="12" r="1"></circle>
+                                        <circle cx="5" cy="12" r="1"></circle>
+                                    </svg>
+                                </button>
+                                <div class="card-popup" id="popup-card-<?php echo $row['id']; ?>">
+                                    <div class="card-popup-item" onclick="openAllegatiPermutaModal(<?php echo $row['id']; ?>)">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                                        </svg>
+                                        Allegati
+                                    </div>
+                                    <div class="card-popup-item" onclick="openBarcodePermutaModal(<?php echo $row['id']; ?>)">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M3 5v14"></path>
+                                            <path d="M8 5v14"></path>
+                                            <path d="M12 5v14"></path>
+                                            <path d="M17 5v14"></path>
+                                            <path d="M21 5v14"></path>
+                                        </svg>
+                                        Barcode
+                                    </div>
+                                    <div class="card-popup-item" onclick="openEmailPermutaModal(<?php echo $row['id']; ?>)">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                            <polyline points="22,6 12,13 2,6"></polyline>
+                                        </svg>
+                                        Invia Email
+                                    </div>
+                                    <div class="card-popup-item" onclick="openPrivacyPermutaModal(<?php echo $row['id']; ?>)">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                        </svg>
+                                        Privacy
+                                    </div>
+                                    <div class="card-popup-item danger" onclick="openDeletePermutaModal(<?php echo $row['id']; ?>)">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                                        </svg>
+                                        Elimina
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          <?php endforeach; ?>
+            <?php endforeach; ?>
+        </div>
         <?php else: ?>
-          <div class="custom-table-row">Nessuna permuta trovata.</div>
+        <div class="empty-state">
+            <div class="empty-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 1l4 4-4 4"></path>
+                    <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                    <path d="M7 23l-4-4 4-4"></path>
+                    <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                </svg>
+            </div>
+            <h3 class="empty-title">Nessuna permuta trovata</h3>
+            <p class="empty-text">Non ci sono permute che corrispondono ai criteri di ricerca. Prova a modificare i filtri.</p>
+        </div>
         <?php endif; ?>
-      </div>
     </div>
   </div>
 
-  <!-- Message Box Container -->
+  <!-- Message Box Container (Legacy) -->
   <div id="messageContainer" class="message-container hidden">
       <div id="messageBox" class="message-box"></div>
   </div>
@@ -2089,53 +3087,261 @@ function getPermutaStatusClasses($status) {
 
 
 <script>
-    // Questa variabile deve essere popolata con i dati PHP come fatto sopra
+    // ========== MODERN JS - TOAST NOTIFICATIONS ========== 
+    function showToast(message, type = 'success', duration = 4000) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        
+        const icons = {
+            success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',
+            error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
+            warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+            info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>'
+        };
+        
+        const titles = {
+            success: 'Successo',
+            error: 'Errore',
+            warning: 'Attenzione',
+            info: 'Info'
+        };
+        
+        toast.innerHTML = `
+            <div class="toast-icon">${icons[type]}</div>
+            <div class="toast-content">
+                <div class="toast-title">${titles[type]}</div>
+                <div class="toast-message">${message}</div>
+            </div>
+            <button class="toast-close" onclick="this.parentElement.remove()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        `;
+        
+        container.appendChild(toast);
+        
+        // Trigger animation
+        requestAnimationFrame(() => {
+            toast.classList.add('show');
+        });
+        
+        // Auto remove
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 400);
+        }, duration);
+    }
+
+    // ========== ANIMATED COUNTER ========== 
+    function animateCounter(element, target, duration = 1500) {
+        const start = 0;
+        const startTime = performance.now();
+        
+        function update(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            // Easing function
+            const easeOut = 1 - Math.pow(1 - progress, 3);
+            const current = Math.floor(start + (target - start) * easeOut);
+            
+            element.textContent = current;
+            
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            } else {
+                element.textContent = target;
+            }
+        }
+        
+        requestAnimationFrame(update);
+    }
+
+    // ========== FILTER BY STATUS ========== 
+    let currentStatusFilter = '';
+
+    function filterByStatus(status) {
+        currentStatusFilter = status;
+        
+        // Update active card
+        document.querySelectorAll('.summary-card').forEach(card => {
+            card.classList.remove('active');
+            if (card.dataset.status === status) {
+                card.classList.add('active');
+            }
+        });
+        
+        // Filter cards
+        const cards = document.querySelectorAll('.permuta-card');
+        let visibleCount = 0;
+        
+        cards.forEach((card, index) => {
+            const cardStatus = card.dataset.status;
+            const shouldShow = status === '' || cardStatus === status;
+            
+            if (shouldShow) {
+                card.style.display = '';
+                card.style.animationDelay = `${visibleCount * 0.05}s`;
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Update count badge
+        const countBadge = document.querySelector('.permute-count');
+        if (countBadge) {
+            countBadge.textContent = `${visibleCount} permute`;
+        }
+    }
+
+    // ========== TOGGLE CARD MENU ========== 
+    function toggleCardMenu(event, permutaId) {
+        event.stopPropagation();
+        
+        // Close all other menus
+        document.querySelectorAll('.card-popup.show').forEach(popup => {
+            if (popup.id !== `popup-card-${permutaId}`) {
+                popup.classList.remove('show');
+            }
+        });
+        
+        const popup = document.getElementById(`popup-card-${permutaId}`);
+        popup.classList.toggle('show');
+    }
+
+    // Close popups on click outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.card-actions-wrapper')) {
+            document.querySelectorAll('.card-popup.show').forEach(popup => {
+                popup.classList.remove('show');
+            });
+        }
+    });
+
+    // ========== 3D TILT EFFECT FOR CARDS ========== 
+    function init3DTilt() {
+        const cards = document.querySelectorAll('.permuta-card');
+        
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 20;
+                const rotateY = (centerX - x) / 20;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
+            });
+        });
+    }
+
+    // ========== PARTICLE PARALLAX ========== 
+    function initParticleParallax() {
+        const particles = document.querySelectorAll('.particle');
+        
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            particles.forEach((particle, index) => {
+                const speed = (index + 1) * 10;
+                const xOffset = (x - 0.5) * speed;
+                const yOffset = (y - 0.5) * speed;
+                
+                particle.style.transform = `translate(${xOffset}px, ${yOffset}px)`;
+            });
+        });
+    }
+
+    // ========== RIPPLE EFFECT ========== 
+    function initRippleEffect() {
+        document.querySelectorAll('.btn, .btn-action, .summary-card').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const ripple = document.createElement('span');
+                ripple.style.cssText = `
+                    position: absolute;
+                    background: rgba(255,255,255,0.4);
+                    border-radius: 50%;
+                    width: 100px;
+                    height: 100px;
+                    left: ${x - 50}px;
+                    top: ${y - 50}px;
+                    transform: scale(0);
+                    animation: rippleAnim 0.6s ease-out;
+                    pointer-events: none;
+                `;
+                
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                this.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+        
+        // Add ripple animation if not exists
+        if (!document.getElementById('rippleStyle')) {
+            const style = document.createElement('style');
+            style.id = 'rippleStyle';
+            style.textContent = `
+                @keyframes rippleAnim {
+                    to {
+                        transform: scale(4);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+
+    // ========== INITIALIZE ON DOM READY ========== 
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate counters
+        document.querySelectorAll('.summary-value[data-count]').forEach(el => {
+            const target = parseInt(el.dataset.count) || 0;
+            animateCounter(el, target, 1200);
+        });
+        
+        // Initialize effects
+        init3DTilt();
+        initParticleParallax();
+        initRippleEffect();
+        
+        // Highlight active nav link
+        const currentPath = window.location.pathname.split('/').pop();
+        document.querySelectorAll('nav ul li a').forEach(link => {
+            if (link.getAttribute('href')?.split('/').pop() === currentPath) {
+                link.classList.add('active-link');
+            }
+        });
+    });
+
+    // ========== LEGACY SUPPORT ========== 
     const initialPermuteData = <?php echo json_encode($permute_data); ?>;
     let currentModalPermutaId = null;
 
-    // --- Helper Functions (da storico_riparazioni.php) ---
+    // --- Helper Functions ---
     let messageTimeout;
     function showMessage(message, isError = false) {
-        console.log(`showMessage: ${isError ? 'ERROR' : 'INFO'} - ${message}`);
-
-        const messageContainer = document.getElementById('messageContainer');
-        const messageBox = document.getElementById('messageBox');
-        
-        clearTimeout(messageTimeout);
-
-        messageBox.classList.remove('error', 'success', 'show');
-        messageBox.style.animation = 'none'; 
-        void messageBox.offsetWidth;
-
-        let iconSvg = '';
-        if (isError) {
-            messageBox.classList.add('error');
-            iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.38 3.375 2.07 3.375h14.006c1.69 0 2.936-1.875 2.069-3.375l-7.005-12.004a1.125 1.125 0 00-1.932 0l-7.005 12.004zM12 15.75h.007v.008H12v-.008z" />
-                       </svg>`;
-        } else {
-            messageBox.classList.add('success');
-            iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                       </svg>`;
-        }
-        messageBox.innerHTML = `${iconSvg} <span>${message}</span>`;
-        
-        messageContainer.classList.remove('hidden');
-        messageContainer.classList.add('active');
-        messageBox.classList.add('show');
-
-        const displayDuration = isError ? 2000 : 3000; // Increased duration
-        const fadeOutDuration = 500;
-
-        messageTimeout = setTimeout(() => {
-            messageBox.classList.remove('show');
-            messageBox.style.animation = 'fadeOutAnimation 0.5s forwards';
-            setTimeout(() => {
-                messageContainer.classList.add('hidden');
-                messageContainer.classList.remove('active');
-            }, fadeOutDuration);
-        }, displayDuration);
+        // Use new toast system instead
+        showToast(message, isError ? 'error' : 'success');
     }
 
     function formatCurrency(value) {

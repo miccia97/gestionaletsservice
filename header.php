@@ -1362,6 +1362,551 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         transform: none;
         border: none;
     }
+
+    /* ========== PRENOTAZIONE PRODOTTO MODAL STYLES ========== */
+    .prenotazione-modal {
+        width: 100%;
+        max-width: 700px;
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        max-height: 92vh;
+        animation: prenotazioneSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .prenotazione-modal form {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+    }
+    
+    @keyframes prenotazioneSlideUp {
+        from { opacity: 0; transform: translateY(40px) scale(0.95); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    
+    .prenotazione-modal-header {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        padding: 1.75rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .prenotazione-modal-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    
+    .prenotazione-header-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .prenotazione-header-icon {
+        width: 52px;
+        height: 52px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+    }
+    
+    .prenotazione-header-icon svg {
+        width: 28px;
+        height: 28px;
+        stroke: white;
+        fill: none;
+    }
+    
+    .prenotazione-header-text h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+        letter-spacing: -0.3px;
+    }
+    
+    .prenotazione-header-text span {
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.85);
+    }
+    
+    .prenotazione-close-btn {
+        width: 42px;
+        height: 42px;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .prenotazione-close-btn svg {
+        width: 22px;
+        height: 22px;
+        stroke: white;
+    }
+    
+    .prenotazione-close-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
+    }
+    
+    .prenotazione-modal-body {
+        padding: 1.5rem 2rem;
+        overflow-y: auto;
+        flex: 1;
+        min-height: 0;
+        background: #f8fafc;
+    }
+    
+    .prenotazione-section {
+        background: white;
+        border-radius: 16px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        border: 1px solid #e2e8f0;
+    }
+    
+    .prenotazione-section:last-child {
+        margin-bottom: 0;
+    }
+    
+    .prenotazione-section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748b;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #f1f5f9;
+    }
+    
+    .prenotazione-section-header svg {
+        width: 18px;
+        height: 18px;
+        stroke: #22c55e;
+    }
+    
+    .prenotazione-field {
+        margin-bottom: 1rem;
+    }
+    
+    .prenotazione-field:last-child {
+        margin-bottom: 0;
+    }
+    
+    .prenotazione-field.full-width {
+        grid-column: 1 / -1;
+    }
+    
+    .prenotazione-field label {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 0.4rem;
+    }
+    
+    .prenotazione-grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .prenotazione-grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+    
+    .prenotazione-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    
+    .prenotazione-input-wrapper svg {
+        position: absolute;
+        left: 14px;
+        width: 18px;
+        height: 18px;
+        stroke: #94a3b8;
+        pointer-events: none;
+        transition: stroke 0.2s ease;
+    }
+    
+    .prenotazione-input-wrapper input {
+        width: 100%;
+        padding: 0.75rem 0.75rem 0.75rem 44px;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        background: #f8fafc;
+    }
+    
+    .prenotazione-input-wrapper input:focus {
+        outline: none;
+        border-color: #22c55e;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+    }
+    
+    .prenotazione-input-wrapper input:focus + svg,
+    .prenotazione-input-wrapper input:focus ~ svg {
+        stroke: #22c55e;
+    }
+    
+    .prenotazione-input-wrapper.currency {
+        position: relative;
+    }
+    
+    .prenotazione-input-wrapper.currency .currency-symbol {
+        position: absolute;
+        left: 14px;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #64748b;
+        pointer-events: none;
+    }
+    
+    .prenotazione-input-wrapper.currency input {
+        padding-left: 36px;
+    }
+    
+    /* Quantity Wrapper */
+    .prenotazione-quantity-wrapper {
+        display: flex;
+        align-items: center;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #f8fafc;
+        transition: all 0.2s ease;
+    }
+    
+    .prenotazione-quantity-wrapper:focus-within {
+        border-color: #22c55e;
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+    }
+    
+    .prenotazione-quantity-wrapper input {
+        width: 100%;
+        text-align: center;
+        border: none;
+        padding: 0.75rem 0.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        background: transparent;
+    }
+    
+    .prenotazione-quantity-wrapper input:focus {
+        outline: none;
+        box-shadow: none;
+    }
+    
+    .qty-btn {
+        width: 40px;
+        height: 100%;
+        padding: 0.75rem;
+        background: #f1f5f9;
+        border: none;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .qty-btn:hover {
+        background: #e2e8f0;
+        color: #22c55e;
+    }
+    
+    .qty-btn.minus { border-right: 1px solid #e2e8f0; }
+    .qty-btn.plus { border-left: 1px solid #e2e8f0; }
+    
+    /* Payment Cards */
+    .prenotazione-payment-cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+    }
+    
+    .payment-card {
+        padding: 1rem;
+        border-radius: 12px;
+        text-align: center;
+        transition: all 0.2s ease;
+    }
+    
+    .payment-card.total {
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        border: 2px solid #86efac;
+    }
+    
+    .payment-card.deposit {
+        background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%);
+        border: 2px solid #fde047;
+    }
+    
+    .payment-card.remaining {
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        border: 2px solid #93c5fd;
+    }
+    
+    .payment-card-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .payment-card.total .payment-card-label { color: #15803d; }
+    .payment-card.deposit .payment-card-label { color: #a16207; }
+    .payment-card.remaining .payment-card-label { color: #1d4ed8; }
+    
+    .payment-card-value {
+        font-size: 1.3rem;
+        font-weight: 700;
+    }
+    
+    .payment-card.total .payment-card-value { color: #16a34a; }
+    .payment-card.remaining .payment-card-value { color: #2563eb; }
+    
+    .payment-card-input {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+    }
+    
+    .payment-card-input span {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #a16207;
+    }
+    
+    .payment-card-input input {
+        width: 80px;
+        padding: 0.4rem;
+        border: 2px solid #fde047;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 700;
+        text-align: center;
+        background: white;
+        color: #a16207;
+    }
+    
+    .payment-card-input input:focus {
+        outline: none;
+        border-color: #eab308;
+        box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.2);
+    }
+    
+    /* Client Search */
+    .prenotazione-client-search {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        position: relative;
+    }
+    
+    .prenotazione-client-search .prenotazione-input-wrapper {
+        flex: 1;
+    }
+    
+    .add-client-btn {
+        width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+    }
+    
+    .add-client-btn svg {
+        width: 22px;
+        height: 22px;
+        stroke: white;
+    }
+    
+    .add-client-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
+    }
+    
+    /* Textarea */
+    .prenotazione-section textarea {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-family: inherit;
+        resize: vertical;
+        min-height: 80px;
+        background: #f8fafc;
+        transition: all 0.2s ease;
+    }
+    
+    .prenotazione-section textarea:focus {
+        outline: none;
+        border-color: #22c55e;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+    }
+    
+    .prenotazione-section textarea::placeholder {
+        color: #94a3b8;
+    }
+    
+    /* Footer */
+    .prenotazione-modal-footer {
+        padding: 1.25rem 2rem;
+        background: white;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+    }
+    
+    .prenotazione-btn-cancel {
+        padding: 0.75rem 1.5rem;
+        background: #f1f5f9;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #64748b;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+        font-family: inherit;
+    }
+    
+    .prenotazione-btn-cancel svg {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .prenotazione-btn-cancel:hover {
+        background: #e2e8f0;
+        border-color: #cbd5e1;
+    }
+    
+    .prenotazione-btn-submit {
+        padding: 0.75rem 1.75rem;
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        border: none;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35);
+        font-family: inherit;
+    }
+    
+    .prenotazione-btn-submit svg {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .prenotazione-btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(34, 197, 94, 0.45);
+    }
+    
+    /* Responsive */
+    @media (max-width: 700px) {
+        .prenotazione-modal {
+            max-width: 95%;
+            max-height: 95vh;
+            border-radius: 16px;
+        }
+        
+        .prenotazione-modal-header {
+            padding: 1.25rem 1.5rem;
+        }
+        
+        .prenotazione-header-icon {
+            width: 44px;
+            height: 44px;
+        }
+        
+        .prenotazione-header-text h2 {
+            font-size: 1.2rem;
+        }
+        
+        .prenotazione-modal-body {
+            padding: 1rem 1.25rem;
+        }
+        
+        .prenotazione-grid-2,
+        .prenotazione-grid-3 {
+            grid-template-columns: 1fr;
+        }
+        
+        .prenotazione-payment-cards {
+            grid-template-columns: 1fr;
+        }
+        
+        .prenotazione-modal-footer {
+            padding: 1rem 1.25rem;
+            flex-direction: column;
+        }
+        
+        .prenotazione-btn-cancel,
+        .prenotazione-btn-submit {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+    /* ========== FINE PRENOTAZIONE PRODOTTO MODAL STYLES ========== */
     
     /* Pattern Lock Section */
     .pattern-section {
@@ -1678,6 +2223,62 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         min-height: 200px;
         background: #f8fafc;
     }
+    
+    /* Fix per il modal nuovo cliente */
+    #new_client_modal_overlay .modal-content {
+        max-height: 90vh;
+        overflow: visible;
+    }
+    #new_client_modal_overlay .modal-body {
+        display: block !important;
+        overflow-y: auto !important;
+        max-height: 60vh;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    #new_client_modal_overlay .tab-content {
+        display: none !important;
+        padding-top: 1rem;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    #new_client_modal_overlay .tab-content.active {
+        display: block !important;
+    }
+    #new_client_modal_overlay .form-group {
+        display: flex !important;
+        flex-direction: column !important;
+        margin-bottom: 1rem !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    #new_client_modal_overlay .form-group label {
+        display: block !important;
+        margin-bottom: 0.5rem !important;
+        color: #374151 !important;
+        font-weight: 600 !important;
+        font-size: 0.85rem !important;
+    }
+    #new_client_modal_overlay .form-group input,
+    #new_client_modal_overlay .form-group textarea {
+        display: block !important;
+        width: 100% !important;
+        padding: 0.75rem 1rem !important;
+        border: 2px solid #e2e8f0 !important;
+        border-radius: 10px !important;
+        font-size: 0.95rem !important;
+        background: white !important;
+        color: #1f2937 !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    #new_client_modal_overlay .form-group input:focus,
+    #new_client_modal_overlay .form-group textarea:focus {
+        border-color: #22c55e !important;
+        outline: none !important;
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15) !important;
+    }
+    
     .modal-body .form-group {
         margin-bottom: 1rem;
     }
@@ -1780,37 +2381,47 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
 
-    .tab-button {
-        background-color: transparent;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #64748b;
-        transition: all 0.2s ease;
-        white-space: nowrap;
-    }
-
-    .tab-button.active {
-        background-color: #3b82f6;
-        color: white;
-        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-    }
-
-    .tab-button:hover:not(.active) {
-        background-color: #f1f5f9;
-        color: #334155;
-    }
-
     .tab-content {
         display: none;
         animation: fadeIn 0.3s ease-out;
+        margin-top: 1rem;
     }
 
     .tab-content.active {
         display: block !important;
+    }
+    
+    /* Stili tab buttons migliorati */
+    .tab-buttons {
+        display: flex;
+        gap: 0.5rem;
+        background: #f1f5f9;
+        padding: 0.35rem;
+        border-radius: 10px;
+    }
+    
+    .tab-button {
+        flex: 1;
+        padding: 0.65rem 1rem;
+        border: none;
+        background: transparent;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .tab-button.active {
+        background: white;
+        color: #22c55e;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    .tab-button:hover:not(.active) {
+        background: rgba(255, 255, 255, 0.5);
+        color: #334155;
     }
     
     /* Assicura che i form-group dentro i tab siano visibili */
@@ -3353,92 +3964,228 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
     </div>
 </div>
 
-<!-- Nuovo popup per la Prenotazione Prodotto -->
+<!-- Nuovo popup per la Prenotazione Prodotto - REDESIGNED -->
 <div class="popup-overlay" id="prenotazioneProdottoPopup">
-    <div class="popup-content">
-        <div class="popup-header">
-            <h2>Nuova Prenotazione Prodotto</h2>
-            <button type="button" class="close-btn" id="close-prenotazione-prodotto-popup-btn">&times;</button>
+    <div class="prenotazione-modal">
+        <!-- Header con gradiente -->
+        <div class="prenotazione-modal-header">
+            <div class="prenotazione-header-content">
+                <div class="prenotazione-header-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                        <path d="M9 16l2 2 4-4"></path>
+                    </svg>
+                </div>
+                <div class="prenotazione-header-text">
+                    <h2>Nuova Prenotazione</h2>
+                    <span>Prenota un prodotto per il cliente</span>
+                </div>
+            </div>
+            <button type="button" class="prenotazione-close-btn" id="close-prenotazione-prodotto-popup-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
         </div>
         
         <form action="" method="POST" id="prenotazione-prodotto-form">
             <input type="hidden" name="form_type" value="prenotazione_prodotto">
-            <div class="popup-body">
+            
+            <div class="prenotazione-modal-body">
                 <?php if(!empty($prenotazione_feedback_message)) echo $prenotazione_feedback_message; ?>
-                <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label for="productName_pp">Nome Prodotto da Ordinare *</label>
-                        <input type="text" id="productName_pp" name="productName" placeholder="Es. Smartphone Modello X" required>
+                
+                <!-- Sezione Prodotto -->
+                <div class="prenotazione-section">
+                    <div class="prenotazione-section-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        <span>Dettagli Prodotto</span>
+                    </div>
+                    
+                    <div class="prenotazione-field full-width">
+                        <label for="productName_pp">Nome Prodotto da Ordinare</label>
+                        <div class="prenotazione-input-wrapper">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                            </svg>
+                            <input type="text" id="productName_pp" name="productName" placeholder="Es. iPhone 15 Pro Max 256GB" required>
+                        </div>
                         <input type="hidden" id="productId_pp" name="productId" value="">
                     </div>
 
-                    <div class="form-group">
-                        <label for="unitPrice_pp">Prezzo Unitario (€) *</label>
-                        <input type="number" step="0.01" id="unitPrice_pp" name="unitPrice" min="0" value="0.00" required>
+                    <div class="prenotazione-grid-3">
+                        <div class="prenotazione-field">
+                            <label for="unitPrice_pp">Prezzo Unitario</label>
+                            <div class="prenotazione-input-wrapper currency">
+                                <span class="currency-symbol">€</span>
+                                <input type="number" step="0.01" id="unitPrice_pp" name="unitPrice" min="0" value="0.00" required>
+                            </div>
+                        </div>
+
+                        <div class="prenotazione-field">
+                            <label for="quantity_pp">Quantità</label>
+                            <div class="prenotazione-quantity-wrapper">
+                                <button type="button" class="qty-btn minus" onclick="adjustQuantityPP(-1)">−</button>
+                                <input type="number" id="quantity_pp" name="quantity" min="1" value="1" required>
+                                <button type="button" class="qty-btn plus" onclick="adjustQuantityPP(1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="prenotazione-field">
+                            <label for="reservationDate_pp">Data Prenotazione</label>
+                            <div class="prenotazione-input-wrapper">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                <input type="date" id="reservationDate_pp" name="reservationDate" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sezione Pagamento -->
+                <div class="prenotazione-section">
+                    <div class="prenotazione-section-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                            <line x1="1" y1="10" x2="23" y2="10"></line>
+                        </svg>
+                        <span>Riepilogo Pagamento</span>
+                    </div>
+                    
+                    <div class="prenotazione-payment-cards">
+                        <div class="payment-card total">
+                            <div class="payment-card-label">Totale Ordine</div>
+                            <div class="payment-card-value" id="productTotalPriceDisplay_pp">€ 0,00</div>
+                            <input type="hidden" id="productTotalPrice_pp" name="productTotalPrice">
+                        </div>
+                        
+                        <div class="payment-card deposit">
+                            <div class="payment-card-label">Acconto Versato</div>
+                            <div class="payment-card-input">
+                                <span>€</span>
+                                <input type="number" step="0.01" id="depositAmount_pp" name="depositAmount" min="0" value="0.00">
+                            </div>
+                        </div>
+                        
+                        <div class="payment-card remaining">
+                            <div class="payment-card-label">Da Saldare</div>
+                            <div class="payment-card-value" id="remainingAmountDisplay_pp">€ 0,00</div>
+                            <input type="hidden" id="remainingAmount_pp" name="remainingAmount">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sezione Cliente -->
+                <div class="prenotazione-section">
+                    <div class="prenotazione-section-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <span>Dati Cliente</span>
                     </div>
 
-                    <div class="form-group">
-                        <label for="quantity_pp">Quantità *</label>
-                        <input type="number" id="quantity_pp" name="quantity" min="1" value="1" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="productTotalPriceDisplay_pp">Prezzo Totale</label>
-                        <input type="text" id="productTotalPriceDisplay_pp" value="€ 0,00" readonly>
-                        <input type="hidden" id="productTotalPrice_pp" name="productTotalPrice">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="depositAmount_pp">Acconto Versato</label>
-                        <input type="number" step="0.01" id="depositAmount_pp" name="depositAmount" min="0" value="0.00">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="remainingAmountDisplay_pp">Totale da Dare</label>
-                        <input type="text" id="remainingAmountDisplay_pp" value="€ 0,00" readonly>
-                        <input type="hidden" id="remainingAmount_pp" name="remainingAmount">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="reservationDate_pp">Data Prenotazione *</label>
-                        <input type="date" id="reservationDate_pp" name="reservationDate" required>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label for="customerName_pp">Cliente *</label>
-                        <div class="client-input-container">
-                            <input type="text" id="customerName_pp" name="customerName" placeholder="Cerca o aggiungi cliente" autocomplete="off" required>
+                    <div class="prenotazione-field full-width">
+                        <label for="customerName_pp">Cliente</label>
+                        <div class="prenotazione-client-search">
+                            <div class="prenotazione-input-wrapper">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                                <input type="text" id="customerName_pp" name="customerName" placeholder="Cerca cliente esistente o inserisci nuovo..." autocomplete="off" required>
+                            </div>
+                            <button type="button" class="add-client-btn" id="addClientBtn_pp" title="Aggiungi nuovo cliente">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                            </button>
                             <input type="hidden" id="clientId_pp" name="clientId">
                             <div id="clientAutocompleteList_pp" class="autocomplete-list"></div>
-                            <i class="fas fa-plus-circle add-client-icon" id="addClientBtn_pp" title="Aggiungi nuovo cliente"></i>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="customerPhone_pp">Tel. Principale</label>
-                        <input type="tel" id="customerPhone_pp" name="customerPhone" placeholder="Es. +39 123 4567890">
+                    <div class="prenotazione-grid-2">
+                        <div class="prenotazione-field">
+                            <label for="customerPhone_pp">Telefono Principale</label>
+                            <div class="prenotazione-input-wrapper">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                                </svg>
+                                <input type="tel" id="customerPhone_pp" name="customerPhone" placeholder="333 1234567">
+                            </div>
+                        </div>
+
+                        <div class="prenotazione-field">
+                            <label for="customerSecondaryPhone_pp">Telefono Secondario</label>
+                            <div class="prenotazione-input-wrapper">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                                </svg>
+                                <input type="tel" id="customerSecondaryPhone_pp" name="customerSecondaryPhone" placeholder="Opzionale">
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="customerSecondaryPhone_pp">Tel. Secondario</label>
-                        <input type="tel" id="customerSecondaryPhone_pp" name="customerSecondaryPhone">
-                    </div>
-
-                    <div class="form-group">
+                    <div class="prenotazione-field full-width">
                         <label for="customerEmail_pp">Email</label>
-                        <input type="email" id="customerEmail_pp" name="customerEmail" placeholder="Es. nome@esempio.com">
+                        <div class="prenotazione-input-wrapper">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                            <input type="email" id="customerEmail_pp" name="customerEmail" placeholder="cliente@email.com">
+                        </div>
                     </div>
+                </div>
 
-                    <div class="form-group full-width">
-                        <label for="notes_pp">Note</label>
-                        <textarea id="notes_pp" name="notes" rows="3" placeholder="Aggiungi note sulla prenotazione..."></textarea>
+                <!-- Sezione Note -->
+                <div class="prenotazione-section">
+                    <div class="prenotazione-section-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg>
+                        <span>Note Aggiuntive</span>
+                    </div>
+                    
+                    <div class="prenotazione-field full-width">
+                        <textarea id="notes_pp" name="notes" rows="3" placeholder="Inserisci eventuali note sulla prenotazione (colore, variante, richieste speciali...)"></textarea>
                     </div>
                 </div>
             </div>
 
-            <div class="popup-footer">
-                <button type="button" id="cancelReservationBtn_pp" class="popup-btn prev">Annulla</button>
-                <button type="submit" class="popup-btn submit">Salva Prenotazione</button>
+            <!-- Footer -->
+            <div class="prenotazione-modal-footer">
+                <button type="button" id="cancelReservationBtn_pp" class="prenotazione-btn-cancel">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    Annulla
+                </button>
+                <button type="submit" class="prenotazione-btn-submit">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                    Salva Prenotazione
+                </button>
             </div>
         </form>
     </div>
@@ -3446,76 +4193,76 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
 
 <!-- Modal per l'aggiunta di un nuovo cliente -->
 <div id="new_client_modal_overlay" class="modal-overlay">
-    <div class="modal-content">
+    <div class="modal-content" style="max-height: 90vh; overflow: hidden;">
         <div class="modal-header">
             <h3>Aggiungi Nuovo Cliente</h3>
             <button type="button" class="close-button" id="close_new_client_modal_btn">&times;</button>
         </div>
-        <div class="modal-body" style="display: block; padding: 1.5rem;">
-            <div class="tab-buttons">
-                <button type="button" class="tab-button active" data-tab="personal_data_tab">Dati Personali</button>
-                <button type="button" class="tab-button" data-tab="company_data_tab">Dati Aziendali</button>
+        <div class="modal-body" style="display: block !important; padding: 1.5rem; overflow-y: auto; max-height: calc(90vh - 180px);">
+            <div class="tab-buttons" style="display: flex; gap: 0.5rem; background: #f1f5f9; padding: 0.35rem; border-radius: 10px; margin-bottom: 1rem;">
+                <button type="button" class="tab-button active" data-tab="personal_data_tab" style="flex: 1; padding: 0.65rem 1rem; border: none; background: white; border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: #22c55e; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">Dati Personali</button>
+                <button type="button" class="tab-button" data-tab="company_data_tab" style="flex: 1; padding: 0.65rem 1rem; border: none; background: transparent; border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: #64748b; cursor: pointer;">Dati Aziendali</button>
             </div>
 
-            <div id="personal_data_tab" class="tab-content active" style="display: block;">
-                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label for="modal_nuovo_cliente_nome">Nome:</label>
-                    <input type="text" id="modal_nuovo_cliente_nome" placeholder="Nome" required style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+            <div id="personal_data_tab" class="tab-content active" style="display: block !important;">
+                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Nome: *</label>
+                    <input type="text" id="modal_nuovo_cliente_nome" placeholder="Nome" required style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
                 </div>
-                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label for="modal_nuovo_cliente_cognome">Cognome:</label>
-                    <input type="text" id="modal_nuovo_cliente_cognome" placeholder="Cognome" required style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Cognome: *</label>
+                    <input type="text" id="modal_nuovo_cliente_cognome" placeholder="Cognome" required style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
                 </div>
-                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label for="modal_nuovo_cliente_telefono">Telefono:</label>
-                    <input type="text" id="modal_nuovo_cliente_telefono" placeholder="Es: 3331234567" pattern="[0-9]{10,15}" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Telefono:</label>
+                    <input type="text" id="modal_nuovo_cliente_telefono" placeholder="Es: 3331234567" style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
                 </div>
-                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label for="modal_nuovo_cliente_email">Email:</label>
-                    <input type="email" id="modal_nuovo_cliente_email" placeholder="nome@esempio.com" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Email:</label>
+                    <input type="email" id="modal_nuovo_cliente_email" placeholder="nome@esempio.com" style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
                 </div>
-                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label for="modal_nuovo_cliente_indirizzo">Indirizzo:</label>
-                    <input type="text" id="modal_nuovo_cliente_indirizzo" placeholder="Via Roma, 1" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Indirizzo:</label>
+                    <input type="text" id="modal_nuovo_cliente_indirizzo" placeholder="Via Roma, 1" style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
                 </div>
-                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label for="modal_nuovo_cliente_citta">Città:</label>
-                    <input type="text" id="modal_nuovo_cliente_citta" placeholder="Roma" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Città:</label>
+                    <input type="text" id="modal_nuovo_cliente_citta" placeholder="Roma" style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
                 </div>
-                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label for="modal_nuovo_cliente_note">Note:</label>
-                    <textarea id="modal_nuovo_cliente_note" rows="3" placeholder="Note aggiuntive sul cliente" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;"></textarea>
+                <div style="display: flex; flex-direction: column; margin-bottom: 0;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Note:</label>
+                    <textarea id="modal_nuovo_cliente_note" rows="2" placeholder="Note aggiuntive sul cliente" style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box; resize: vertical;"></textarea>
                 </div>
             </div>
 
             <div id="company_data_tab" class="tab-content" style="display: none;">
-                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label for="modal_nuovo_cliente_ragione_sociale">Ragione Sociale:</label>
-                    <input type="text" id="modal_nuovo_cliente_ragione_sociale" placeholder="Nome S.p.A." style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Ragione Sociale:</label>
+                    <input type="text" id="modal_nuovo_cliente_ragione_sociale" placeholder="Nome S.p.A." style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
                 </div>
-                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label for="modal_nuovo_cliente_partita_iva">Partita IVA:</label>
-                    <input type="text" id="modal_nuovo_cliente_partita_iva" placeholder="IT12345678901" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Partita IVA:</label>
+                    <input type="text" id="modal_nuovo_cliente_partita_iva" placeholder="IT12345678901" style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
                 </div>
-                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label for="modal_nuovo_cliente_indirizzo_azienda">Indirizzo Azienda:</label>
-                    <input type="text" id="modal_nuovo_cliente_indirizzo_azienda" placeholder="Via dell'Industria, 5" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Indirizzo Azienda:</label>
+                    <input type="text" id="modal_nuovo_cliente_indirizzo_azienda" placeholder="Via dell'Industria, 5" style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
                 </div>
-                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label for="modal_nuovo_cliente_citta_azienda">Città Azienda:</label>
-                    <input type="text" id="modal_nuovo_cliente_citta_azienda" placeholder="Milano" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Città Azienda:</label>
+                    <input type="text" id="modal_nuovo_cliente_citta_azienda" placeholder="Milano" style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
                 </div>
-                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label for="modal_nuovo_cliente_telefono_azienda">Telefono Azienda:</label>
-                    <input type="text" id="modal_nuovo_cliente_telefono_azienda" placeholder="Es: 0212345678" pattern="[0-9]{10,15}" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Telefono Azienda:</label>
+                    <input type="text" id="modal_nuovo_cliente_telefono_azienda" placeholder="Es: 0212345678" style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
                 </div>
-                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label for="modal_nuovo_cliente_email_azienda">Email Azienda:</label>
-                    <input type="email" id="modal_nuovo_cliente_email_azienda" placeholder="info@azienda.com" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Email Azienda:</label>
+                    <input type="email" id="modal_nuovo_cliente_email_azienda" placeholder="info@azienda.com" style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
                 </div>
-                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label for="modal_nuovo_cliente_note_azienda">Note Azienda:</label>
-                    <textarea id="modal_nuovo_cliente_note_azienda" rows="3" placeholder="Note aggiuntive sull'azienda" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;"></textarea>
+                <div style="display: flex; flex-direction: column; margin-bottom: 0;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Note Azienda:</label>
+                    <textarea id="modal_nuovo_cliente_note_azienda" rows="2" placeholder="Note aggiuntive sull'azienda" style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box; resize: vertical;"></textarea>
                 </div>
             </div>
         </div>
@@ -3734,7 +4481,7 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         });
         
         // Gestione dei pulsanti "Aggiungi Cliente" all'interno dei popup
-        const addClientBtn = popup.querySelector('.add-client-icon');
+        const addClientBtn = popup.querySelector('.add-client-icon, .add-client-btn');
         if (addClientBtn) addClientBtn.addEventListener('click', () => window.openNewClientModal());
 
         return { openPopup, closePopup };
@@ -4038,17 +4785,41 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
             });
         }
         if (prenotazioneForm) {
-            prenotazioneForm.addEventListener('input', () => {
+            // Funzione per aggiornare i totali della prenotazione
+            const updatePrenotazioneTotals = () => {
                 const quantity = parseFloat(prenotazioneForm.quantity.value) || 0;
                 const unitPrice = parseFloat(prenotazioneForm.unitPrice.value) || 0;
                 const deposit = parseFloat(prenotazioneForm.depositAmount.value) || 0;
                 const total = quantity * unitPrice;
-                const remaining = total - deposit;
-                document.getElementById('productTotalPriceDisplay_pp').value = formatCurrency(total);
+                const remaining = Math.max(0, total - deposit);
+                
+                // Aggiorna display (textContent per div, value per hidden input)
+                const totalDisplay = document.getElementById('productTotalPriceDisplay_pp');
+                const remainingDisplay = document.getElementById('remainingAmountDisplay_pp');
+                
+                if (totalDisplay) totalDisplay.textContent = formatCurrency(total);
+                if (remainingDisplay) remainingDisplay.textContent = formatCurrency(remaining);
+                
                 document.getElementById('productTotalPrice_pp').value = total.toFixed(2);
-                document.getElementById('remainingAmountDisplay_pp').value = formatCurrency(remaining);
                 document.getElementById('remainingAmount_pp').value = remaining.toFixed(2);
-            });
+            };
+            
+            prenotazioneForm.addEventListener('input', updatePrenotazioneTotals);
+            
+            // Funzione globale per i bottoni +/- quantità
+            window.adjustQuantityPP = function(delta) {
+                const qtyInput = document.getElementById('quantity_pp');
+                if (qtyInput) {
+                    let currentVal = parseInt(qtyInput.value) || 1;
+                    currentVal = Math.max(1, currentVal + delta);
+                    qtyInput.value = currentVal;
+                    // Trigger input event per aggiornare i totali
+                    prenotazioneForm.dispatchEvent(new Event('input'));
+                }
+            };
+            
+            // Inizializza calcoli
+            updatePrenotazioneTotals();
         }
         <?php if (!empty($permuta_feedback_message)): ?>
             permutaPopup.openPopup();
