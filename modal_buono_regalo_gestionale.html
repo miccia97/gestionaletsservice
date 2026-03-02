@@ -1,0 +1,167 @@
+<!-- MODAL BUONO REGALO - STILE GESTIONALE -->
+<div class="popup-overlay" id="buonoRegaloModal" style="display:none;">
+  <div class="popup-content">
+    <div class="popup-header">
+      <h2>Nuovo Buono Regalo</h2>
+      <button type="button" class="close-btn" id="close-buono-regalo-modal-btn">&times;</button>
+    </div>
+    <form method="POST" action="" id="buono-regalo-form">
+      <input type="hidden" name="form_type" value="buono_regalo">
+      <div class="popup-body">
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label for="modal_valore">Valore Buono (€) *</label>
+            <input type="number" id="modal_valore" name="valore" step="0.01" min="0" required>
+          </div>
+          <div class="form-group full-width">
+            <label for="modal_codice">Codice Buono *</label>
+            <div class="code-input-group">
+              <input type="text" id="modal_codice" name="codice_buono" readonly required placeholder="Generato automaticamente...">
+              <button type="button" id="modal-copy-code-btn" class="copy-btn" title="Copia codice">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <div id="modal-copy-message" class="copy-message">Copiato!</div>
+          </div>
+          <div class="form-group">
+            <label for="modal_destinatario">Destinatario</label>
+            <input type="text" id="modal_destinatario" name="destinatario" placeholder="Nome del destinatario (opzionale)">
+          </div>
+          <div class="form-group">
+            <label for="modal_data_scadenza">Data Scadenza</label>
+            <input type="date" id="modal_data_scadenza" name="data_scadenza">
+          </div>
+          <div class="form-group full-width">
+            <label for="modal_mittente_note">Mittente / Note</label>
+            <textarea id="modal_mittente_note" name="mittente_note" rows="3" placeholder="Chi ha fatto il regalo o note aggiuntive..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="modal_stato">Stato</label>
+            <select id="modal_stato" name="stato_buono">
+              <option value="Attivo">Attivo</option>
+              <option value="Usato">Usato</option>
+              <option value="Scaduto">Scaduto</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="popup-footer">
+        <button type="submit" class="popup-btn submit">Crea Buono</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Stile coerente con il gestionale -->
+<style>
+.popup-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(34,197,94,0.08);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+}
+.popup-content {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(34,197,94,0.10);
+  width: 420px;
+  max-width: 95vw;
+  padding: 0 0 32px 0;
+  position: relative;
+  border: 1px solid #e5e7eb;
+}
+.popup-header {
+  background: #22c55e;
+  border-radius: 18px 18px 0 0;
+  padding: 22px 0 16px 0;
+  text-align: center;
+  position: relative;
+}
+.popup-header h2 {
+  color: #fff;
+  font-size: 1.7rem;
+  font-weight: 700;
+  margin: 0;
+}
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 18px;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #fff;
+  cursor: pointer;
+}
+.popup-body {
+  padding: 24px 28px 0 28px;
+}
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.code-input-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+input, textarea, select {
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 1.08rem;
+  font-family: 'Inter', Arial, sans-serif;
+  background: #f8fafc;
+  color: #222;
+  outline: none;
+  transition: border-color 0.2s;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: #22c55e;
+}
+.copy-btn {
+  background: #22c55e;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background 0.2s;
+}
+.copy-btn:hover {
+  background: #16a34a;
+}
+.popup-footer {
+  padding: 0 28px 0 28px;
+  margin-top: 18px;
+}
+.popup-btn.submit {
+  background: #22c55e;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.18rem;
+  font-weight: 700;
+  padding: 12px 0;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.popup-btn.submit:hover {
+  background: #16a34a;
+}
+.copy-message {
+  color: #22c55e;
+  font-size: 0.98rem;
+  margin-top: 4px;
+  display: none;
+}
+</style>
