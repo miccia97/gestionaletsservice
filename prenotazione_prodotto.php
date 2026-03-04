@@ -229,134 +229,22 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prenotazione Prodotto</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>Prenotazione Prodotto</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/header-styles.css?v=1">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
+        <style>
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f3f4f6;
-            padding-top: 90px; /* Spazio per la top-bar */
         }
-        /* Stili della top-bar (copiati da visualizza_fatture.php) */
-        .top-bar {
-            background-color: #28a745;
-            color: white;
-            padding: 30px 30px;
-            font-size: 18px;
-            width: 100vw;
-            box-sizing: border-box;
-            display: flex;
-            align-items: center;
-            gap: 150px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1000;
-        }
-        .logo {
-            font-size: 36px;
-            font-weight: bold;
-            white-space: nowrap;
-            color: white;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .logo:hover {
-            color: white;
-            text-decoration: none;
-        }
-        nav ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            gap: 15px;
-        }
-        nav ul li {
-            position: relative;
-        }
-        nav ul li button,
-        nav ul li a {
-            background-color: white;
-            border: none;
-            color: #1a1a1a73;
-            font-size: 16px;
-            padding: 15px 30px;
-            cursor: pointer;
-            border-radius: 5px;
-            user-select: none;
-            text-decoration: none;
-            display: block;
-        }
-        button.no-arrow::after {
-            content: "";
-        }
-        nav ul li.has-dropdown > button::after,
-        nav ul li.has-dropdown > a::after {
-            content: " ▼";
-            font-size: 10px;
-            color: #1a1a1a73;
-        }
-        nav ul li ul.dropdown {
-            display: none;
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background-color: white;
-            min-width: 180px;
-            border-radius: 8px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            padding: 0;
-            margin: 0;
-            list-style: none;
-            z-index: 1000;
-        }
-        nav ul li:hover > ul.dropdown {
-            display: block;
-        }
-        nav ul li ul.dropdown li a {
-            padding: 8px 12px;
-            color: #333;
-        }
-        nav ul li ul.dropdown li a:hover {
-            background-color: #28a745;
-            color: white;
-        }
-        nav ul li ul.dropdown li.has-submenu > a::after {
-            content: " ▶";
-            float: right;
-            font-size: 12px;
-            margin-left: 10px;
-            color: #333;
-        }
-        nav ul li ul.dropdown li ul.submenu {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 100%;
-            background-color: white;
-            min-width: 160px;
-            border-radius: 8px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            padding: 0;
-            margin: 0;
-            list-style: none;
-            z-index: 1100;
-        }
-        nav ul li ul.dropdown li:hover > ul.submenu {
-            display: block;
-        }
-        nav ul li ul.dropdown li ul.submenu li a {
-            padding: 8px 12px;
-            color: #333;
-        }
-        nav ul li ul.submenu li a:hover {
-            background-color: #28a745;
-            color: white;
-        }
-        /* Fine stili top-bar */
+        /* Header styles - gestiti da header-styles.css */
 
         .container {
             max-width: 800px;
@@ -461,7 +349,7 @@ try {
 </head>
 <body>
     <?php include 'header.php'; // Includi la barra di navigazione ?>
-    <?php include 'new_client_modal.php'; // Includi il modale di creazione cliente ?>
+    <!-- Modal nuovo cliente ora incluso automaticamente in header.php -->
 
     <div class="container">
         <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Prenotazione Prodotto</h1>

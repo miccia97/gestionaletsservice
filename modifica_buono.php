@@ -1,13 +1,5 @@
 <?php
-$host = 'localhost';
-$db = 'gestionale_tsservice';
-$user = 'root';
-$pass = '';
-
-$conn = new mysqli($host, $user, $pass, $db);
-if ($conn->connect_error) {
-    die("Connessione fallita: " . $conn->connect_error);
-}
+require_once 'db.php';
 
 // Controllo se l'ID è stato passato
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
@@ -58,7 +50,8 @@ $buono = $result->fetch_assoc();
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Modifica Buono Regalo - TS Service</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>Modifica Buono Regalo - TS Service</title>
 <style>
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

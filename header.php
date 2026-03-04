@@ -1,4 +1,6 @@
 <?php
+if (session_status() === PHP_SESSION_NONE && !headers_sent()) { session_start(); }
+if (!headers_sent()) { ob_start('ob_gzhandler'); }
 // --- ATTIVAZIONE DEBUGGING PHP ---
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -49,6 +51,7 @@ if (isset($_SESSION['message'])) {
 }
 
 // --- 2. Gestione dell'invio dei form (POST) ---
+$new_riparazione_id = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Distinguere tra i form inviati tramite il campo nascosto 'form_type'
     if (isset($_POST['form_type'])) {
@@ -80,7 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 )";
         
                 if ($conn->query($sql_insert) === TRUE) {
-                    $feedback_message = "<div class='feedback success'>Scheda di riparazione salvata con successo! Il popup si chiuderà tra 1 secondo.</div>";
+                    $new_riparazione_id = $conn->insert_id;
+                    $feedback_message = "<div class='feedback success'>Scheda di riparazione salvata con successo! <a href='stampa_riparazione.php?id=" . $new_riparazione_id . "' target='_blank' style='color:#fff;text-decoration:underline;font-weight:600;margin-left:8px;'>🖨️ Stampa</a></div>";
                 } else {
                     $feedback_message = "<div class='feedback error'>Errore durante il salvataggio: " . $conn->error . "</div>";
                 }
@@ -387,2656 +391,6 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
 // $conn->close(); // Rimosso per evitare "mysqli object is already closed"
 
 ?>
-<!DOCTYPE html>
-<html lang="it">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gestione TS Service</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-  <style>
-    :root {
-      --brand-color: #22c55e;
-      --brand-dark: #16a34a;
-      --brand-light: #dcfce7;
-      --text-dark: #1e293b;
-      --text-light: #64748b;
-      --text-muted: #94a3b8;
-      --border-color: #e2e8f0;
-      --bg-light: #f8fafc;
-      --bg-white: #ffffff;
-      --success-color: #22c55e;
-      --danger-color: #ef4444;
-      --warning-color: #f59e0b;
-      --info-color: #3b82f6;
-      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-      --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.08);
-      --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12);
-      --shadow-glow: 0 0 30px rgba(34, 197, 94, 0.2);
-    }
-    
-    html {
-        height: 100%;
-    }
-
-    body {
-      font-family: 'Poppins', sans-serif;
-      color: var(--text-dark);
-      margin: 0;
-      background: var(--bg-light);
-      padding: 0;
-      padding-top: 88px;
-      min-height: 100vh;
-      overflow-y: auto;
-      overflow-x: visible;
-      transition: padding-top 0.3s ease;
-    }
-    
-    /* Quando l'header è compatto */
-    body.header-scrolled {
-      padding-top: 80px;
-    }
-
-    /* --- INIZIO MODIFICHE HEADER --- */
-    .top-bar {
-      background: linear-gradient(135deg, var(--brand-color) 0%, #15803d 50%, var(--brand-dark) 100%);
-      color: white;
-      padding: 0 30px;
-      height: 72px;
-      width: 100vw;
-      box-sizing: border-box;
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 1000;
-      box-shadow: 0 4px 20px rgba(34, 197, 94, 0.25);
-      transition: all 0.3s ease;
-      overflow: visible !important;
-      backdrop-filter: blur(10px);
-    }
-    
-    /* Header scrolled - più compatto */
-    .top-bar.scrolled {
-      height: 64px;
-      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.15);
-    }
-
-    .logo {
-      font-size: 26px;
-      font-weight: 700;
-      white-space: nowrap;
-      color: white;
-      text-decoration: none;
-      cursor: pointer;
-      letter-spacing: -0.5px;
-      transition: transform 0.2s ease;
-    }
-    .logo:hover {
-      transform: scale(1.02);
-    }
-    
-    .search-container {
-        position: relative;
-        display: flex;
-        align-items: center;
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 50px;
-        padding: 8px 18px;
-        width: 100%;
-        max-width: 420px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .search-container:focus-within {
-        background: rgba(255, 255, 255, 0.25);
-        border-color: rgba(255, 255, 255, 0.4);
-        box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
-        transform: scale(1.02);
-    }
-
-    .search-container i {
-        color: rgba(255, 255, 255, 0.9);
-        margin-right: 12px;
-        font-size: 14px;
-    }
-
-    .search-bar {
-        background: transparent;
-        border: none;
-        color: white;
-        font-size: 14px;
-        font-weight: 500;
-        outline: none;
-        width: 100%;
-    }
-    
-    .search-bar::placeholder {
-        color: rgba(255, 255, 255, 0.7);
-        font-weight: 400;
-    }
-
-    /* NUOVO: Stili per il dropdown dei risultati di ricerca */
-    .search-results-dropdown {
-        display: none;
-        position: absolute;
-        top: calc(100% + 5px);
-        left: 0;
-        width: 100%;
-        background-color: var(--bg-white);
-        border-radius: 8px;
-        box-shadow: var(--shadow-lg);
-        max-height: 300px;
-        overflow-y: auto;
-        z-index: 1001;
-    }
-    .search-results-dropdown a {
-        display: block;
-        padding: 12px 20px;
-        color: var(--text-dark);
-        text-decoration: none;
-        transition: background-color 0.2s ease;
-    }
-    .search-results-dropdown a:hover {
-        background-color: var(--bg-light);
-    }
-     .search-results-dropdown a.no-results:hover {
-        background-color: transparent;
-        cursor: default;
-    }
-    .search-results-dropdown .result-category {
-        padding: 8px 20px;
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--text-light);
-        background-color: #f8f9fa;
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    nav {
-        margin-left: auto; /* Sposta la navigazione a destra */
-        overflow: visible !important;
-    }
-
-    nav ul {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      gap: 5px; /* Gap ridotto tra i pulsanti */
-      height: 100%;
-      overflow: visible !important;
-    }
-
-    nav ul li {
-      position: relative;
-      display: flex; /* Allinea il contenuto verticalmente */
-      align-items: center;
-      overflow: visible !important;
-    }
-
-    nav ul li button,
-    nav ul li a {
-      background-color: transparent;
-      border: none;
-      color: white;
-      font-size: 14px;
-      font-weight: 500;
-      padding: 10px 18px;
-      cursor: pointer;
-      border-radius: 10px;
-      user-select: none;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      white-space: nowrap;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      height: fit-content;
-      position: relative;
-    }
-
-    nav ul li button:hover,
-    nav ul li a:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: translateY(-2px);
-    }
-    
-    /* Indicatore di pagina attiva */
-    nav ul li a.active-link {
-        background: rgba(255, 255, 255, 0.25);
-        font-weight: 600;
-    }
-    nav ul li a.active-link::after {
-        content: '';
-        position: absolute;
-        bottom: 4px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 20px;
-        height: 3px;
-        background: white;
-        border-radius: 2px;
-    }
-
-    button.no-arrow::after {
-      content: "";
-    }
-
-    nav ul li.has-dropdown > button::after,
-    nav ul li.has-dropdown > a::after {
-      content: "\25BC";
-      font-size: 10px;
-      color: rgba(255, 255, 255, 0.8); /* Freccia più chiara */
-      margin-left: 8px;
-    }
-
-    /* Stili dropdown */
-    nav ul li ul.dropdown {
-      display: none;
-      position: fixed;
-      background: var(--bg-white);
-      min-width: 220px;
-      width: max-content;
-      max-width: 280px;
-      border-radius: 14px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
-      padding: 10px;
-      list-style: none;
-      z-index: 2000;
-      transform-origin: top;
-      animation: dropdownIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      overflow: visible;
-      height: auto;
-      box-sizing: border-box;
-      border: 1px solid var(--border-color);
-    }
-    @keyframes dropdownIn { 
-      from { opacity: 0; transform: translateY(-10px) scale(0.95); } 
-      to { opacity: 1; transform: translateY(0) scale(1); } 
-    }
-    
-    /* MODIFICA: Rimosso :hover per la visualizzazione, ora gestito da JS con la classe .active */
-    nav ul li.active > ul.dropdown { 
-        display: block; 
-    }
-
-    nav ul li ul.dropdown li a, nav ul li ul.dropdown li button {
-      padding: 12px 16px; 
-      color: var(--text-dark); 
-      background-color: transparent;
-      width: 100%; 
-      text-align: left; 
-      border-radius: 10px; 
-      font-size: 14px;
-      font-weight: 500;
-      border: none;
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      margin-bottom: 2px;
-    }
-    nav ul li ul.dropdown li a:hover, nav ul li ul.dropdown li button:hover {
-      background: var(--brand-light);
-      color: var(--brand-dark);
-    }
-    nav ul li ul.dropdown li.active > a,
-    nav ul li ul.dropdown li.active > button {
-      background-color: var(--brand-color);
-      color: white;
-      font-weight: 600;
-      padding-left: 25px;
-    }
-    nav ul li ul.dropdown li.has-submenu > a::after {
-      content: " \25B6"; float: right; font-size: 10px;
-      margin-left: 10px; color: var(--text-light);
-    }
-    nav ul li ul.dropdown li ul.submenu {
-      display: none;
-      position: fixed;
-      background-color: var(--bg-white); 
-      min-width: 200px; 
-            width: max-content;
-            max-width: 260px;
-      border-radius: 8px;
-      box-shadow: var(--shadow-lg); 
-      padding: 8px 0; 
-      list-style: none;
-      z-index: 2100;
-      overflow: visible;
-      height: auto;
-            box-sizing: border-box;
-      transition: opacity 0.2s ease, visibility 0.2s ease;
-    }
-    
-    /* Stile per i link nel submenu */
-    nav ul li ul.dropdown li ul.submenu li a {
-      padding: 10px 20px;
-      color: var(--text-dark);
-      display: block;
-      text-decoration: none;
-      font-size: 14px;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    nav ul li ul.dropdown li ul.submenu li a:hover {
-      background: var(--brand-light);
-      color: var(--brand-dark);
-    }
-    
-    /* MODIFICA: Rimosso :hover per la visualizzazione, ora gestito da JS con la classe .active */
-    nav ul li ul.dropdown li.active > ul.submenu { 
-        display: block;
-    }
-
-    /* Menu Utente Migliorato */
-    .user-menu-container {
-        position: relative;
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        margin-left: 24px;
-        padding-left: 24px;
-        border-left: 1px solid rgba(255, 255, 255, 0.25);
-        cursor: pointer;
-        padding: 8px 0 8px 24px;
-        transition: all 0.2s ease;
-    }
-    .user-menu-container:hover {
-        border-left-color: rgba(255, 255, 255, 0.5);
-    }
-    .user-greeting {
-        color: white;
-        font-weight: 500;
-        font-size: 14px;
-        white-space: nowrap;
-        line-height: 1.3;
-    }
-    .user-greeting .user-name {
-        font-weight: 700;
-        display: block;
-    }
-    .user-greeting .user-role {
-        font-size: 11px;
-        opacity: 0.8;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    .user-icon-trigger {
-        width: 42px;
-        height: 42px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-        color: white;
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .user-menu-container:hover .user-icon-trigger {
-        background: rgba(255, 255, 255, 0.3);
-        transform: scale(1.05);
-    }
-    
-    .user-dropdown {
-        display: none;
-        position: absolute;
-        top: calc(100% + 12px);
-        right: 0;
-        background: var(--bg-white);
-        border-radius: 16px;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
-        min-width: 260px;
-        border: 1px solid var(--border-color);
-        padding: 20px;
-        animation: fadeInDropdown 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        transform-origin: top right;
-        opacity: 0;
-        visibility: hidden;
-        z-index: 1001;
-    }
-    .user-menu-container.active .user-dropdown { display: block; opacity: 1; visibility: visible; }
-    @keyframes fadeInDropdown {
-        from { opacity: 0; transform: translateY(-10px) scale(0.95); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    .user-dropdown-info { 
-        font-size: 14px; 
-        color: var(--text-dark); 
-        margin-bottom: 16px;
-        padding-bottom: 16px; 
-        border-bottom: 1px solid var(--border-color); 
-        text-align: center; 
-    }
-    .user-dropdown-info strong { 
-        font-weight: 700; 
-        display: block; 
-        margin-bottom: 4px; 
-        font-size: 16px;
-        color: var(--text-dark);
-    }
-    .user-dropdown-info span { 
-        display: inline-block; 
-        color: var(--brand-color); 
-        font-size: 12px;
-        font-weight: 600;
-        background: var(--brand-light);
-        padding: 4px 12px;
-        border-radius: 20px;
-        margin-top: 8px;
-    }
-    .user-dropdown .logout-button { 
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        width: 100%; 
-        text-align: center;
-        background: linear-gradient(135deg, var(--brand-color) 0%, var(--brand-dark) 100%); 
-        color: white; 
-        padding: 12px 16px;
-        border-radius: 12px; 
-        text-decoration: none; 
-        font-size: 14px;
-        font-weight: 600;
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
-        box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
-    }
-    .user-dropdown .logout-button:hover { 
-        transform: translateY(-2px); 
-        box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
-    }
-
-    @media (max-width: 1200px) {
-        .user-greeting { display: none; } /* Nasconde il saluto su schermi più piccoli */
-        .search-container { max-width: 250px; }
-        .top-bar { gap: 15px; padding: 0 20px; }
-    }
-    
-    @media (max-width: 992px) {
-        .top-bar nav { display: none; } /* Nasconde la navigazione principale */
-        .search-container { margin-left: auto; } /* Sposta la ricerca a destra */
-        .user-menu-container { margin-left: 15px; padding-left: 15px; }
-        
-        /* Hamburger button */
-        .hamburger-btn {
-            display: flex !important;
-            flex-direction: column;
-            gap: 5px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 10px;
-            margin-left: 10px;
-        }
-        .hamburger-btn span {
-            width: 25px;
-            height: 3px;
-            background-color: white;
-            border-radius: 2px;
-            transition: all 0.3s ease;
-        }
-        .hamburger-btn.active span:nth-child(1) { transform: rotate(45deg) translate(8px, 8px); }
-        .hamburger-btn.active span:nth-child(2) { opacity: 0; }
-        .hamburger-btn.active span:nth-child(3) { transform: rotate(-45deg) translate(7px, -7px); }
-        
-        /* Menu mobile */
-        nav.mobile-nav {
-            display: flex !important;
-            position: fixed;
-            top: 80px;
-            left: 0;
-            width: 100%;
-            background-color: var(--brand-color);
-            flex-direction: column;
-            max-height: calc(100vh - 80px);
-            overflow-y: auto;
-            z-index: 999;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-        }
-        nav.mobile-nav.active {
-            transform: translateX(0);
-        }
-        nav.mobile-nav ul {
-            flex-direction: column;
-            gap: 0;
-        }
-        nav.mobile-nav ul li {
-            width: 100%;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        nav.mobile-nav ul li a,
-        nav.mobile-nav ul li button {
-            border-radius: 0;
-            padding: 15px 20px;
-        }
-        nav.mobile-nav ul li ul.dropdown {
-            position: static !important;
-            width: 100% !important;
-            min-width: auto !important;
-            top: auto !important;
-            left: auto !important;
-            box-shadow: none;
-            border-radius: 0;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-        nav.mobile-nav ul li.active > ul.dropdown {
-            max-height: 500px;
-        }
-    }
-    
-    @media (max-width: 768px) {
-        .top-bar { height: auto; flex-direction: column; align-items: flex-start; padding: 15px; gap: 15px; }
-        .search-container { width: 100%; max-width: none; margin-left: 0; }
-        .user-menu-container { width: 100%; display: flex; justify-content: flex-end; margin-top: 10px;
-            padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.2); margin-left: 0; padding-left: 0; border-left: none; }
-        .user-greeting { display: block; } /* Ri-mostra il saluto in modalità mobile */
-    }
-    /* --- FINE MODIFICHE HEADER --- */
-
-
-    /* Stili per il popup wizard e buono regalo */
-    .popup-overlay {
-        position: fixed;
-        inset: 0;
-        background-color: rgba(52, 73, 94, 0.6);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 2000;
-        padding: 1rem;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
-    }
-    
-    .popup-overlay.visible {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    .wizard-container, .popup-content {
-      width: 100%;
-      background-color: var(--bg-white);
-      border-radius: 20px;
-      box-shadow: 0 25px 60px rgba(0,0,0,0.2);
-      max-height: 90vh;
-      height: 90vh;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      animation: slideUpPopup 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .wizard-container { max-width: 900px; }
-    .popup-content { max-width: 650px; height: auto; }
-
-    @keyframes slideUpPopup { 
-      from { opacity: 0; transform: translateY(30px) scale(0.95); } 
-      to { opacity: 1; transform: translateY(0) scale(1); } 
-    }
-
-    .close-btn {
-        position: absolute;
-        top: 18px;
-        right: 20px;
-        width: 36px;
-        height: 36px;
-        background: rgba(255,255,255,0.2);
-        border: none;
-        border-radius: 50%;
-        font-size: 1.4rem;
-        color: white;
-        cursor: pointer;
-        z-index: 10;
-        transition: all 0.2s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        line-height: 1;
-    }
-    .close-btn:hover { 
-      background: rgba(255,255,255,0.3);
-      transform: rotate(90deg);
-    }
-    
-    /* Header Wizard con Gradiente */
-    .wizard-header, .popup-header {
-      padding: 1.8rem 2.5rem;
-      flex-shrink: 0;
-      background: linear-gradient(135deg, var(--brand-color) 0%, #20c997 100%);
-      color: white;
-      border-radius: 20px 20px 0 0;
-      position: relative;
-      overflow: hidden;
-    }
-    .wizard-header::before, .popup-header::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      right: -20%;
-      width: 300px;
-      height: 300px;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    
-    .wizard-header-content {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 15px;
-      position: relative;
-      z-index: 2;
-    }
-    
-    .wizard-header-icon {
-      width: 50px;
-      height: 50px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .wizard-header-icon svg {
-      width: 28px;
-      height: 28px;
-      stroke: white;
-      fill: none;
-    }
-    
-    .wizard-header h1, .popup-header h2 {
-        text-align: center; margin: 0; font-size: 1.5rem;
-        font-weight: 700; color: white;
-        letter-spacing: -0.3px;
-    }
-    
-    .modal-header {
-        padding: 1.2rem 1.5rem;
-        background-color: var(--brand-color);
-        color: white;
-        border-radius: 12px 12px 0 0;
-        margin: 0;
-    }
-    .modal-header h3 {
-        text-align: center; margin: 0; font-size: 1.3rem;
-        font-weight: 600; color: white;
-    }
-    
-    .modal-content .close-button {
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 2rem;
-    }
-
-    /* Stepper Navigation Moderno */
-    .stepper-nav {
-      display: flex;
-      justify-content: center;
-      padding: 0;
-      background-color: var(--bg-white);
-      border-bottom: 1px solid var(--border-color);
-      flex-shrink: 0;
-    }
-    .stepper-wrapper {
-      display: flex;
-      align-items: center;
-      padding: 1.5rem 2rem;
-      max-width: 600px;
-      width: 100%;
-    }
-    .step {
-      display: flex; 
-      align-items: center; 
-      flex-direction: column;
-      text-align: center; 
-      position: relative; 
-      flex: 1;
-      cursor: pointer;
-    }
-    .step-bubble {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: var(--bg-light);
-      border: 2px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      z-index: 2;
-    }
-    .step-bubble svg {
-      width: 22px;
-      height: 22px;
-      stroke: var(--text-light);
-      stroke-width: 2;
-      fill: none;
-      transition: all 0.3s ease;
-    }
-    .step-label { 
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: var(--text-light);
-      margin-top: 8px;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    /* Step connector line */
-    .step:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      top: 24px;
-      left: calc(50% + 28px);
-      width: calc(100% - 56px);
-      height: 3px;
-      background: var(--border-color);
-      z-index: 1;
-      transition: all 0.4s ease;
-    }
-    /* Active step */
-    .step.active .step-bubble {
-      background: #e8f5e9;
-      border-color: var(--brand-color);
-      box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.15);
-    }
-    .step.active .step-bubble svg { stroke: var(--brand-color); }
-    .step.active .step-label { color: var(--brand-color); }
-    /* Completed step */
-    .step.completed .step-bubble {
-      background: var(--brand-color);
-      border-color: var(--brand-color);
-    }
-    .step.completed .step-bubble svg { stroke: white; }
-    .step.completed .step-label { color: var(--brand-color); }
-    .step.completed::after { background: var(--brand-color); }
-
-    .wizard-body, .popup-body, .modal-body {
-        padding: 2rem 2.5rem;
-        background-color: #f8f9fa;
-        overflow-y: auto;
-        flex: 1;
-        min-height: 0; /* Importante per scroll in flexbox */
-    }
-    .modal-content .modal-body {
-        padding: 1.5rem;
-    }
-    
-    /* Form che avvolge body e footer */
-    .wizard-container form,
-    .popup-content form {
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-        min-height: 0;
-        overflow: hidden;
-    }
-    
-    /* Form Card per raggruppare campi */
-    .form-card {
-      background: white;
-      border-radius: 14px;
-      padding: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-      margin-bottom: 1rem;
-    }
-    .form-card-title {
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-light);
-      margin-bottom: 1.25rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .form-card-title svg {
-      width: 16px;
-      height: 16px;
-      stroke: var(--brand-color);
-    }
-    
-    .step-pane { display: none; animation: fadeInStep 0.4s ease; }
-    .step-pane.active { display: block; }
-    @keyframes fadeInStep { 
-      from { opacity: 0; transform: translateX(20px); } 
-      to { opacity: 1; transform: translateX(0); } 
-    }
-
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.25rem;
-    }
-    .form-group { display: flex; flex-direction: column; gap: 6px; }
-    .form-group.full-width { grid-column: 1 / -1; }
-    label { font-weight: 600; font-size: 0.85rem; color: #4a5568; margin-bottom: 0; }
-    
-    /* Input con icone */
-    .input-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-    .input-wrapper .input-icon {
-      position: absolute;
-      left: 14px;
-      width: 18px;
-      height: 18px;
-      stroke: var(--text-light);
-      fill: none;
-      pointer-events: none;
-      transition: stroke 0.2s ease;
-    }
-    .input-wrapper input:focus ~ .input-icon {
-      stroke: var(--brand-color);
-    }
-    
-    input, select, textarea {
-      width: 100%; 
-      padding: 0.85rem 1rem;
-      border: 2px solid #e2e8f0;
-      border-radius: 10px;
-      font-size: 0.95rem; 
-      color: var(--text-dark);
-      box-sizing: border-box; 
-      transition: all 0.2s ease;
-      background-color: white;
-      font-family: inherit;
-    }
-    .input-wrapper input {
-      padding-left: 44px;
-    }
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--brand-color); 
-      outline: none; 
-      box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.1);
-    }
-    input::placeholder { color: #a0aec0; }
-    
-    .client-input-container {
-        position: relative;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    .client-input-container input[type="text"] {
-        flex-grow: 1;
-    }
-
-    /* Footer con Progress Bar */
-    .wizard-footer, .popup-footer, .modal-footer {
-      display: flex; 
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.25rem 2.5rem; 
-      border-top: 1px solid var(--border-color);
-      background-color: white; 
-      flex-shrink: 0;
-      gap: 1rem;
-      border-radius: 0 0 20px 20px;
-    }
-    .modal-footer {
-        justify-content: flex-end;
-        border-radius: 0 0 12px 12px;
-    }
-    
-    /* Progress bar nel footer */
-    .wizard-progress-section {
-      flex: 1;
-      max-width: 280px;
-      margin: 0 1.5rem;
-    }
-    .wizard-progress-bar {
-      height: 6px;
-      background: var(--border-color);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    .wizard-progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--brand-color), #20c997);
-      border-radius: 3px;
-      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      width: 25%;
-    }
-    .wizard-progress-text {
-      font-size: 0.7rem;
-      color: var(--text-light);
-      margin-top: 5px;
-      text-align: center;
-    }
-
-    .wizard-btn, .popup-btn, .modal-footer button {
-      padding: 0.85rem 2rem;
-      font-size: 0.95rem; 
-      font-weight: 600;
-      font-family: inherit;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .wizard-btn svg {
-      width: 18px;
-      height: 18px;
-      stroke: currentColor;
-      fill: none;
-    }
-    .wizard-btn.prev, .modal-footer .cancel-button { 
-        background-color: #f1f5f9; 
-        color: #64748b;
-        border: 2px solid #e2e8f0;
-    }
-    .wizard-btn.prev:hover, .modal-footer .cancel-button:hover { 
-        background-color: #e2e8f0; 
-    }
-    .wizard-btn.next, .wizard-btn.submit, .popup-btn.submit, .modal-footer .save-button { 
-        background-color: var(--brand-color); 
-        color: white;
-    }
-    .wizard-btn.next:hover, .wizard-btn.submit:hover, .popup-btn.submit:hover, .modal-footer .save-button:hover {
-        background-color: var(--brand-dark);
-        transform: translateY(-2px);
-        box-shadow: 0 5px 12px rgba(0,0,0,0.15);
-    }
-    .wizard-btn:disabled, .popup-btn:disabled { 
-        background: #ecf0f1; 
-        color: #c0c0c0; 
-        cursor: not-allowed; 
-        box-shadow: none;
-        transform: none;
-        border: none;
-    }
-
-    /* ========== PRENOTAZIONE PRODOTTO MODAL STYLES ========== */
-    .prenotazione-modal {
-        width: 100%;
-        max-width: 700px;
-        background: white;
-        border-radius: 24px;
-        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.25);
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        max-height: 92vh;
-        animation: prenotazioneSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    
-    .prenotazione-modal form {
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-        min-height: 0;
-        overflow: hidden;
-    }
-    
-    @keyframes prenotazioneSlideUp {
-        from { opacity: 0; transform: translateY(40px) scale(0.95); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    
-    .prenotazione-modal-header {
-        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-        padding: 1.75rem 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .prenotazione-modal-header::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -20%;
-        width: 300px;
-        height: 300px;
-        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
-        pointer-events: none;
-    }
-    
-    .prenotazione-header-content {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        position: relative;
-        z-index: 2;
-    }
-    
-    .prenotazione-header-icon {
-        width: 52px;
-        height: 52px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        backdrop-filter: blur(10px);
-    }
-    
-    .prenotazione-header-icon svg {
-        width: 28px;
-        height: 28px;
-        stroke: white;
-        fill: none;
-    }
-    
-    .prenotazione-header-text h2 {
-        margin: 0;
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: white;
-        letter-spacing: -0.3px;
-    }
-    
-    .prenotazione-header-text span {
-        font-size: 0.875rem;
-        color: rgba(255, 255, 255, 0.85);
-    }
-    
-    .prenotazione-close-btn {
-        width: 42px;
-        height: 42px;
-        background: rgba(255, 255, 255, 0.2);
-        border: none;
-        border-radius: 12px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s ease;
-        position: relative;
-        z-index: 2;
-    }
-    
-    .prenotazione-close-btn svg {
-        width: 22px;
-        height: 22px;
-        stroke: white;
-    }
-    
-    .prenotazione-close-btn:hover {
-        background: rgba(255, 255, 255, 0.3);
-        transform: rotate(90deg);
-    }
-    
-    .prenotazione-modal-body {
-        padding: 1.5rem 2rem;
-        overflow-y: auto;
-        flex: 1;
-        min-height: 0;
-        background: #f8fafc;
-    }
-    
-    .prenotazione-section {
-        background: white;
-        border-radius: 16px;
-        padding: 1.25rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        border: 1px solid #e2e8f0;
-    }
-    
-    .prenotazione-section:last-child {
-        margin-bottom: 0;
-    }
-    
-    .prenotazione-section-header {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.8rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: #64748b;
-        margin-bottom: 1rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 2px solid #f1f5f9;
-    }
-    
-    .prenotazione-section-header svg {
-        width: 18px;
-        height: 18px;
-        stroke: #22c55e;
-    }
-    
-    .prenotazione-field {
-        margin-bottom: 1rem;
-    }
-    
-    .prenotazione-field:last-child {
-        margin-bottom: 0;
-    }
-    
-    .prenotazione-field.full-width {
-        grid-column: 1 / -1;
-    }
-    
-    .prenotazione-field label {
-        display: block;
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: #475569;
-        margin-bottom: 0.4rem;
-    }
-    
-    .prenotazione-grid-2 {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-    }
-    
-    .prenotazione-grid-3 {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-    }
-    
-    .prenotazione-input-wrapper {
-        position: relative;
-        display: flex;
-        align-items: center;
-    }
-    
-    .prenotazione-input-wrapper svg {
-        position: absolute;
-        left: 14px;
-        width: 18px;
-        height: 18px;
-        stroke: #94a3b8;
-        pointer-events: none;
-        transition: stroke 0.2s ease;
-    }
-    
-    .prenotazione-input-wrapper input {
-        width: 100%;
-        padding: 0.75rem 0.75rem 0.75rem 44px;
-        border: 2px solid #e2e8f0;
-        border-radius: 10px;
-        font-size: 0.95rem;
-        transition: all 0.2s ease;
-        background: #f8fafc;
-    }
-    
-    .prenotazione-input-wrapper input:focus {
-        outline: none;
-        border-color: #22c55e;
-        background: white;
-        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
-    }
-    
-    .prenotazione-input-wrapper input:focus + svg,
-    .prenotazione-input-wrapper input:focus ~ svg {
-        stroke: #22c55e;
-    }
-    
-    .prenotazione-input-wrapper.currency {
-        position: relative;
-    }
-    
-    .prenotazione-input-wrapper.currency .currency-symbol {
-        position: absolute;
-        left: 14px;
-        font-size: 1rem;
-        font-weight: 600;
-        color: #64748b;
-        pointer-events: none;
-    }
-    
-    .prenotazione-input-wrapper.currency input {
-        padding-left: 36px;
-    }
-    
-    /* Quantity Wrapper */
-    .prenotazione-quantity-wrapper {
-        display: flex;
-        align-items: center;
-        border: 2px solid #e2e8f0;
-        border-radius: 10px;
-        overflow: hidden;
-        background: #f8fafc;
-        transition: all 0.2s ease;
-    }
-    
-    .prenotazione-quantity-wrapper:focus-within {
-        border-color: #22c55e;
-        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
-    }
-    
-    .prenotazione-quantity-wrapper input {
-        width: 100%;
-        text-align: center;
-        border: none;
-        padding: 0.75rem 0.5rem;
-        font-size: 1rem;
-        font-weight: 600;
-        background: transparent;
-    }
-    
-    .prenotazione-quantity-wrapper input:focus {
-        outline: none;
-        box-shadow: none;
-    }
-    
-    .qty-btn {
-        width: 40px;
-        height: 100%;
-        padding: 0.75rem;
-        background: #f1f5f9;
-        border: none;
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: #64748b;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-    
-    .qty-btn:hover {
-        background: #e2e8f0;
-        color: #22c55e;
-    }
-    
-    .qty-btn.minus { border-right: 1px solid #e2e8f0; }
-    .qty-btn.plus { border-left: 1px solid #e2e8f0; }
-    
-    /* Payment Cards */
-    .prenotazione-payment-cards {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.75rem;
-    }
-    
-    .payment-card {
-        padding: 1rem;
-        border-radius: 12px;
-        text-align: center;
-        transition: all 0.2s ease;
-    }
-    
-    .payment-card.total {
-        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-        border: 2px solid #86efac;
-    }
-    
-    .payment-card.deposit {
-        background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%);
-        border: 2px solid #fde047;
-    }
-    
-    .payment-card.remaining {
-        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-        border: 2px solid #93c5fd;
-    }
-    
-    .payment-card-label {
-        font-size: 0.7rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 0.5rem;
-    }
-    
-    .payment-card.total .payment-card-label { color: #15803d; }
-    .payment-card.deposit .payment-card-label { color: #a16207; }
-    .payment-card.remaining .payment-card-label { color: #1d4ed8; }
-    
-    .payment-card-value {
-        font-size: 1.3rem;
-        font-weight: 700;
-    }
-    
-    .payment-card.total .payment-card-value { color: #16a34a; }
-    .payment-card.remaining .payment-card-value { color: #2563eb; }
-    
-    .payment-card-input {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 4px;
-    }
-    
-    .payment-card-input span {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #a16207;
-    }
-    
-    .payment-card-input input {
-        width: 80px;
-        padding: 0.4rem;
-        border: 2px solid #fde047;
-        border-radius: 8px;
-        font-size: 1rem;
-        font-weight: 700;
-        text-align: center;
-        background: white;
-        color: #a16207;
-    }
-    
-    .payment-card-input input:focus {
-        outline: none;
-        border-color: #eab308;
-        box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.2);
-    }
-    
-    /* Client Search */
-    .prenotazione-client-search {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        position: relative;
-    }
-    
-    .prenotazione-client-search .prenotazione-input-wrapper {
-        flex: 1;
-    }
-    
-    .add-client-btn {
-        width: 44px;
-        height: 44px;
-        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s ease;
-        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
-    }
-    
-    .add-client-btn svg {
-        width: 22px;
-        height: 22px;
-        stroke: white;
-    }
-    
-    .add-client-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
-    }
-    
-    /* Textarea */
-    .prenotazione-section textarea {
-        width: 100%;
-        padding: 0.875rem 1rem;
-        border: 2px solid #e2e8f0;
-        border-radius: 10px;
-        font-size: 0.95rem;
-        font-family: inherit;
-        resize: vertical;
-        min-height: 80px;
-        background: #f8fafc;
-        transition: all 0.2s ease;
-    }
-    
-    .prenotazione-section textarea:focus {
-        outline: none;
-        border-color: #22c55e;
-        background: white;
-        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
-    }
-    
-    .prenotazione-section textarea::placeholder {
-        color: #94a3b8;
-    }
-    
-    /* Footer */
-    .prenotazione-modal-footer {
-        padding: 1.25rem 2rem;
-        background: white;
-        border-top: 1px solid #e2e8f0;
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.75rem;
-    }
-    
-    .prenotazione-btn-cancel {
-        padding: 0.75rem 1.5rem;
-        background: #f1f5f9;
-        border: 2px solid #e2e8f0;
-        border-radius: 10px;
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #64748b;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.2s ease;
-        font-family: inherit;
-    }
-    
-    .prenotazione-btn-cancel svg {
-        width: 18px;
-        height: 18px;
-    }
-    
-    .prenotazione-btn-cancel:hover {
-        background: #e2e8f0;
-        border-color: #cbd5e1;
-    }
-    
-    .prenotazione-btn-submit {
-        padding: 0.75rem 1.75rem;
-        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-        border: none;
-        border-radius: 10px;
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: white;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.2s ease;
-        box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35);
-        font-family: inherit;
-    }
-    
-    .prenotazione-btn-submit svg {
-        width: 18px;
-        height: 18px;
-    }
-    
-    .prenotazione-btn-submit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(34, 197, 94, 0.45);
-    }
-    
-    /* Responsive */
-    @media (max-width: 700px) {
-        .prenotazione-modal {
-            max-width: 95%;
-            max-height: 95vh;
-            border-radius: 16px;
-        }
-        
-        .prenotazione-modal-header {
-            padding: 1.25rem 1.5rem;
-        }
-        
-        .prenotazione-header-icon {
-            width: 44px;
-            height: 44px;
-        }
-        
-        .prenotazione-header-text h2 {
-            font-size: 1.2rem;
-        }
-        
-        .prenotazione-modal-body {
-            padding: 1rem 1.25rem;
-        }
-        
-        .prenotazione-grid-2,
-        .prenotazione-grid-3 {
-            grid-template-columns: 1fr;
-        }
-        
-        .prenotazione-payment-cards {
-            grid-template-columns: 1fr;
-        }
-        
-        .prenotazione-modal-footer {
-            padding: 1rem 1.25rem;
-            flex-direction: column;
-        }
-        
-        .prenotazione-btn-cancel,
-        .prenotazione-btn-submit {
-            width: 100%;
-            justify-content: center;
-        }
-    }
-    /* ========== FINE PRENOTAZIONE PRODOTTO MODAL STYLES ========== */
-    
-    /* Pattern Lock Section */
-    .pattern-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1rem;
-      padding: 1.5rem;
-      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-      border-radius: 16px;
-      border: 2px dashed #e2e8f0;
-    }
-    .pattern-section-header {
-      text-align: center;
-    }
-    .pattern-section-header h4 {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text-dark);
-      margin-bottom: 4px;
-    }
-    .pattern-section-header p {
-      font-size: 0.8rem;
-      color: var(--text-light);
-      margin: 0;
-    }
-    
-    .pattern-lock {
-        width: 180px; height: 180px; display: grid; grid-template-columns: repeat(3, 1fr);
-        gap: 20px; position: relative; user-select: none; touch-action: none;
-        background: white;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    }
-    #pattern-canvas { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1; }
-    .pattern-dot {
-        width: 100%; height: 100%; background: #e2e8f0; border-radius: 50%;
-        border: 3px solid #cbd5e1; cursor: pointer; z-index: 2;
-        transition: all 0.2s ease;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .pattern-dot:hover { background-color: #d1fae5; border-color: var(--brand-color); }
-    .pattern-dot.selected { background-color: var(--brand-color); border-color: var(--brand-dark); transform: scale(1.15); box-shadow: 0 4px 12px rgba(40,167,69,0.3); }
-    
-    .pattern-hint {
-      font-size: 0.75rem;
-      color: var(--text-light);
-      text-align: center;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .pattern-hint svg { width: 14px; height: 14px; stroke: var(--text-light); }
-    
-    /* Telefono Chip Display */
-    .telefono-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: linear-gradient(135deg, var(--brand-color) 0%, #20c997 100%);
-      color: white;
-      padding: 8px 14px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 600;
-    }
-    .telefono-chip svg { width: 16px; height: 16px; stroke: white; }
-    
-    /* Checkbox Wizard Style */
-    .checkbox-wrapper-wizard {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 1rem;
-      background: #f8fafc;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      border: 2px solid transparent;
-    }
-    .checkbox-wrapper-wizard:hover { background: #f1f5f9; border-color: #e2e8f0; }
-    .checkbox-wrapper-wizard input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
-      accent-color: var(--brand-color);
-      cursor: pointer;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-    .checkbox-wrapper-wizard .checkbox-label {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .checkbox-wrapper-wizard .checkbox-label span:first-child {
-      font-weight: 600;
-      font-size: 0.9rem;
-      color: var(--text-dark);
-    }
-    .checkbox-wrapper-wizard .checkbox-label span:last-child {
-      font-size: 0.8rem;
-      color: var(--text-light);
-    }
-    
-    .feedback { padding: 1rem 1.5rem; margin: 0 0 1.5rem 0; border-radius: 8px; font-weight: 500; border: 1px solid transparent; }
-    .feedback.success { background-color: #eafaf1; border-color: #b7e1c7; color: #155724; }
-    .feedback.error { background-color: #fbebee; border-color: #f5c6cb; color: #721c24; }
-
-    .code-input-group {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    .code-input-group input {
-        flex-grow: 1;
-        border-right: none;
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
-    }
-    .copy-btn {
-        background-color: var(--brand-color);
-        color: white;
-        border: none;
-        padding: 0.85rem 1.2rem;
-        border-radius: 10px;
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-        cursor: pointer;
-        transition: background-color 0.2s ease, transform 0.2s ease;
-        font-size: 1rem;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-    }
-    .copy-btn:hover {
-        background-color: var(--brand-dark);
-        transform: translateY(-1px);
-    }
-    .copy-btn:active {
-        transform: translateY(0);
-        box-shadow: none;
-    }
-    .copy-message {
-        position: absolute;
-        bottom: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: rgba(0, 0, 0, 0.7);
-        color: white;
-        padding: 8px 15px;
-        border-radius: 5px;
-        font-size: 0.85rem;
-        opacity: 0;
-        transition: opacity 0.3s ease-in-out;
-        pointer-events: none;
-        z-index: 2001;
-    }
-    .copy-message.show {
-        opacity: 1;
-    }
-    
-    /* Responsive Wizard */
-    @media (max-width: 768px) {
-        .wizard-container {
-            width: 100%;
-            height: 100%;
-            max-height: 100vh;
-            border-radius: 0;
-        }
-        .wizard-header {
-            padding: 1rem 1.25rem;
-            border-radius: 0;
-        }
-        .stepper-nav {
-            gap: 0.5rem;
-        }
-        .step-label {
-            display: none;
-        }
-        .step-bubble {
-            width: 36px;
-            height: 36px;
-        }
-        .step-bubble svg {
-            width: 16px;
-            height: 16px;
-        }
-        .wizard-body {
-            padding: 1rem 1.25rem;
-            min-height: 0;
-        }
-        .wizard-footer {
-            padding: 1rem;
-            flex-wrap: wrap;
-            border-radius: 0;
-            flex-shrink: 0;
-        }
-        .wizard-progress-section {
-            order: 3;
-            width: 100%;
-            max-width: 100%;
-            margin: 0.75rem 0 0 0;
-        }
-        .form-card {
-            padding: 1rem;
-        }
-        .pattern-lock {
-            width: 150px;
-            height: 150px;
-            padding: 15px;
-        }
-        #pattern-canvas {
-            width: 180px !important;
-            height: 180px !important;
-        }
-    }
-    
-    /* Tooltip per icone */
-    .icon-tooltip {
-        position: relative;
-    }
-    .icon-tooltip:hover::after {
-        content: attr(data-tooltip);
-        position: absolute;
-        bottom: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(0,0,0,0.8);
-        color: white;
-        padding: 5px 10px;
-        border-radius: 5px;
-        font-size: 0.75rem;
-        white-space: nowrap;
-        z-index: 10;
-    }
-
-    /* Stili per il Modal/Popup (Nuovo Cliente) */
-    .modal-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(4px);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 2010;
-        padding: 1rem;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
-    }
-    .modal-overlay.visible {
-        opacity: 1;
-        visibility: visible;
-    }
-    .modal-content {
-        background: var(--bg-white);
-        padding: 0;
-        border-radius: 16px;
-        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-        width: 95%;
-        max-width: 480px;
-        position: relative;
-        animation: slideUpPopup 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        max-height: 85vh;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .modal-header {
-        padding: 1.5rem 2rem;
-        background: linear-gradient(135deg, var(--brand-color) 0%, #20c997 100%);
-        color: white;
-        border-radius: 16px 16px 0 0;
-        margin: 0;
-        position: relative;
-        flex-shrink: 0;
-    }
-    .modal-header h3 {
-        text-align: center;
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: white;
-    }
-    .modal-header .close-button {
-        position: absolute;
-        top: 50%;
-        right: 1rem;
-        transform: translateY(-50%);
-        width: 32px;
-        height: 32px;
-        background: rgba(255,255,255,0.2);
-        border: none;
-        border-radius: 50%;
-        font-size: 1.3rem;
-        color: white;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        line-height: 1;
-    }
-    .modal-header .close-button:hover {
-        background: rgba(255,255,255,0.3);
-        transform: translateY(-50%) rotate(90deg);
-    }
-    
-    .modal-body {
-        padding: 1.5rem 2rem;
-        overflow-y: auto;
-        flex: 1;
-        min-height: 200px;
-        background: #f8fafc;
-    }
-    
-    /* Fix per il modal nuovo cliente */
-    #new_client_modal_overlay .modal-content {
-        max-height: 90vh;
-        overflow: visible;
-    }
-    #new_client_modal_overlay .modal-body {
-        display: block !important;
-        overflow-y: auto !important;
-        max-height: 60vh;
-        visibility: visible !important;
-        opacity: 1 !important;
-    }
-    #new_client_modal_overlay .tab-content {
-        display: none !important;
-        padding-top: 1rem;
-        visibility: visible !important;
-        opacity: 1 !important;
-    }
-    #new_client_modal_overlay .tab-content.active {
-        display: block !important;
-    }
-    #new_client_modal_overlay .form-group {
-        display: flex !important;
-        flex-direction: column !important;
-        margin-bottom: 1rem !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-    }
-    #new_client_modal_overlay .form-group label {
-        display: block !important;
-        margin-bottom: 0.5rem !important;
-        color: #374151 !important;
-        font-weight: 600 !important;
-        font-size: 0.85rem !important;
-    }
-    #new_client_modal_overlay .form-group input,
-    #new_client_modal_overlay .form-group textarea {
-        display: block !important;
-        width: 100% !important;
-        padding: 0.75rem 1rem !important;
-        border: 2px solid #e2e8f0 !important;
-        border-radius: 10px !important;
-        font-size: 0.95rem !important;
-        background: white !important;
-        color: #1f2937 !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-    }
-    #new_client_modal_overlay .form-group input:focus,
-    #new_client_modal_overlay .form-group textarea:focus {
-        border-color: #22c55e !important;
-        outline: none !important;
-        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15) !important;
-    }
-    
-    .modal-body .form-group {
-        margin-bottom: 1rem;
-    }
-    .modal-body .form-group:last-child {
-        margin-bottom: 0;
-    }
-    .modal-body label {
-        display: block;
-        font-weight: 600;
-        font-size: 0.8rem;
-        color: #64748b;
-        margin-bottom: 6px;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-    }
-    .modal-body input,
-    .modal-body textarea {
-        width: 100%;
-        padding: 0.75rem 1rem;
-        border: 2px solid #e2e8f0;
-        border-radius: 10px;
-        font-size: 0.95rem;
-        transition: all 0.2s ease;
-        background: white;
-    }
-    .modal-body input:focus,
-    .modal-body textarea:focus {
-        border-color: var(--brand-color);
-        outline: none;
-        box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.1);
-    }
-    .modal-body input::placeholder,
-    .modal-body textarea::placeholder {
-        color: #a0aec0;
-    }
-    
-    .modal-footer {
-        padding: 1.25rem 2rem;
-        background: white;
-        border-top: 1px solid #e2e8f0;
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.75rem;
-        flex-shrink: 0;
-        border-radius: 0 0 16px 16px;
-    }
-    .modal-footer .cancel-button,
-    .modal-footer .save-button {
-        padding: 0.75rem 1.5rem;
-        font-size: 0.9rem;
-        font-weight: 600;
-        border-radius: 10px;
-        border: none;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-    .modal-footer .cancel-button {
-        background: #f1f5f9;
-        color: #64748b;
-        border: 2px solid #e2e8f0;
-    }
-    .modal-footer .cancel-button:hover {
-        background: #e2e8f0;
-    }
-    .modal-footer .save-button {
-        background: var(--brand-color);
-        color: white;
-    }
-    .modal-footer .save-button:hover {
-        background: var(--brand-dark);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-    }
-
-    .add-client-icon {
-        font-size: 1.5em;
-        color: var(--brand-color);
-        cursor: pointer;
-        transition: color 0.2s ease, transform 0.2s ease;
-        padding: 8px;
-        border-radius: 50%;
-        background-color: #e6ffed;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
-    }
-
-    .add-client-icon:hover {
-        color: var(--brand-dark);
-        transform: scale(1.1);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
-    }
-
-    .tab-buttons {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 1.5rem;
-        gap: 8px;
-        background: white;
-        padding: 6px;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-
-    .tab-content {
-        display: none;
-        animation: fadeIn 0.3s ease-out;
-        margin-top: 1rem;
-    }
-
-    .tab-content.active {
-        display: block !important;
-    }
-    
-    /* Stili tab buttons migliorati */
-    .tab-buttons {
-        display: flex;
-        gap: 0.5rem;
-        background: #f1f5f9;
-        padding: 0.35rem;
-        border-radius: 10px;
-    }
-    
-    .tab-button {
-        flex: 1;
-        padding: 0.65rem 1rem;
-        border: none;
-        background: transparent;
-        border-radius: 8px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #64748b;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-    
-    .tab-button.active {
-        background: white;
-        color: #22c55e;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-    
-    .tab-button:hover:not(.active) {
-        background: rgba(255, 255, 255, 0.5);
-        color: #334155;
-    }
-    
-    /* Assicura che i form-group dentro i tab siano visibili */
-    .modal-body .tab-content .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        margin-bottom: 1rem;
-    }
-    .modal-body .tab-content .form-group label {
-        display: block;
-        font-weight: 600;
-        font-size: 0.8rem;
-        color: #64748b;
-        margin-bottom: 0;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-    }
-    .modal-body .tab-content .form-group input,
-    .modal-body .tab-content .form-group textarea {
-        width: 100%;
-        padding: 0.75rem 1rem;
-        border: 2px solid #e2e8f0;
-        border-radius: 10px;
-        font-size: 0.95rem;
-        transition: all 0.2s ease;
-        background: white;
-        box-sizing: border-box;
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .product-input-wrapper, .client-input-wrapper {
-        position: relative;
-    }
-
-    .autocomplete-list {
-        position: absolute;
-        width: 100%;
-        max-height: 200px;
-        overflow-y: auto;
-        border: 1px solid #cbd5e0;
-        border-radius: 8px;
-        background-color: white;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        z-index: 10;
-        display: none;
-        margin-top: 5px;
-    }
-
-    .product-suggestion-item, .client-suggestion-item {
-        padding: 10px 15px;
-        cursor: pointer;
-        border-bottom: 1px solid #f0f4f8;
-        transition: background-color 0.2s ease;
-        font-size: 0.95em;
-        color: #334155;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .product-suggestion-item:last-child, .client-suggestion-item:last-child {
-        border-bottom: none;
-    }
-
-    .product-suggestion-item:hover, .client-suggestion-item:hover {
-        background-color: #e2f0ff;
-    }
-
-    .product-suggestion-item .model-name, .client-suggestion-item .client-name {
-        font-weight: 600;
-        color: #007bff;
-    }
-
-    .product-suggestion-item .imei-info, .client-suggestion-item .phone-info {
-        font-size: 0.8em;
-        color: #6c757d;
-        margin-left: 10px;
-        white-space: nowrap;
-    }
-
-    /* ===== PERMUTA POPUP - DESIGN WIZARD MODERNO ===== */
-    #permutaPopup .wizard-container {
-        max-width: 1000px;
-    }
-    
-    #permutaPopup .wizard-header {
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    }
-    
-    #permutaPopup .stepper-nav {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 0;
-        padding: 1.25rem 2rem;
-        background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-        border-bottom: 1px solid #e2e8f0;
-    }
-    
-    #permutaPopup .step-permuta {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        position: relative;
-        flex: 1;
-        max-width: 160px;
-    }
-    
-    #permutaPopup .step-permuta:not(:last-child)::after {
-        content: '';
-        position: absolute;
-        top: 22px;
-        left: calc(50% + 25px);
-        width: calc(100% - 50px);
-        height: 3px;
-        background: #e2e8f0;
-        transition: background 0.4s ease;
-    }
-    
-    #permutaPopup .step-permuta.completed::after {
-        background: linear-gradient(90deg, #28a745, #20c997);
-    }
-    
-    #permutaPopup .step-bubble-permuta {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        background: white;
-        border: 3px solid #e2e8f0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-        position: relative;
-        z-index: 2;
-        font-size: 1.1rem;
-    }
-    
-    #permutaPopup .step-permuta.active .step-bubble-permuta {
-        border-color: #28a745;
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        color: white;
-        box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.2);
-        transform: scale(1.1);
-    }
-    
-    #permutaPopup .step-permuta.completed .step-bubble-permuta {
-        border-color: #28a745;
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        color: white;
-    }
-    
-    #permutaPopup .step-label-permuta {
-        margin-top: 8px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #94a3b8;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        transition: color 0.3s ease;
-    }
-    
-    #permutaPopup .step-permuta.active .step-label-permuta,
-    #permutaPopup .step-permuta.completed .step-label-permuta {
-        color: #28a745;
-    }
-    
-    #permutaPopup .permuta-step-pane {
-        display: none;
-        animation: fadeInStep 0.4s ease;
-    }
-    
-    #permutaPopup .permuta-step-pane.active {
-        display: block;
-    }
-    
-    /* Form Card Permuta */
-    #permutaPopup .form-card-permuta {
-        background: white;
-        border-radius: 16px;
-        padding: 1.5rem;
-        margin-bottom: 1.25rem;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-        border-left: 4px solid #28a745;
-    }
-    
-    #permutaPopup .form-card-permuta.purple {
-        border-left-color: #17a2b8;
-    }
-    
-    #permutaPopup .form-card-permuta.green {
-        border-left-color: #10b981;
-    }
-    
-    #permutaPopup .form-card-title-permuta {
-        font-size: 0.8rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: #64748b;
-        margin-bottom: 1.25rem;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    
-    #permutaPopup .form-card-title-permuta .icon {
-        font-size: 1.2rem;
-    }
-    
-    /* Valutazione Tecnica Moderna */
-    #permutaPopup .test-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1rem;
-    }
-    
-    #permutaPopup .test-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 0.9rem 1rem;
-        background: #f8fafc;
-        border-radius: 12px;
-        border: 2px solid #e2e8f0;
-        transition: all 0.2s ease;
-    }
-    
-    #permutaPopup .test-item:hover {
-        border-color: #cbd5e1;
-        background: #f1f5f9;
-    }
-    
-    #permutaPopup .test-item .test-icon {
-        font-size: 1.3rem;
-        width: 36px;
-        text-align: center;
-    }
-    
-    #permutaPopup .test-item .test-info {
-        flex: 1;
-    }
-    
-    #permutaPopup .test-item .test-name {
-        font-weight: 600;
-        font-size: 0.85rem;
-        color: #334155;
-        margin-bottom: 4px;
-    }
-    
-    #permutaPopup .test-item select {
-        padding: 0.4rem 0.6rem;
-        font-size: 0.8rem;
-        border-radius: 6px;
-        border: 1px solid #e2e8f0;
-        background: white;
-    }
-    
-    #permutaPopup .test-item input[type="text"] {
-        padding: 0.4rem 0.6rem;
-        font-size: 0.8rem;
-        border-radius: 6px;
-        border: 1px solid #e2e8f0;
-        width: 100%;
-        margin-top: 6px;
-    }
-    
-    /* Badge esito */
-    #permutaPopup .esito-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 0.7rem;
-        font-weight: 600;
-    }
-    
-    #permutaPopup .esito-ok { background: #d1fae5; color: #065f46; }
-    #permutaPopup .esito-warning { background: #fef3c7; color: #92400e; }
-    #permutaPopup .esito-error { background: #fee2e2; color: #991b1b; }
-    
-    /* Riepilogo Calcoli Moderno */
-    #permutaPopup .calcoli-summary {
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-        border-radius: 16px;
-        padding: 1.5rem;
-        border: 2px solid #e2e8f0;
-    }
-    
-    #permutaPopup .calcolo-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem 0;
-        border-bottom: 1px dashed #e2e8f0;
-    }
-    
-    #permutaPopup .calcolo-row:last-child {
-        border-bottom: none;
-    }
-    
-    #permutaPopup .calcolo-row.highlight {
-        background: white;
-        margin: 0.5rem -1rem;
-        padding: 0.75rem 1rem;
-        border-radius: 10px;
-        border: none;
-    }
-    
-    #permutaPopup .calcolo-row.total {
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        color: white;
-        margin: 1rem -1.5rem -1.5rem;
-        padding: 1.25rem 1.5rem;
-        border-radius: 0 0 14px 14px;
-        font-size: 1.1rem;
-        font-weight: 700;
-    }
-    
-    #permutaPopup .calcolo-label {
-        font-weight: 500;
-        color: #64748b;
-    }
-    
-    #permutaPopup .calcolo-value {
-        font-weight: 700;
-        color: #1e293b;
-    }
-    
-    #permutaPopup .calcolo-row.total .calcolo-label,
-    #permutaPopup .calcolo-row.total .calcolo-value {
-        color: white;
-    }
-    
-    /* Costi Ricondizionamento Moderni */
-    #permutaPopup .costo-item-modern {
-        display: flex;
-        gap: 0.75rem;
-        align-items: center;
-        padding: 0.75rem;
-        background: white;
-        border-radius: 10px;
-        border: 1px solid #e2e8f0;
-        margin-bottom: 0.75rem;
-    }
-    
-    #permutaPopup .costo-item-modern input[type="text"] {
-        flex: 2;
-    }
-    
-    #permutaPopup .costo-item-modern input[type="number"] {
-        flex: 1;
-        max-width: 120px;
-    }
-    
-    #permutaPopup .btn-remove-costo {
-        width: 36px;
-        height: 36px;
-        border-radius: 8px;
-        border: none;
-        background: #fee2e2;
-        color: #dc2626;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s ease;
-    }
-    
-    #permutaPopup .btn-remove-costo:hover {
-        background: #fecaca;
-    }
-    
-    #permutaPopup .btn-add-costo {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 0.6rem 1.2rem;
-        background: #dbeafe;
-        color: #1d4ed8;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 0.85rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-    
-    #permutaPopup .btn-add-costo:hover {
-        background: #bfdbfe;
-    }
-    
-    /* Footer Permuta */
-    #permutaPopup .wizard-footer {
-        background: white;
-        border-radius: 0 0 20px 20px;
-    }
-    
-    #permutaPopup .wizard-progress-fill {
-        background: linear-gradient(90deg, #28a745, #20c997);
-    }
-    
-    /* Responsive Permuta */
-    @media (max-width: 768px) {
-        #permutaPopup .stepper-nav {
-            gap: 0.25rem;
-            padding: 1rem 0.5rem;
-        }
-        
-        #permutaPopup .step-bubble-permuta {
-            width: 36px;
-            height: 36px;
-            font-size: 1rem;
-        }
-        
-        #permutaPopup .step-label-permuta {
-            font-size: 0.7rem;
-        }
-        
-        #permutaPopup .test-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        #permutaPopup .costo-item-modern {
-            flex-wrap: wrap;
-        }
-        
-        #permutaPopup .costo-item-modern input[type="text"],
-        #permutaPopup .costo-item-modern input[type="number"] {
-            flex: 1 1 100%;
-            max-width: none;
-        }
-    }
-
-    .image-preview {
-        display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;
-    }
-    .image-preview img {
-        width: 80px; height: 80px; object-fit: cover; border-radius: 8px;
-        border: 1px solid var(--border-color); box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-
-    .message-box {
-        position: fixed; top: 1rem; left: 50%;
-        transform: translateX(-50%) translateY(-20px);
-        background-color: #4CAF50; color: white;
-        padding: 1.25rem 1.75rem; border-radius: 0.75rem;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        z-index: 2500; font-size: 1.1rem; font-weight: bold;
-        border: 2px solid white; opacity: 0; visibility: hidden;
-        transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-        text-align: center;
-    }
-    .message-box.error { background-color: #f44336; border-color: #ff9999; }
-    .message-box.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
-
-    /* ===== TOAST NOTIFICATIONS ===== */
-    .toast-container {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 99999;
-    }
-    .toast {
-        padding: 12px 20px;
-        border-radius: 8px;
-        color: #fff;
-        background: #2ecc71;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        opacity: 0;
-        transform: translateY(20px);
-        animation: slideUp 0.4s forwards, fadeOutToast 0.4s forwards 3s;
-        font-size: 15px;
-        font-weight: 500;
-        margin-top: 10px;
-    }
-    .toast.success { background: #2ecc71; }
-    .toast.error { background: #e74c3c; }
-    .toast.warning { background: #f39c12; color: #333; }
-    .toast.info { background: #3498db; }
-    @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
-    @keyframes fadeOutToast { to { opacity: 0; transform: translateY(20px); } }
-
-    /* ===== CONFIRMATION MODAL ===== */
-    .confirm-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); background: white; border-radius: 12px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); padding: 2rem; z-index: 3001; max-width: 400px; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
-    .confirm-modal.show { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
-    .confirm-modal-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 3000; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
-    .confirm-modal-backdrop.show { opacity: 1; visibility: visible; }
-    .confirm-title { font-size: 1.3rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.5rem; }
-    .confirm-message { color: var(--text-light); margin-bottom: 2rem; line-height: 1.5; }
-    .confirm-actions { display: flex; gap: 1rem; justify-content: flex-end; }
-    .confirm-actions button { padding: 0.8rem 1.8rem; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
-    .confirm-actions .btn-cancel { background-color: var(--border-color); color: var(--text-dark); }
-    .confirm-actions .btn-cancel:hover { background-color: #d1d9e0; transform: translateY(-2px); }
-    .confirm-actions .btn-confirm { background-color: #e74c3c; color: white; }
-    .confirm-actions .btn-confirm:hover { background-color: #c0392b; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3); }
-
-    /* ===== TABELLE MODERNE (solo per tabelle con classe .data-table) ===== */
-    .data-table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-md); }
-    .data-table thead { background: linear-gradient(135deg, var(--brand-color) 0%, #1f8e3c 100%); color: white; }
-    .data-table th { padding: 1.2rem; text-align: left; font-weight: 600; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; user-select: none; position: relative; white-space: nowrap; }
-    .data-table th:hover { background-color: rgba(0, 0, 0, 0.1); }
-    .data-table th.sortable::after { content: ' ↕'; font-size: 0.8rem; opacity: 0.6; }
-    .data-table th.sort-asc::after { content: ' ↑'; opacity: 1; }
-    .data-table th.sort-desc::after { content: ' ↓'; opacity: 1; }
-    .data-table tbody tr { border-bottom: 1px solid var(--border-color); transition: background-color 0.2s ease; }
-    .data-table tbody tr:nth-child(even) { background-color: #f9fafb; }
-    .data-table tbody tr:hover { background-color: #f0f7ff; }
-    .data-table tbody tr:last-child { border-bottom: none; }
-    .data-table td { padding: 1rem 1.2rem; color: var(--text-dark); font-size: 0.95rem; }
-    table td.actions { display: flex; gap: 8px; justify-content: center; }
-    table .action-btn { padding: 0.5rem 0.8rem; border-radius: 6px; border: none; cursor: pointer; font-size: 0.85rem; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 4px; }
-    table .action-btn.edit { background-color: #3498db; color: white; }
-    table .action-btn.edit:hover { background-color: #2980b9; transform: scale(1.05); }
-    table .action-btn.delete { background-color: #e74c3c; color: white; }
-    table .action-btn.delete:hover { background-color: #c0392b; transform: scale(1.05); }
-    table .action-btn.view { background-color: #95a5a6; color: white; }
-    table .action-btn.view:hover { background-color: #7f8c8d; transform: scale(1.05); }
-
-    /* ===== PAGINATION MODERNA ===== */
-    .pagination { display: flex; justify-content: center; gap: 0.5rem; margin-top: 2rem; flex-wrap: wrap; }
-    .pagination a, .pagination span { padding: 0.6rem 1rem; border-radius: 6px; border: 1px solid var(--border-color); text-decoration: none; color: var(--text-dark); transition: all 0.2s ease; font-weight: 500; }
-    .pagination a:hover { background-color: var(--brand-color); color: white; border-color: var(--brand-color); }
-    .pagination .active { background-color: var(--brand-color); color: white; border-color: var(--brand-color); }
-
-    /* ===== EMPTY STATES ===== */
-    .empty-state { text-align: center; padding: 3rem 2rem; color: var(--text-light); }
-    .empty-state-icon { font-size: 4rem; color: var(--border-color); margin-bottom: 1rem; opacity: 0.7; }
-    .empty-state-title { font-size: 1.3rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem; }
-    .empty-state-message { font-size: 1rem; color: var(--text-light); margin-bottom: 2rem; line-height: 1.6; }
-    .empty-state-action { display: inline-block; padding: 0.9rem 1.8rem; background-color: var(--brand-color); color: white; border-radius: 8px; text-decoration: none; transition: all 0.2s ease; cursor: pointer; border: none; font-weight: 600; }
-    .empty-state-action:hover { background-color: var(--brand-dark); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3); }
-
-    /* ===== LOADING SPINNERS ===== */
-    .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(40, 167, 69, 0.2); border-top-color: var(--brand-color); border-radius: 50%; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-state { display: flex; align-items: center; justify-content: center; gap: 1rem; padding: 2rem; color: var(--text-light); font-weight: 500; }
-    .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
-    @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-    /* ===== BREADCRUMBS ===== */
-    .breadcrumbs { display: flex; align-items: center; gap: 0.5rem; padding: 1rem 2rem; background-color: var(--bg-light); border-radius: 8px; margin-bottom: 2rem; flex-wrap: wrap; font-size: 0.95rem; }
-    .breadcrumb-item { display: flex; align-items: center; gap: 0.5rem; color: var(--text-light); }
-    .breadcrumb-item.active { color: var(--text-dark); font-weight: 600; }
-    .breadcrumb-item a { color: var(--brand-color); text-decoration: none; transition: color 0.2s ease; }
-    .breadcrumb-item a:hover { color: var(--brand-dark); text-decoration: underline; }
-    .breadcrumb-separator { color: var(--text-light); opacity: 0.5; }
-
-    /* ===== DARK MODE ===== */
-    @media (prefers-color-scheme: dark) {
-        :root.dark-mode { --text-dark: #e8e8e8; --text-light: #b0b0b0; --bg-light: #1a1a1a; --bg-white: #242424; --border-color: #333333; }
-        body.dark-mode { background-color: #0d0d0d; color: var(--text-dark); }
-        .dark-mode table { background-color: var(--bg-white); }
-        .dark-mode table tbody tr:nth-child(even) { background-color: #2a2a2a; }
-        .dark-mode table tbody tr:hover { background-color: #333333; }
-        .dark-mode .toast { background-color: var(--bg-white); border-color: var(--border-color); }
-        .dark-mode .confirm-modal { background-color: var(--bg-white); }
-    }
-    .dark-mode-toggle { background: none; border: none; cursor: pointer; font-size: 1.4rem; color: white; transition: transform 0.2s ease; padding: 8px; }
-    .dark-mode-toggle:hover { transform: scale(1.2); }
-
-    /* ===== CARD COMPONENTS ===== */
-    .card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow-md); transition: all 0.3s ease; }
-    .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
-    .card-header { font-size: 1.2rem; font-weight: 600; color: var(--text-dark); margin-bottom: 1rem; border-bottom: 2px solid var(--border-color); padding-bottom: 1rem; }
-    .card-body { color: var(--text-dark); }
-
-    /* ===== BADGES ===== */
-    .badge { display: inline-block; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
-    .badge-success { background-color: #d4edda; color: #155724; }
-    .badge-danger { background-color: #f8d7da; color: #721c24; }
-    .badge-warning { background-color: #fff3cd; color: #856404; }
-    .badge-info { background-color: #d1ecf1; color: #0c5460; }
-    .badge-primary { background-color: #d6d8db; color: var(--text-dark); }
-
-    /* ===== ACCESSIBILITY ===== */
-    :focus-visible { outline: 2px solid var(--brand-color); outline-offset: 2px; }
-    a:focus-visible, button:focus-visible { outline: 2px solid var(--brand-color); outline-offset: 4px; }
-    input:focus-visible, select:focus-visible, textarea:focus-visible { outline: none; border-color: var(--brand-color); box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.15); }
-
-    /* ===== PRINT STYLES ===== */
-    @media print {
-        .top-bar, nav, .user-menu-container, .hamburger-btn, .toast-container, .confirm-modal, .confirm-modal-backdrop, .action-btn, .pagination, .dark-mode-toggle { display: none !important; }
-        body { padding-top: 0; background: white; }
-        .wizard-container, .popup-content, .modal-content { box-shadow: none; page-break-inside: avoid; max-width: 100%; max-height: 100%; }
-        table { box-shadow: none; border: 1px solid #000; }
-        table th, table td { border: 1px solid #000; }
-        .card { box-shadow: none; border: 1px solid #000; page-break-inside: avoid; }
-    }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 768px) {
-        body { padding-top: 100px; }
-        table { font-size: 0.85rem; overflow-x: auto; display: block; }
-        table thead { display: none; }
-        table tbody, table tr, table td { display: block; width: 100%; }
-        table tr { border-bottom: 2px solid var(--border-color); margin-bottom: 1rem; }
-        table td { padding: 0.5rem 0 !important; border-bottom: 1px dotted var(--border-color); }
-        table td::before { content: attr(data-label); font-weight: 600; color: var(--text-dark); display: block; margin-bottom: 0.5rem; }
-        .toast-container { right: 10px; left: 10px; }
-        .toast { min-width: auto; max-width: 100%; }
-        .breadcrumbs { padding: 0.8rem 1rem; font-size: 0.85rem; }
-        .card { padding: 1rem; }
-        .empty-state-icon { font-size: 3rem; }
-    }
-
-  </style>
-</head>
-<body>
 
 <!-- INIZIO HEADER MODIFICATO -->
 <header class="top-bar">
@@ -4192,83 +1546,226 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
 </div>
 
 <!-- Modal per l'aggiunta di un nuovo cliente -->
-<div id="new_client_modal_overlay" class="modal-overlay">
-    <div class="modal-content" style="max-height: 90vh; overflow: hidden;">
-        <div class="modal-header">
-            <h3>Aggiungi Nuovo Cliente</h3>
-            <button type="button" class="close-button" id="close_new_client_modal_btn">&times;</button>
+<div id="new_client_modal_overlay" class="ncm-overlay">
+    <div class="ncm-dialog">
+        <!-- Decorative glow -->
+        <div class="ncm-glow"></div>
+
+        <!-- Hero Header -->
+        <div class="ncm-hero">
+            <div class="ncm-hero-bg">
+                <div class="ncm-hero-orb ncm-hero-orb-1"></div>
+                <div class="ncm-hero-orb ncm-hero-orb-2"></div>
+                <div class="ncm-hero-orb ncm-hero-orb-3"></div>
+            </div>
+            <div class="ncm-hero-content">
+                <div class="ncm-hero-icon">
+                    <i class="fas fa-user-plus"></i>
+                    <div class="ncm-hero-icon-ring"></div>
+                </div>
+                <div class="ncm-hero-text">
+                    <h2>Nuovo Cliente</h2>
+                    <p>Registra un nuovo cliente nell'anagrafica</p>
+                </div>
+            </div>
+            <button type="button" class="ncm-close" id="close_new_client_modal_btn">
+                <i class="fas fa-xmark"></i>
+            </button>
         </div>
-        <div class="modal-body" style="display: block !important; padding: 1.5rem; overflow-y: auto; max-height: calc(90vh - 180px);">
-            <div class="tab-buttons" style="display: flex; gap: 0.5rem; background: #f1f5f9; padding: 0.35rem; border-radius: 10px; margin-bottom: 1rem;">
-                <button type="button" class="tab-button active" data-tab="personal_data_tab" style="flex: 1; padding: 0.65rem 1rem; border: none; background: white; border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: #22c55e; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">Dati Personali</button>
-                <button type="button" class="tab-button" data-tab="company_data_tab" style="flex: 1; padding: 0.65rem 1rem; border: none; background: transparent; border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: #64748b; cursor: pointer;">Dati Aziendali</button>
+
+        <!-- Step Navigation -->
+        <div class="ncm-steps">
+            <button type="button" class="tab-button ncm-step active" data-tab="personal_data_tab">
+                <div class="ncm-step-num">1</div>
+                <div class="ncm-step-info">
+                    <span class="ncm-step-title">Dati Personali</span>
+                    <span class="ncm-step-desc">Anagrafica e contatti</span>
+                </div>
+            </button>
+            <div class="ncm-step-divider"><div class="ncm-step-line"></div></div>
+            <button type="button" class="tab-button ncm-step" data-tab="company_data_tab">
+                <div class="ncm-step-num">2</div>
+                <div class="ncm-step-info">
+                    <span class="ncm-step-title">Dati Aziendali</span>
+                    <span class="ncm-step-desc">Società e sede</span>
+                </div>
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div class="ncm-body">
+            <div id="personal_data_tab" class="tab-content active">
+                <!-- Anagrafica Card -->
+                <div class="ncm-card">
+                    <div class="ncm-card-head">
+                        <div class="ncm-card-icon green"><i class="fas fa-user"></i></div>
+                        <div>
+                            <h4>Informazioni Personali</h4>
+                            <p>Nome e cognome del cliente</p>
+                        </div>
+                    </div>
+                    <div class="ncm-row">
+                        <div class="ncm-fg">
+                            <label>Nome <span class="ncm-req">*</span></label>
+                            <div class="ncm-iw">
+                                <i class="fas fa-user"></i>
+                                <input type="text" id="modal_nuovo_cliente_nome" placeholder="Mario" required>
+                            </div>
+                        </div>
+                        <div class="ncm-fg">
+                            <label>Cognome <span class="ncm-req">*</span></label>
+                            <div class="ncm-iw">
+                                <i class="fas fa-user"></i>
+                                <input type="text" id="modal_nuovo_cliente_cognome" placeholder="Rossi" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contatti Card -->
+                <div class="ncm-card">
+                    <div class="ncm-card-head">
+                        <div class="ncm-card-icon blue"><i class="fas fa-address-book"></i></div>
+                        <div>
+                            <h4>Contatti</h4>
+                            <p>Recapiti e informazioni di contatto</p>
+                        </div>
+                    </div>
+                    <div class="ncm-row">
+                        <div class="ncm-fg">
+                            <label>Telefono</label>
+                            <div class="ncm-iw">
+                                <i class="fas fa-phone"></i>
+                                <input type="tel" id="modal_nuovo_cliente_telefono" placeholder="333 123 4567">
+                            </div>
+                        </div>
+                        <div class="ncm-fg">
+                            <label>Email</label>
+                            <div class="ncm-iw">
+                                <i class="fas fa-envelope"></i>
+                                <input type="email" id="modal_nuovo_cliente_email" placeholder="mario@esempio.com">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ncm-row">
+                        <div class="ncm-fg">
+                            <label>Indirizzo</label>
+                            <div class="ncm-iw">
+                                <i class="fas fa-location-dot"></i>
+                                <input type="text" id="modal_nuovo_cliente_indirizzo" placeholder="Via Roma, 1">
+                            </div>
+                        </div>
+                        <div class="ncm-fg">
+                            <label>Città</label>
+                            <div class="ncm-iw">
+                                <i class="fas fa-city"></i>
+                                <input type="text" id="modal_nuovo_cliente_citta" placeholder="Roma">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ncm-row ncm-row-full">
+                        <div class="ncm-fg">
+                            <label>Note</label>
+                            <div class="ncm-iw ncm-iw-ta">
+                                <i class="fas fa-sticky-note"></i>
+                                <textarea id="modal_nuovo_cliente_note" rows="2" placeholder="Annotazioni sul cliente..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div id="personal_data_tab" class="tab-content active" style="display: block !important;">
-                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Nome: *</label>
-                    <input type="text" id="modal_nuovo_cliente_nome" placeholder="Nome" required style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
+            <div id="company_data_tab" class="tab-content">
+                <!-- Dati Societari Card -->
+                <div class="ncm-card">
+                    <div class="ncm-card-head">
+                        <div class="ncm-card-icon purple"><i class="fas fa-building"></i></div>
+                        <div>
+                            <h4>Dati Societari</h4>
+                            <p>Ragione sociale e partita IVA</p>
+                        </div>
+                    </div>
+                    <div class="ncm-row">
+                        <div class="ncm-fg">
+                            <label>Ragione Sociale</label>
+                            <div class="ncm-iw">
+                                <i class="fas fa-building"></i>
+                                <input type="text" id="modal_nuovo_cliente_ragione_sociale" placeholder="Azienda S.r.l.">
+                            </div>
+                        </div>
+                        <div class="ncm-fg">
+                            <label>Partita IVA</label>
+                            <div class="ncm-iw">
+                                <i class="fas fa-id-card"></i>
+                                <input type="text" id="modal_nuovo_cliente_partita_iva" placeholder="IT12345678901">
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Cognome: *</label>
-                    <input type="text" id="modal_nuovo_cliente_cognome" placeholder="Cognome" required style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
-                </div>
-                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Telefono:</label>
-                    <input type="text" id="modal_nuovo_cliente_telefono" placeholder="Es: 3331234567" style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
-                </div>
-                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Email:</label>
-                    <input type="email" id="modal_nuovo_cliente_email" placeholder="nome@esempio.com" style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
-                </div>
-                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Indirizzo:</label>
-                    <input type="text" id="modal_nuovo_cliente_indirizzo" placeholder="Via Roma, 1" style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
-                </div>
-                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Città:</label>
-                    <input type="text" id="modal_nuovo_cliente_citta" placeholder="Roma" style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
-                </div>
-                <div style="display: flex; flex-direction: column; margin-bottom: 0;">
-                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Note:</label>
-                    <textarea id="modal_nuovo_cliente_note" rows="2" placeholder="Note aggiuntive sul cliente" style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box; resize: vertical;"></textarea>
-                </div>
-            </div>
 
-            <div id="company_data_tab" class="tab-content" style="display: none;">
-                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Ragione Sociale:</label>
-                    <input type="text" id="modal_nuovo_cliente_ragione_sociale" placeholder="Nome S.p.A." style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
-                </div>
-                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Partita IVA:</label>
-                    <input type="text" id="modal_nuovo_cliente_partita_iva" placeholder="IT12345678901" style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
-                </div>
-                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Indirizzo Azienda:</label>
-                    <input type="text" id="modal_nuovo_cliente_indirizzo_azienda" placeholder="Via dell'Industria, 5" style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
-                </div>
-                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Città Azienda:</label>
-                    <input type="text" id="modal_nuovo_cliente_citta_azienda" placeholder="Milano" style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
-                </div>
-                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Telefono Azienda:</label>
-                    <input type="text" id="modal_nuovo_cliente_telefono_azienda" placeholder="Es: 0212345678" style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
-                </div>
-                <div style="display: flex; flex-direction: column; margin-bottom: 1rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Email Azienda:</label>
-                    <input type="email" id="modal_nuovo_cliente_email_azienda" placeholder="info@azienda.com" style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box;">
-                </div>
-                <div style="display: flex; flex-direction: column; margin-bottom: 0;">
-                    <label style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 600; font-size: 0.85rem;">Note Azienda:</label>
-                    <textarea id="modal_nuovo_cliente_note_azienda" rows="2" placeholder="Note aggiuntive sull'azienda" style="display: block; width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; background: white; box-sizing: border-box; resize: vertical;"></textarea>
+                <!-- Contatti Aziendali Card -->
+                <div class="ncm-card">
+                    <div class="ncm-card-head">
+                        <div class="ncm-card-icon blue"><i class="fas fa-address-book"></i></div>
+                        <div>
+                            <h4>Contatti Aziendali</h4>
+                            <p>Recapiti e sede dell'azienda</p>
+                        </div>
+                    </div>
+                    <div class="ncm-row">
+                        <div class="ncm-fg">
+                            <label>Telefono</label>
+                            <div class="ncm-iw">
+                                <i class="fas fa-phone"></i>
+                                <input type="tel" id="modal_nuovo_cliente_telefono_azienda" placeholder="02 1234567">
+                            </div>
+                        </div>
+                        <div class="ncm-fg">
+                            <label>Email</label>
+                            <div class="ncm-iw">
+                                <i class="fas fa-envelope"></i>
+                                <input type="email" id="modal_nuovo_cliente_email_azienda" placeholder="info@azienda.com">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ncm-row">
+                        <div class="ncm-fg">
+                            <label>Indirizzo</label>
+                            <div class="ncm-iw">
+                                <i class="fas fa-location-dot"></i>
+                                <input type="text" id="modal_nuovo_cliente_indirizzo_azienda" placeholder="Via dell'Industria, 5">
+                            </div>
+                        </div>
+                        <div class="ncm-fg">
+                            <label>Città</label>
+                            <div class="ncm-iw">
+                                <i class="fas fa-city"></i>
+                                <input type="text" id="modal_nuovo_cliente_citta_azienda" placeholder="Milano">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ncm-row ncm-row-full">
+                        <div class="ncm-fg">
+                            <label>Note Azienda</label>
+                            <div class="ncm-iw ncm-iw-ta">
+                                <i class="fas fa-sticky-note"></i>
+                                <textarea id="modal_nuovo_cliente_note_azienda" rows="2" placeholder="Annotazioni sull'azienda..."></textarea>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="modal-footer">
-            <button type="button" class="cancel-button" id="cancel_new_client_modal_btn">Annulla</button>
-            <button type="button" class="save-button" id="save_new_client_btn">Salva Cliente</button>
+
+        <!-- Footer -->
+        <div class="ncm-footer">
+            <button type="button" class="ncm-btn-cancel" id="cancel_new_client_modal_btn">
+                <i class="fas fa-times"></i> Annulla
+            </button>
+            <button type="button" class="ncm-btn-save" id="save_new_client_btn">
+                <i class="fas fa-check"></i> Salva Cliente
+                <div class="ncm-btn-shine"></div>
+            </button>
         </div>
     </div>
 </div>
@@ -4375,17 +1872,19 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
             modalOverlay.addEventListener('transitionend', () => {
                 modalOverlay.style.display = 'none';
             }, { once: true });
+            // Fallback se transitionend non scatta
+            setTimeout(() => { if (modalOverlay.style.display !== 'none') modalOverlay.style.display = 'none'; }, 450);
         }
 
         function showTab(tabId) {
             tabContents.forEach(c => {
                 c.classList.remove('active');
-                c.style.display = 'none';
             });
-            tabButtons.forEach(b => b.classList.remove('active'));
+            tabButtons.forEach(b => {
+                b.classList.remove('active');
+            });
             const targetTab = modalOverlay.querySelector(`#${tabId}`);
             targetTab.classList.add('active');
-            targetTab.style.display = 'block';
             modalOverlay.querySelector(`.tab-button[data-tab="${tabId}"]`).classList.add('active');
         }
 
@@ -4450,6 +1949,11 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
                         document.getElementById('customerPhone_pp').value = newClient.telefono_principale || '';
                         document.getElementById('customerEmail_pp').value = newClient.email || '';
                     }
+                    // Aggiorna anche i campi del carrello se presenti
+                    const carrelloClienteInput = document.getElementById('clienteInput');
+                    const carrelloIdCliente = document.getElementById('idCliente');
+                    if (carrelloClienteInput) carrelloClienteInput.value = newClient.display_name;
+                    if (carrelloIdCliente) carrelloIdCliente.value = newClient.id;
                 } else {
                     showMessage('Errore: ' + (result.message || 'Sconosciuto.'), true);
                 }
@@ -4462,8 +1966,12 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
     // --- Script per la gestione dei Popup principali ---
     function initializePopup(popupId, openBtnId) {
         const popup = document.getElementById(popupId);
+        if (!popup) return { openPopup: () => {}, closePopup: () => {} };
         const openBtn = document.getElementById(openBtnId);
-        const closeBtn = popup.querySelector('.close-btn');
+        // Cerca close button con vari selettori
+        const closeBtn = popup.querySelector('.close-btn') || popup.querySelector('[class*="close-btn"]') || popup.querySelector('[id*="close"]');
+        // Cerca cancel button
+        const cancelBtn = popup.querySelector('[class*="btn-cancel"]') || popup.querySelector('[id*="cancel"]');
 
         const openPopup = () => {
             popup.style.display = 'flex';
@@ -4472,10 +1980,13 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         const closePopup = () => {
             popup.classList.remove('visible');
             popup.addEventListener('transitionend', () => popup.style.display = 'none', { once: true });
+            // Fallback se transitionend non scatta
+            setTimeout(() => { if (popup.style.display !== 'none') popup.style.display = 'none'; }, 400);
         };
 
         if (openBtn) openBtn.addEventListener('click', openPopup);
         if (closeBtn) closeBtn.addEventListener('click', closePopup);
+        if (cancelBtn) cancelBtn.addEventListener('click', closePopup);
         popup.addEventListener('click', (e) => {
             if (e.target === popup) closePopup();
         });
@@ -4521,9 +2032,23 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
             const progressPercent = (currentStep / steps.length) * 100;
             if (progressFill) progressFill.style.width = progressPercent + '%';
             if (progressText) progressText.textContent = `Step ${currentStep} di ${steps.length}`;
+            
+            // Resize del canvas pattern lock quando step 3 diventa visibile
+            if (currentStep === 3) {
+                const patternCanvas = document.getElementById('pattern-canvas');
+                const patternContainer = document.getElementById('pattern-lock');
+                if (patternCanvas && patternContainer) {
+                    requestAnimationFrame(() => {
+                        patternCanvas.width = patternContainer.offsetWidth;
+                        patternCanvas.height = patternContainer.offsetHeight;
+                    });
+                }
+            }
         };
 
-        document.getElementById('openNuovaAssistenzaPopupBtn').addEventListener('click', () => {
+        // L'apertura del popup è gestita da initializePopup, qui aggiungiamo solo il reset
+        const _openBtnRip = document.getElementById('openNuovaAssistenzaPopupBtn');
+        if (_openBtnRip) _openBtnRip.addEventListener('click', () => {
              showRiparazioneStep(1);
              popup.querySelector('form').reset();
         });
@@ -4543,7 +2068,21 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         <?php if (!empty($feedback_message)): ?>
             riparazionePopup.openPopup();
             <?php if (strpos($feedback_message, 'success') !== false): ?>
-                setTimeout(riparazionePopup.closePopup, 1000);
+                <?php if (!empty($new_riparazione_id)): ?>
+                    // Stampa automatica via iframe nascosto (evita blocco popup)
+                    (() => {
+                        const printFrame = document.createElement('iframe');
+                        printFrame.style.cssText = 'position:fixed;width:0;height:0;border:none;left:-9999px;top:-9999px;';
+                        printFrame.src = 'stampa_riparazione.php?id=<?php echo (int)$new_riparazione_id; ?>';
+                        document.body.appendChild(printFrame);
+                        // La pagina stampa_riparazione.php chiama window.print() automaticamente al caricamento
+                        // Rimuovi iframe dopo un tempo sufficiente per la stampa
+                        printFrame.onload = () => {
+                            setTimeout(() => printFrame.remove(), 10000);
+                        };
+                    })();
+                <?php endif; ?>
+                setTimeout(riparazionePopup.closePopup, 2000);
             <?php endif; ?>
         <?php endif; ?>
     })();
@@ -4581,9 +2120,10 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
             if (progressText) progressText.textContent = `Step ${currentStep} di ${steps.length}`;
         };
 
-        const openBtn = document.getElementById('openNuovaPermutaPopupBtn');
-        if (openBtn) {
-            openBtn.addEventListener('click', () => {
+        // L'apertura del popup è gestita da initializePopup, qui aggiungiamo solo il reset
+        const _openBtnPerm = document.getElementById('openNuovaPermutaPopupBtn');
+        if (_openBtnPerm) {
+            _openBtnPerm.addEventListener('click', () => {
                 showPermutaStep(1);
                 const form = popup.querySelector('form');
                 if (form) form.reset();
@@ -4676,21 +2216,29 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
     
     // --- Logica per Buono Regalo ---
     (() => {
-        document.getElementById('openBuonoRegaloPopupBtn').addEventListener('click', () => {
+        const _openBtnBuono = document.getElementById('openBuonoRegaloPopupBtn');
+        if (_openBtnBuono) _openBtnBuono.addEventListener('click', () => {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             let code = '';
             for (let i = 0; i < 12; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
-            document.getElementById('buono_codice').value = code;
+            const codiceInput = document.getElementById('buono_codice');
+            if (codiceInput) codiceInput.value = code;
         });
-        document.getElementById('copy-code-btn').addEventListener('click', () => {
+        const _copyBtn = document.getElementById('copy-code-btn');
+        if (_copyBtn) _copyBtn.addEventListener('click', () => {
             const input = document.getElementById('buono_codice');
-            const tempTextarea = document.createElement('textarea');
-            tempTextarea.value = input.value;
-            document.body.appendChild(tempTextarea);
-            tempTextarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempTextarea);
-            showMessage('Codice copiato!', false);
+            if (!input) return;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(input.value).then(() => showMessage('Codice copiato!', false)).catch(() => showMessage('Errore copia', true));
+            } else {
+                const ta = document.createElement('textarea');
+                ta.value = input.value;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                showMessage('Codice copiato!', false);
+            }
         });
          <?php if (!empty($gift_card_feedback_message)): ?>
             buonoRegaloPopup.openPopup();
@@ -4834,7 +2382,156 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
 
     // --- Gestione Pattern Lock ---
     (() => {
-        // ... (Logica Pattern Lock esistente, è corretta) ...
+        const container = document.getElementById('pattern-lock');
+        if (!container) return;
+        const canvas = document.getElementById('pattern-canvas');
+        const ctx = canvas.getContext('2d');
+        const hiddenInput = document.getElementById('unlock-pattern');
+        const dots = container.querySelectorAll('.pattern-dot');
+        
+        let selectedDots = [];
+        let isDrawing = false;
+        let currentMousePos = null;
+
+        // Calcola le posizioni centrali dei dot relativi al canvas
+        const getDotCenter = (dot) => {
+            const containerRect = container.getBoundingClientRect();
+            const dotRect = dot.getBoundingClientRect();
+            return {
+                x: dotRect.left + dotRect.width / 2 - containerRect.left,
+                y: dotRect.top + dotRect.height / 2 - containerRect.top
+            };
+        };
+
+        // Trova il dot sotto le coordinate (relative alla pagina)
+        const getDotAtPoint = (clientX, clientY) => {
+            for (const dot of dots) {
+                const rect = dot.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+                const dist = Math.sqrt((clientX - cx) ** 2 + (clientY - cy) ** 2);
+                if (dist < rect.width * 0.8) return dot;
+            }
+            return null;
+        };
+
+        const selectDot = (dot) => {
+            const dotId = dot.dataset.dot;
+            if (selectedDots.find(d => d.dataset.dot === dotId)) return;
+            dot.classList.add('selected');
+            selectedDots.push(dot);
+            hiddenInput.value = selectedDots.map(d => d.dataset.dot).join('-');
+        };
+
+        const drawLines = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (selectedDots.length === 0) return;
+
+            ctx.strokeStyle = '#2d6a4f';
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.shadowColor = 'rgba(45, 106, 79, 0.4)';
+            ctx.shadowBlur = 6;
+
+            ctx.beginPath();
+            const first = getDotCenter(selectedDots[0]);
+            ctx.moveTo(first.x, first.y);
+            for (let i = 1; i < selectedDots.length; i++) {
+                const pos = getDotCenter(selectedDots[i]);
+                ctx.lineTo(pos.x, pos.y);
+            }
+            // Linea che segue il dito/mouse durante il disegno
+            if (isDrawing && currentMousePos) {
+                ctx.lineTo(currentMousePos.x, currentMousePos.y);
+            }
+            ctx.stroke();
+        };
+
+        const resetPattern = () => {
+            selectedDots = [];
+            isDrawing = false;
+            currentMousePos = null;
+            dots.forEach(d => d.classList.remove('selected'));
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hiddenInput.value = '';
+        };
+
+        // Resize canvas per adattarlo al contenitore
+        const resizeCanvas = () => {
+            canvas.width = container.offsetWidth;
+            canvas.height = container.offsetHeight;
+            drawLines();
+        };
+
+        // --- Event Handlers ---
+        const getClientPos = (e) => {
+            if (e.touches && e.touches.length > 0) {
+                return { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
+            }
+            return { clientX: e.clientX, clientY: e.clientY };
+        };
+
+        const getCanvasPos = (clientX, clientY) => {
+            const rect = container.getBoundingClientRect();
+            return { x: clientX - rect.left, y: clientY - rect.top };
+        };
+
+        const onStart = (e) => {
+            const { clientX, clientY } = getClientPos(e);
+            const dot = getDotAtPoint(clientX, clientY);
+            if (!dot) return;
+            e.preventDefault();
+            resetPattern();
+            isDrawing = true;
+            selectDot(dot);
+            drawLines();
+        };
+
+        const onMove = (e) => {
+            if (!isDrawing) return;
+            e.preventDefault();
+            const { clientX, clientY } = getClientPos(e);
+            currentMousePos = getCanvasPos(clientX, clientY);
+            const dot = getDotAtPoint(clientX, clientY);
+            if (dot) selectDot(dot);
+            drawLines();
+        };
+
+        const onEnd = (e) => {
+            if (!isDrawing) return;
+            isDrawing = false;
+            currentMousePos = null;
+            drawLines(); // Ridisegna senza la linea che segue il mouse
+            if (selectedDots.length < 2) resetPattern();
+        };
+
+        // Mouse events
+        container.addEventListener('mousedown', onStart);
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onEnd);
+
+        // Touch events
+        container.addEventListener('touchstart', onStart, { passive: false });
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('touchend', onEnd);
+
+        // Aggiungi pulsante Reset
+        const hintEl = container.parentElement.querySelector('.pattern-hint');
+        if (hintEl) {
+            const resetBtn = document.createElement('button');
+            resetBtn.type = 'button';
+            resetBtn.textContent = 'Reset';
+            resetBtn.style.cssText = 'margin-left:8px;padding:3px 12px;border:1px solid #cbd5e1;border-radius:6px;background:#f8f9fa;color:#495057;cursor:pointer;font-size:0.75rem;transition:all 0.2s;';
+            resetBtn.addEventListener('mouseenter', () => { resetBtn.style.background = '#e9ecef'; });
+            resetBtn.addEventListener('mouseleave', () => { resetBtn.style.background = '#f8f9fa'; });
+            resetBtn.addEventListener('click', resetPattern);
+            hintEl.appendChild(resetBtn);
+        }
+
+        // Inizializza canvas size
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
     })();
 
     // --- Gestione Globale ---
@@ -5000,31 +2697,37 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         const searchBar = document.querySelector('.search-bar');
         const searchResultsDropdown = document.getElementById('searchResultsDropdown');
         if (searchBar) {
+            let _searchDebounce = null;
+            const escapeHtml = (str) => str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
             searchBar.addEventListener('input', function() {
                 const query = this.value.toLowerCase().trim();
                 if (query.length < 2) {
                     searchResultsDropdown.style.display = 'none';
                     return;
                 }
-                const filteredClients = globalClientsData.filter(c => c.display_name.toLowerCase().includes(query));
-                const filteredProducts = globalProductsData.filter(p => p.name.toLowerCase().includes(query));
-                searchResultsDropdown.innerHTML = '';
-                if (filteredClients.length > 0) {
-                    searchResultsDropdown.innerHTML += `<div class="result-category">Clienti</div>`;
-                    filteredClients.forEach(c => {
-                        searchResultsDropdown.innerHTML += `<a href="#" data-id="${c.id}" data-type="client">${c.display_name}</a>`;
-                    });
-                }
-                if (filteredProducts.length > 0) {
-                    searchResultsDropdown.innerHTML += `<div class="result-category">Prodotti</div>`;
-                    filteredProducts.forEach(p => {
-                        searchResultsDropdown.innerHTML += `<a href="#" data-id="${p.id}" data-type="product">${p.name}</a>`;
-                    });
-                }
-                if (searchResultsDropdown.innerHTML === '') {
-                    searchResultsDropdown.innerHTML = `<a href="#" class="no-results">Nessun risultato</a>`;
-                }
-                searchResultsDropdown.style.display = 'block';
+                if (_searchDebounce) clearTimeout(_searchDebounce);
+                _searchDebounce = setTimeout(() => {
+                    const filteredClients = globalClientsData.filter(c => c.display_name.toLowerCase().includes(query));
+                    const filteredProducts = globalProductsData.filter(p => p.name.toLowerCase().includes(query));
+                    let html = '';
+                    if (filteredClients.length > 0) {
+                        html += `<div class="result-category">Clienti</div>`;
+                        filteredClients.forEach(c => {
+                            html += `<a href="#" data-id="${c.id}" data-type="client">${escapeHtml(c.display_name)}</a>`;
+                        });
+                    }
+                    if (filteredProducts.length > 0) {
+                        html += `<div class="result-category">Prodotti</div>`;
+                        filteredProducts.forEach(p => {
+                            html += `<a href="#" data-id="${p.id}" data-type="product">${escapeHtml(p.name)}</a>`;
+                        });
+                    }
+                    if (!html) {
+                        html = `<a href="#" class="no-results">Nessun risultato</a>`;
+                    }
+                    searchResultsDropdown.innerHTML = html;
+                    searchResultsDropdown.style.display = 'block';
+                }, 200);
             });
         }
         
@@ -5225,7 +2928,5 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
     window.initDarkMode();
 
 </script>
-</body>
-</html>
 
 

@@ -1,5 +1,6 @@
 <?php
-$mysqli = new mysqli('localhost', 'root', '', 'gestionale_tsservice');
+require_once 'db.php';
+$mysqli = $conn; // db.php usa $conn
 
 $id = intval($_GET['progressivo'] ?? 0);
 if ($id <= 0) {
@@ -24,7 +25,8 @@ $mysqli->close();
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Dettaglio Permuta #<?php echo htmlspecialchars($permuta['progressivo']); ?></title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>Dettaglio Permuta #<?php echo htmlspecialchars($permuta['progressivo']); ?></title>
 <style>
   body {
     margin: 0;

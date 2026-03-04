@@ -1,16 +1,6 @@
 <?php
 header('Content-Type: application/json');
-
-$db_host = 'localhost';
-$db_user = 'root';
-$db_pass = '';
-$db_name = 'gestionale_tsservice';
-
-$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
-if ($conn->connect_error) {
-    echo json_encode([]);
-    exit;
-}
+require_once 'db.php';
 
 $categoriaSelezionata = isset($_GET['categoria']) ? $_GET['categoria'] : '';
 $nomeProdotto = isset($_GET['nomeProdotto']) ? $_GET['nomeProdotto'] : '';

@@ -1,7 +1,7 @@
 <?php
-// --- ATTIVAZIONE DEBUGGING PHP ---
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+// Errori PHP vanno nel log, non nell'output HTML
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
 error_reporting(E_ALL);
 
 // Avvia la sessione PHP - Assicurati che sia sempre all'inizio del file
@@ -54,7 +54,7 @@ try {
     $paramTypes = '';
 
     if (!empty($searchTerm)) {
-        $whereClause = " WHERE cliente LIKE ? OR modello_nuovo LIKE ? OR imei_nuovo LIKE ? OR modello_usato LIKE ? OR imei_usato LIKE ? OR telefono_cliente LIKE ? OR progressivo LIKE ?";
+        $whereClause = " WHERE cliente LIKE ? OR modello_nuovo LIKE ? OR imei_nuovo LIKE ? OR modello_usato LIKE ? OR imei_usato LIKE ? OR COALESCE(telefono, telefono_cliente) LIKE ? OR progressivo LIKE ?";
         $searchTermLike = '%' . $searchTerm . '%';
         $queryParams = array_fill(0, 7, $searchTermLike);
         $paramTypes = 'sssssss';
@@ -113,12 +113,15 @@ function getPermutaStatusClasses($status) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <title>Dashboard Permute | TS Service</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/header-styles.css?v=1">
+          <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
   <style>
     /* ========== MODERN CSS VARIABLES ========== */
@@ -1327,163 +1330,7 @@ function getPermutaStatusClasses($status) {
         to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Header styles (copiati dal gestionale principale) */
-    .top-bar {
-      background-color: var(--brand-green);
-      color: white;
-      padding: 30px 30px;
-      font-size: 18px;
-      width: 100vw;
-      box-sizing: border-box;
-      display: flex;
-      align-items: center;
-      gap: 150px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 1000;
-      box-shadow: var(--card-shadow);
-    }
-
-    .logo {
-      font-size: 36px;
-      font-weight: bold;
-      white-space: nowrap;
-      color: white;
-      text-decoration: none;
-      cursor: pointer;
-    }
-
-    .logo:hover {
-      color: white;
-      text-decoration: none;
-    }
-
-    nav ul {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      gap: 15px;
-    }
-
-    nav ul li {
-      position: relative;
-      padding-top: 5px;
-      padding-bottom: 5px;
-      margin-top: -5px;
-      margin-bottom: -5px;
-    }
-
-    nav ul li button,
-    nav ul li a {
-      background-color: var(--card-bg);
-      border: none;
-      color: var(--text-color-primary);
-      font-size: 16px;
-      padding: 15px 30px;
-      cursor: pointer;
-      border-radius: 5px;
-      user-select: none;
-      text-decoration: none;
-      display: block;
-      white-space: nowrap;
-      transition: all 0.2s ease;
-    }
-
-    nav ul li button:hover,
-    nav ul li a:hover {
-        background-color: #e2e6ea;
-    }
-
-    button.no-arrow::after {
-      content: "";
-    }
-
-    nav ul li.has-dropdown > button::after,
-    nav ul li.has-dropdown > a::after {
-      content: " \25BC";
-      font-size: 10px;
-      color: var(--text-color-primary);
-      margin-left: 8px;
-    }
-
-    nav ul li ul.dropdown {
-      display: none;
-      position: absolute;
-      top: 100%;
-      right: 0;
-      background-color: var(--card-bg);
-      min-width: 200px;
-      border-radius: 8px;
-      box-shadow: var(--card-shadow);
-      padding: 0;
-      margin-top: 0;
-      list-style: none;
-      z-index: 1000;
-      transform-origin: top;
-      animation: scaleYIn 0.3s ease;
-    }
-
-    @keyframes scaleYIn {
-        from { opacity: 0; transform: scaleY(0.8); }
-        to { opacity: 1; transform: scaleY(1); }
-    }
-
-    nav ul li:hover > ul.dropdown {
-      display: block;
-    }
-
-    nav ul li ul.dropdown li a,
-    nav ul li ul.dropdown li button {
-      padding: 10px 15px;
-      color: var(--text-color-primary);
-      background-color: transparent;
-      width: 100%;
-      text-align: left;
-      border-radius: 0;
-      font-size: 15px;
-    }
-
-    nav ul li ul.dropdown li a:hover,
-    nav ul li ul.dropdown li button:hover {
-      background-color: var(--brand-green);
-      color: white;
-    }
-
-    nav ul li ul.dropdown li.has-submenu > a::after {
-      content: " \25B6";
-      float: right;
-      font-size: 10px;
-      margin-left: 10px;
-      color: var(--text-color-secondary);
-    }
-
-    nav ul li ul.dropdown li ul.submenu {
-      display: none;
-      position: absolute;
-      top: 0;
-      left: 100%;
-      background-color: var(--card-bg);
-      min-width: 180px;
-      border-radius: 8px;
-      box-shadow: var(--card-shadow);
-      padding: 0;
-      margin: 0;
-      list-style: none;
-      z-index: 1100;
-      transform-origin: left;
-      animation: scaleXIn 0.3s ease;
-    }
-
-    @keyframes scaleXIn {
-        from { opacity: 0; transform: scaleX(0.8); }
-        to { opacity: 1; transform: scaleX(1); }
-    }
-
-    nav ul li ul.dropdown li:hover > ul.submenu {
-      display: block;
-    }
+    /* Header styles - gestiti da header-styles.css */
 
     /* Responsive adjustments */
     @media (max-width: 1500px) {
@@ -3424,7 +3271,7 @@ function getPermutaStatusClasses($status) {
         }
 
         mainModal.classList.remove('hidden');
-        mainModal.classList.add('show');
+        requestAnimationFrame(() => mainModal.classList.add('show'));
         currentModalPermutaId = permutaId;
     }
 
@@ -3461,7 +3308,7 @@ function getPermutaStatusClasses($status) {
             document.getElementById('editPermutaId').textContent = permutaId;
             document.getElementById('editPermutaHiddenId').value = permutaId;
             document.getElementById('editPermutaCliente').value = permuta.cliente || '';
-            document.getElementById('editPermutaTelefono').value = permuta.telefono_cliente || ''; // Use telefono_cliente
+            document.getElementById('editPermutaTelefono').value = permuta.telefono || permuta.telefono_cliente || '';
             document.getElementById('editPermutaProgressivo').value = permuta.progressivo || '';
             document.getElementById('editPermutaData').value = permuta.data ? permuta.data.split(' ')[0] : ''; // Only date part
             document.getElementById('editPermutaModelloNuovo').value = permuta.modello_nuovo || '';
@@ -3527,7 +3374,7 @@ function getPermutaStatusClasses($status) {
             document.getElementById('viewPermutaDetailProgressivo').textContent = permuta.progressivo || 'N/D';
             document.getElementById('viewPermutaDetailData').textContent = formatDate(permuta.data);
             document.getElementById('viewPermutaDetailCliente').textContent = permuta.cliente || 'N/D';
-            document.getElementById('viewPermutaDetailTelefono').textContent = permuta.telefono_cliente || 'N/D'; // Use telefono_cliente
+            document.getElementById('viewPermutaDetailTelefono').textContent = permuta.telefono || permuta.telefono_cliente || 'N/D';
             document.getElementById('viewPermutaDetailModelloNuovo').textContent = permuta.modello_nuovo || 'N/D';
             document.getElementById('viewPermutaDetailImeiNuovo').textContent = permuta.imei_nuovo || 'N/D';
             document.getElementById('viewPermutaDetailNoteNuovo').textContent = permuta.note_nuovo || 'N/D';
@@ -3629,7 +3476,7 @@ function getPermutaStatusClasses($status) {
         const permuta = initialPermuteData.find(p => p.id == permutaId);
         document.getElementById('emailPermutaId').textContent = permutaId;
         
-        document.getElementById('emailPermutaTo').value = permuta ? permuta.telefono_cliente || '' : ''; // Use telefono_cliente
+        document.getElementById('emailPermutaTo').value = permuta ? (permuta.telefono || permuta.telefono_cliente || '') : '';
         document.getElementById('emailPermutaSubject').value = `Aggiornamento Permuta #${permutaId}`;
         document.getElementById('emailPermutaBody').value = `Gentile cliente ${permuta.cliente || ''},\n\nLa sua permuta ID #${permutaId} (${permuta.modello_usato || 'dispositivo'}) è nello stato: ${ucfirst(permuta.status || 'N/D')}.\n\nCordiali saluti,\nTS Service`;
         

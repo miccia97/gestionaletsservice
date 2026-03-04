@@ -80,7 +80,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Aggiungi Prodotto</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>Aggiungi Prodotto</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
 

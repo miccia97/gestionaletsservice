@@ -2,15 +2,9 @@
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 header('Content-Type: application/json');
 
-$host = "localhost";
-$user = "root";
-$password = "";
-$database = "gestionale_tsservice"; // ← Assicurati che questo sia corretto
+require_once 'db.php';
 
 try {
-    // Connessione al DB
-    $conn = new mysqli($host, $user, $password, $database);
-    $conn->set_charset("utf8mb4");
 
     // Dati dal corpo JSON
     $input = json_decode(file_get_contents("php://input"), true);

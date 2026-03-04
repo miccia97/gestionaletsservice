@@ -1,8 +1,5 @@
 <?php
-$conn = new mysqli("localhost", "root", "", "gestionale_tsservice");
-if ($conn->connect_error) {
-    die("Connessione fallita: " . $conn->connect_error);
-}
+require_once 'db.php';
 
 if (!isset($_GET['id'])) {
     die("ID riparazione mancante.");
@@ -60,7 +57,8 @@ $result
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Dettagli Riparazione - Modern</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>Dettagli Riparazione - Modern</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 

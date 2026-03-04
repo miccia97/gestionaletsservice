@@ -117,13 +117,17 @@ function formatCurrency($value) {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Storico Riparazioni</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/header-styles.css?v=<?php echo time(); ?>">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
-<style>
+    <style>
   * { transition: all 0.2s ease; }
   
   :root {
@@ -590,6 +594,8 @@ function formatCurrency($value) {
       border-bottom: none;
       margin-bottom: 0;
       flex-shrink: 0;
+      position: relative;
+      z-index: 10;
   }
   .modal-content .tab-button { 
       padding: 0.75rem 1.5rem; 
@@ -632,6 +638,20 @@ function formatCurrency($value) {
   }
   
   /* FORM FIELDS */
+  /* Fix pointer-events: ensure ALL interactive elements inside modal are clickable */
+  .modal-content,
+  .modal-content form,
+  .modal-content div,
+  .modal-content input,
+  .modal-content select,
+  .modal-content textarea,
+  .modal-content button,
+  .modal-content label,
+  .modal-content .tab-buttons,
+  .modal-content .tab-button,
+  .modal-content .modal-footer {
+      pointer-events: auto !important;
+  }
   .modal-content label.font-medium,
   .modal-content label {
       display: block;
@@ -707,23 +727,7 @@ function formatCurrency($value) {
       box-shadow: 0 8px 20px rgba(34, 197, 94, 0.3);
   }
 
-  .tab-buttons { 
-      display: flex; 
-      border-bottom: 2px solid var(--border-color); 
-      margin-bottom: 1.5rem; 
-  }
-  .tab-button { 
-      padding: 0.75rem 1.25rem; 
-      cursor: pointer; 
-      border: none; 
-      background: none; 
-      font-weight: 600; 
-      color: var(--text-secondary); 
-      border-bottom: 3px solid transparent; 
-      margin-bottom: -2px; 
-  }
-  .tab-button.active { color: var(--brand-green); border-color: var(--brand-green); }
-  .tab-content { display: none; } .tab-content.active { display: block; }
+  /* Global tab rules removed - using .modal-content scoped rules only */
   
   /* SCROLLBAR */
   ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -1039,6 +1043,7 @@ function formatCurrency($value) {
       body * { visibility: hidden; }
       #receiptContentToPrint, #receiptContentToPrint * { visibility: visible; }
       #receiptContentToPrint { position: absolute; left: 0; top: 0; width: 100%; }
+      .modal-footer, .modal-header, .modal-close-button { display: none !important; }
   }
 </style>
 </head>
@@ -1188,14 +1193,14 @@ function formatCurrency($value) {
                 <h2>✏️ Modifica Riparazione #<span id="modalRepairId"></span></h2>
                 <button class="modal-close-button" onclick="closeModal()">&times;</button>
             </div>
-            <div class="tab-buttons">
-                <button type="button" class="tab-button active" data-tab="anagrafe">👤 Anagrafe</button>
-                <button type="button" class="tab-button" data-tab="articoli">📦 Articoli</button>
-                <button type="button" class="tab-button" data-tab="scheda">📋 Scheda</button>
+            <div class="tab-buttons" style="position:relative; z-index:9999; pointer-events:auto !important;">
+                <button type="button" class="tab-button active" data-tab="anagrafe" onclick="switchTab('anagrafe')" style="pointer-events:auto !important;">👤 Anagrafe</button>
+                <button type="button" class="tab-button" data-tab="articoli" onclick="switchTab('articoli')" style="pointer-events:auto !important;">📦 Articoli</button>
+                <button type="button" class="tab-button" data-tab="scheda" onclick="switchTab('scheda')" style="pointer-events:auto !important;">📋 Scheda</button>
             </div>
             <form id="editRepairForm">
                  <input type="hidden" id="editRepairId" name="id">
-                 <div id="anagrafeTabContent" class="tab-content active">
+                 <div id="anagrafeTabContent" style="display:block;">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div><label>Nome Cliente</label><input type="text" id="editClienteNome" name="cliente_nome"></div>
                         <div><label>Cognome Cliente</label><input type="text" id="editClienteCognome" name="cliente_cognome"></div>
@@ -1214,7 +1219,7 @@ function formatCurrency($value) {
                         <div class="md:col-span-2"><label>Diagnosi/Difetto</label><textarea id="editDiagnosi" name="diagnosi" rows="3"></textarea></div>
                     </div>
                  </div>
-                 <div id="articoliTabContent" class="tab-content">
+                 <div id="articoliTabContent" style="display:none;">
                     <h4 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">📦 Gestione Articoli</h4>
                     <div id="stockManagementSection" class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end mb-6 p-4 bg-white rounded-xl" style="border: 2px dashed var(--border-color);">
                         <div class="relative">
@@ -1228,7 +1233,7 @@ function formatCurrency($value) {
                     <h5 class="text-md font-semibold mb-3" style="color: var(--text-primary);">Riepilogo Articoli Associati:</h5>
                     <div id="repairMovementsList" class="space-y-2 max-h-60 overflow-y-auto p-3 bg-white rounded-xl" style="border: 1px solid var(--border-color);"></div>
                  </div>
-                 <div id="schedaTabContent" class="tab-content">
+                 <div id="schedaTabContent" style="display:none;">
                     <h4 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">📋 Cronologia Eventi</h4>
                     <div id="repairHistoryList" class="space-y-3 max-h-80 overflow-y-auto p-3 bg-white rounded-xl" style="border: 1px solid var(--border-color);"></div>
                  </div>
@@ -1313,6 +1318,47 @@ function formatCurrency($value) {
             </div>
         </div>
     </div>
+
+<!-- Unregister service worker + define switchTab globally -->
+<script>
+// FORCE update the service worker to the new self-destruct version
+if ('serviceWorker' in navigator) {
+    // Re-register sw.js to trigger update to self-destruct version
+    navigator.serviceWorker.register('/gestionale_tsservice/sw.js', {updateViaCache: 'none'})
+        .then(function(reg) { reg.update(); })
+        .catch(function() {});
+    // Also directly unregister all SWs
+    navigator.serviceWorker.getRegistrations().then(function(r) { r.forEach(function(reg) { reg.unregister(); }); });
+    // Clear all caches
+    if (caches) { caches.keys().then(function(n) { n.forEach(function(name) { caches.delete(name); }); }); }
+}
+// Global switchTab - uses ONLY element IDs and inline styles. Zero CSS classes.
+var _tabIds = ['anagrafeTabContent', 'articoliTabContent', 'schedaTabContent'];
+var _tabBtnMap = {'anagrafe': 0, 'articoli': 1, 'scheda': 2};
+function switchTab(tabName) {
+    // Hide ALL tab panels by ID
+    for (var i = 0; i < _tabIds.length; i++) {
+        var el = document.getElementById(_tabIds[i]);
+        if (el) el.style.cssText = 'display:none !important;';
+    }
+    // Show the target tab panel
+    var target = document.getElementById(tabName + 'TabContent');
+    if (target) target.style.cssText = 'display:block !important;';
+    // Update button styles (purely visual)
+    var modal = document.getElementById('editRepairModalContent');
+    if (modal) {
+        var btns = modal.querySelectorAll('.tab-button');
+        for (var j = 0; j < btns.length; j++) {
+            btns[j].classList.remove('active');
+            btns[j].style.cssText = 'cursor:pointer;';
+        }
+        var activeBtn = modal.querySelector('[data-tab="' + tabName + '"]');
+        if (activeBtn) {
+            activeBtn.classList.add('active');
+        }
+    }
+}
+</script>
 
 <script>
   const allRepairs = <?php echo json_encode($riparazioni_data); ?>;
@@ -1676,7 +1722,7 @@ function formatCurrency($value) {
   let originalRepairData = {};
   
   function openModal(modalContent) {
-      if (modalContent) modalContent.style.display = 'block';
+      if (modalContent) modalContent.style.display = 'flex';
       mainModal.classList.add('show');
       document.body.style.overflow = 'hidden';
   }
@@ -1737,18 +1783,10 @@ function formatCurrency($value) {
       }
   }
 
-  document.querySelectorAll('.tab-button').forEach(button => {
-    button.addEventListener('click', () => {
-        const tabName = button.dataset.tab;
-        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-        button.classList.add('active');
-        document.getElementById(`${tabName}TabContent`).classList.add('active');
-    });
+  // Tab click listeners as backup
+  document.getElementById('editRepairModalContent').querySelectorAll('.tab-button').forEach(function(btn) {
+      btn.addEventListener('click', function() { switchTab(this.getAttribute('data-tab')); });
   });
-  function switchTab(tabName) {
-      document.querySelector(`.tab-button[data-tab="${tabName}"]`).click();
-  }
 
   window.saveRepair = async function() {
       const form = document.getElementById('editRepairForm');
@@ -1880,47 +1918,121 @@ function formatCurrency($value) {
         
         document.getElementById('receiptModalRepairId').textContent = id;
         
-        let movementsHtml = '';
+        // Read shop settings from localStorage
+        const settings = JSON.parse(localStorage.getItem('appSettings')) || {};
+        const shopName = settings.shopName || 'TS SERVICE';
+        const shopAddress = settings.shopAddress || '';
+        const shopPhone = settings.shopPhone || '';
+        const shopEmail = settings.shopEmail || '';
+        const shopVAT = settings.shopVAT || '';
+
+        let movementsRows = '';
         if (movements.length > 0) {
             movements.forEach(m => {
-                movementsHtml += `<div class="flex justify-between py-1"><span>${m.product_name} (x${m.quantita_movimentata})</span></div>`;
+                movementsRows += `
+                    <tr>
+                        <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#374151;">${m.product_name}</td>
+                        <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#374151;text-align:center;">${m.quantita_movimentata}</td>
+                    </tr>`;
             });
         } else {
-            movementsHtml = `<div class="py-1"><span>Manodopera</span></div>`;
+            movementsRows = `
+                <tr>
+                    <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#374151;">Manodopera / Servizio</td>
+                    <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#374151;text-align:center;">1</td>
+                </tr>`;
         }
 
+        const clientName = ((repair.cliente_nome || '') + ' ' + (repair.cliente_cognome || '')).trim() || '—';
+        const dataRicevuta = new Date().toLocaleDateString('it-IT', {day:'2-digit',month:'2-digit',year:'numeric'});
+        const costoTotale = formatCurrency(repair.costo_effettivo);
+
         const receiptContent = `
-            <div class="p-6 text-gray-800">
-                <div class="flex justify-between items-start mb-6">
+            <div style="font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:#111827;max-width:680px;margin:0 auto;">
+                <!-- HEADER -->
+                <div style="background:linear-gradient(135deg,#14532d 0%,#2d6a4f 55%,#52b788 100%);border-radius:10px 10px 0 0;padding:24px 28px;display:flex;justify-content:space-between;align-items:center;">
                     <div>
-                        <h3 class="text-xl font-bold text-gray-900">NOME AZIENDA</h3>
-                        <p class="text-sm text-gray-600">Via Esempio 123, 00100 Città<br>P.IVA: 12345678901</p>
+                        <div style="font-size:20px;font-weight:800;color:#fff;letter-spacing:.5px;">${shopName}</div>
+                        ${shopAddress ? '<div style="font-size:11px;color:rgba(255,255,255,.8);margin-top:3px;">' + shopAddress + '</div>' : ''}
+                        ${shopPhone ? '<div style="font-size:11px;color:rgba(255,255,255,.8);margin-top:1px;">Tel. ' + shopPhone + '</div>' : ''}
+                        ${shopVAT ? '<div style="font-size:11px;color:rgba(255,255,255,.8);margin-top:1px;">P.IVA: ' + shopVAT + '</div>' : ''}
                     </div>
-                    <div class="text-right">
-                        <h4 class="text-lg font-semibold text-gray-900">RICEVUTA N. ${id}</h4>
-                        <p class="text-sm text-gray-600">Data: ${new Date().toLocaleDateString('it-IT')}</p>
+                    <div style="text-align:right;">
+                        <div style="font-size:28px;font-weight:800;color:#fff;">#${id}</div>
+                        <div style="font-size:11px;color:rgba(255,255,255,.75);margin-top:2px;">Ricevuta</div>
                     </div>
                 </div>
-                <div class="mb-6 border-t pt-4">
-                    <h5 class="font-semibold text-gray-700">Cliente:</h5>
-                    <p>${repair.cliente_nome || ''} ${repair.cliente_cognome || ''}</p>
+
+                <!-- DATA -->
+                <div style="background:#f0fdf4;padding:10px 28px;border-bottom:1px solid #d1fae5;display:flex;justify-content:space-between;font-size:12px;color:#2d6a4f;">
+                    <span><strong>Data:</strong> ${dataRicevuta}</span>
+                    <span><strong>Riparazione:</strong> #${id}</span>
                 </div>
-                <div class="mb-6">
-                     <h5 class="font-semibold text-gray-700 mb-2">Dettagli Riparazione:</h5>
-                     <div class="border rounded p-3 bg-gray-50">
-                        <p><strong>Dispositivo:</strong> ${repair.modello}</p>
-                        <p><strong>Difetto Riscontrato:</strong> ${repair.diagnosi}</p>
-                     </div>
-                </div>
-                <div>
-                     <h5 class="font-semibold text-gray-700 mb-2">Riepilogo Costi:</h5>
-                     <div class="border rounded p-3">
-                        ${movementsHtml}
-                        <div class="flex justify-between font-bold border-t mt-4 pt-2 text-xl text-gray-900">
-                            <span>TOTALE</span>
-                            <span>${formatCurrency(repair.costo_effettivo)}</span>
+
+                <!-- BODY -->
+                <div style="padding:24px 28px;">
+                    <!-- Cliente -->
+                    <div style="display:flex;gap:24px;margin-bottom:20px;">
+                        <div style="flex:1;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px 16px;">
+                            <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#6b7280;font-weight:600;margin-bottom:6px;">Cliente</div>
+                            <div style="font-size:15px;font-weight:600;color:#111827;">${clientName}</div>
+                            ${repair.telefono ? '<div style="font-size:12px;color:#6b7280;margin-top:3px;"><span style="color:#9ca3af;">Tel.</span> ' + repair.telefono + '</div>' : ''}
                         </div>
-                     </div>
+                        <div style="flex:1;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px 16px;">
+                            <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#6b7280;font-weight:600;margin-bottom:6px;">Dispositivo</div>
+                            <div style="font-size:15px;font-weight:600;color:#111827;">${repair.modello || '—'}</div>
+                            <div style="font-size:12px;color:#6b7280;margin-top:3px;">Stato: <span style="font-weight:600;color:#2d6a4f;">${repair.stato || ''}</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Diagnosi -->
+                    <div style="margin-bottom:20px;">
+                        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#6b7280;font-weight:600;margin-bottom:8px;">Intervento Eseguito</div>
+                        <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;font-size:13px;color:#92400e;line-height:1.5;">
+                            ${repair.diagnosi || 'Nessuna descrizione'}
+                        </div>
+                    </div>
+
+                    <!-- Articoli / Materiali -->
+                    <div style="margin-bottom:20px;">
+                        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#6b7280;font-weight:600;margin-bottom:8px;">Riepilogo Materiali / Lavorazioni</div>
+                        <table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
+                            <thead>
+                                <tr style="background:#f0fdf4;">
+                                    <th style="padding:10px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#2d6a4f;font-weight:600;border-bottom:2px solid #d1fae5;">Descrizione</th>
+                                    <th style="padding:10px 12px;text-align:center;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#2d6a4f;font-weight:600;border-bottom:2px solid #d1fae5;width:80px;">Qtà</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${movementsRows}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- TOTALE -->
+                    <div style="background:linear-gradient(135deg,#14532d,#2d6a4f);border-radius:10px;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;">
+                        <div style="font-size:14px;font-weight:600;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:1px;">Totale</div>
+                        <div style="font-size:26px;font-weight:800;color:#fff;">${costoTotale}</div>
+                    </div>
+
+                    <!-- Note legali -->
+                    <div style="margin-top:20px;padding-top:16px;border-top:1px solid #e5e7eb;font-size:10px;color:#9ca3af;line-height:1.5;text-align:center;">
+                        Il cliente dichiara di aver ritirato il dispositivo sopra descritto nelle condizioni indicate.<br>
+                        Garanzia sulla riparazione: 30 giorni dalla data di emissione della presente ricevuta, salvo diversa indicazione.<br>
+                        Consenso al trattamento dei dati personali ai sensi del Reg. UE 2016/679 (GDPR).
+                    </div>
+
+                    <!-- Firme -->
+                    <div style="display:flex;justify-content:space-between;margin-top:28px;padding-top:8px;">
+                        <div style="text-align:center;width:42%;">
+                            <div style="border-bottom:1px solid #d1d5db;margin-bottom:6px;height:36px;"></div>
+                            <div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;">Firma Cliente</div>
+                        </div>
+                        <div style="text-align:center;width:42%;">
+                            <div style="border-bottom:1px solid #d1d5db;margin-bottom:6px;height:36px;"></div>
+                            <div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;">Firma Tecnico</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -1930,7 +2042,40 @@ function formatCurrency($value) {
     }
 
     window.printReceipt = function() {
-        window.print();
+        const content = document.getElementById('receiptContentToPrint').innerHTML;
+        const printWindow = window.open('', '_blank', 'width=800,height=900');
+        printWindow.document.write(`<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Ricevuta Riparazione</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; background:#f3f4f6; padding:30px; }
+  .receipt-wrap { max-width:680px; margin:0 auto; background:#fff; border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,.08); overflow:hidden; }
+  .toolbar { text-align:center; padding:20px 0 10px; }
+  .toolbar button { background:linear-gradient(135deg,#14532d,#40916c); color:#fff; border:none; padding:12px 36px; border-radius:10px; cursor:pointer; font:700 13px/1 'Inter',sans-serif; letter-spacing:.3px; box-shadow:0 4px 16px rgba(27,67,50,.3); transition:.2s; }
+  .toolbar button:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(27,67,50,.4); }
+  @media print {
+    body { background:#fff !important; padding:0 !important; }
+    .toolbar { display:none !important; }
+    .receipt-wrap { box-shadow:none !important; border-radius:0 !important; max-width:100% !important; }
+  }
+  @page { size:A4 portrait; margin:12mm 10mm; }
+</style>
+</head>
+<body>
+<div class="toolbar"><button onclick="window.print()"><i class="fas fa-print"></i> Stampa Ricevuta</button></div>
+<div class="receipt-wrap">${content}</div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</body>
+</html>`);
+        printWindow.document.close();
+        // Auto-print after fonts load
+        printWindow.onload = function() {
+            setTimeout(() => printWindow.print(), 400);
+        };
     }
 
   // --- Autocomplete per Prodotti ---

@@ -1,14 +1,23 @@
 <?php
-// --- ATTIVAZIONE DEBUGGING PHP ---
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+// Capture any PHP warnings/notices so they don't corrupt JSON output
+ob_start();
+ini_set('display_errors', 0);
 error_reporting(E_ALL);
 
 // Avvia la sessione PHP
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Imposta l'header per la risposta JSON
 header('Content-Type: application/json');
+
+// Helper function: clean output buffer before sending JSON
+function sendJson($data) {
+    ob_end_clean();
+    echo json_encode($data);
+    exit;
+}
 
 // Includi il file di connessione al database
 if (!file_exists('db.php')) {
@@ -37,7 +46,6 @@ $cliente_cognome = filter_input(INPUT_POST, 'cliente_cognome', FILTER_SANITIZE_F
 $telefono = filter_input(INPUT_POST, 'telefono', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $diagnosi = filter_input(INPUT_POST, 'diagnosi', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $modello = filter_input(INPUT_POST, 'modello', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-$data_creazione = filter_input(INPUT_POST, 'data_creazione', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $stato = filter_input(INPUT_POST, 'stato', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $costo_effettivo = filter_input(INPUT_POST, 'costo_effettivo', FILTER_VALIDATE_FLOAT);
 
@@ -51,7 +59,6 @@ $movements_updates = json_decode($movements_updates_json, true);
 if ($repairId === null || $repairId === false ||
     $cliente_nome === null || $cliente_nome === false ||
     $cliente_cognome === null || $cliente_cognome === false ||
-    $data_creazione === null || $data_creazione === false ||
     $stato === null || $stato === false) {
     echo json_encode(['success' => false, 'message' => 'Dati della riparazione principali non validi o mancanti.']);
     exit;
@@ -107,7 +114,6 @@ try {
                             telefono = ?, 
                             diagnosi = ?, 
                             modello = ?, 
-                            data_creazione = ?, 
                             stato = ?, 
                             costo_effettivo = ? 
                             WHERE id = ?");
@@ -116,12 +122,10 @@ try {
         throw new Exception("Errore nella preparazione della query di aggiornamento riparazione: " . $conn->error);
     }
 
-    // Assicurati che i tipi di parametro corrispondano alla tua struttura di tabella
-    $stmt->bind_param("sssssdi", 
+    $stmt->bind_param("ssssdi", 
                        $telefono, 
                        $diagnosi, 
                        $modello, 
-                       $data_creazione, 
                        $stato, 
                        $costo_effettivo, 
                        $repairId);

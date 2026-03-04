@@ -1,1044 +1,946 @@
 <?php
-// Connessione al database
-$host = 'localhost';
-$db   = 'gestionale_tsservice';
-$user = 'root';
-$pass = '';
+// --- ATTIVAZIONE DEBUGGING PHP ---
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-$conn = new mysqli($host, $user, $pass, $db);
-if ($conn->connect_error) {
-    die("Connessione fallita: " . $conn->connect_error);
+session_start();
+
+if (!file_exists('db.php')) {
+    echo "<div style='text-align:center;padding:2rem;color:#ef4444;font-family:Inter,sans-serif;'>Errore critico: Il file db.php non &egrave; stato trovato!</div>";
+    exit;
+}
+require_once 'db.php';
+
+if (!isset($conn) || $conn === null) {
+    $db_error_message = isset($db_connection_error) ? $db_connection_error : 'Connessione al database non stabilita.';
+    echo "<div style='text-align:center;padding:2rem;color:#ef4444;font-family:Inter,sans-serif;'>Errore critico: " . htmlspecialchars($db_error_message, ENT_QUOTES, 'UTF-8') . "</div>";
+    exit;
 }
 
-// Helper function to generate a random alphanumeric code
-function generate_random_code($length = 12) {
-    $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    $random_code = '';
-    for ($i = 0; $i < $length; $i++) {
-        $random_code .= $chars[rand(0, strlen($chars) - 1)];
-    }
-    return $random_code;
-}
-
-// Inizializza la query SQL di base
-$sql = "SELECT * FROM buoni_regalo";
-$search_query = '';
-
-// Gestione della ricerca
-if (isset($_GET['search_query']) && !empty($_GET['search_query'])) {
-    $search_query = $conn->real_escape_string($_GET['search_query']);
-    // Aggiungi la clausola WHERE per filtrare i risultati
-    $sql .= " WHERE nome LIKE '%$search_query%' 
-              OR destinatario LIKE '%$search_query%' 
-              OR note LIKE '%$search_query%'";
-}
-
-// Aggiungi l'ordinamento
-$sql .= " ORDER BY data_creazione DESC";
-
-$result = $conn->query($sql);
-
-// Variabili per i messaggi di feedback dei vari form
-$feedback_message = ''; // Riparazione
-$gift_card_feedback_message = ''; // Buono Regalo
-$permuta_feedback_message = ''; // Permuta
-$prenotazione_feedback_message = ''; // Prenotazione Prodotto
-
-// Inizializza la variabile message per l'uso nel HTML (per messaggi da sessione)
-$message_from_session = '';
-// Controlla se ci sono messaggi da visualizzare dalla sessione
+$message = '';
 if (isset($_SESSION['message'])) {
     $sessionMessage = $_SESSION['message'];
     $sessionIsError = $_SESSION['isError'] ?? false;
-    $message_from_session = "<script>document.addEventListener('DOMContentLoaded', function() { showMessage('" . addslashes($sessionMessage) . "', " . ($sessionIsError ? 'true' : 'false') . "); });</script>";
+    $message = "<script>document.addEventListener('DOMContentLoaded', function() { showToast('" . addslashes($sessionMessage) . "', " . ($sessionIsError ? "'error'" : "'success'") . "); });</script>";
     unset($_SESSION['message']);
     unset($_SESSION['isError']);
 }
 
-// --- 2. Gestione dell'invio dei form (POST) ---
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Distinguere tra i form inviati tramite il campo nascosto 'form_type'
-    if (isset($_POST['form_type'])) {
-        switch ($_POST['form_type']) {
-            case 'riparazione':
-                // Logica per il form di riparazione
-                $cliente_id = (int)$_POST['cliente_id'];
-                $modello = $conn->real_escape_string($_POST['modello']);
-                $imei = $conn->real_escape_string($_POST['imei']);
-                $codice_sblocco = $conn->real_escape_string($_POST['codice_sblocco']);
-                $account = $conn->real_escape_string($_POST['account']);
-                $diagnosi = $conn->real_escape_string($_POST['diagnosi']);
-                $salva_dati = isset($_POST['salva_dati']) ? 1 : 0;
-                $costo_preventivato = !empty($_POST['costo_preventivato']) ? (float)$_POST['costo_preventivato'] : 'NULL';
-                $costo_effettivo = !empty($_POST['costo_effettivo']) ? (float)$_POST['costo_effettivo'] : 'NULL';
-                $hardware_ritirato = $conn->real_escape_string($_POST['hardware_ritirato']);
-                $dispositivo_sostitutivo = $conn->real_escape_string($_POST['dispositivo_sostitutivo']);
-                $stato = $conn->real_escape_string($_POST['stato']);
-                $codice_sblocco_grafico = isset($_POST['codice_sblocco_grafico']) ? $conn->real_escape_string($_POST['codice_sblocco_grafico']) : '';
-                
-                $sql_insert = "INSERT INTO riparazioni (
-                    cliente_id, modello, imei, codice_sblocco, codice_sblocco_grafico, 
-                    account, diagnosi, salva_dati, costo_preventivato, 
-                    costo_effettivo, hardware_ritirato, dispositivo_sostitutivo, stato, data_creazione
-                ) VALUES (
-                    '$cliente_id', '$modello', '$imei', '$codice_sblocco', '$codice_sblocco_grafico',
-                    '$account', '$diagnosi', '$salva_dati', $costo_preventivato, 
-                    $costo_effettivo, '$hardware_ritirato', '$dispositivo_sostitutivo', '$stato', NOW()
-                )";
-        
-                if ($conn->query($sql_insert) === TRUE) {
-                    $feedback_message = "<div class='feedback success'>Scheda di riparazione salvata con successo! Il popup si chiuderà tra 1 secondo.</div>";
-                } else {
-                    $feedback_message = "<div class='feedback error'>Errore durante il salvataggio: " . $conn->error . "</div>";
-                }
-                break;
-
-            case 'buono_regalo':
-                // Logica per il form del buono regalo
-                $initial_code = $conn->real_escape_string($_POST['codice_buono']); // Codice dal client-side
-                $valore_buono = !empty($_POST['valore']) ? (float)$_POST['valore'] : 'NULL';
-                $destinatario_buono = !empty($_POST['destinatario']) ? "'" . $conn->real_escape_string($_POST['destinatario']) . "'" : 'NULL';
-                $note_buono = !empty($_POST['mittente_note']) ? "'" . $conn->real_escape_string($_POST['mittente_note']) . "'" : 'NULL';
-                $data_scadenza_buono = !empty($_POST['data_scadenza']) ? "'" . $conn->real_escape_string($_POST['data_scadenza']) . "'" : 'NULL';
-                $stato_buono = $conn->real_escape_string($_POST['stato_buono']);
-
-                $max_retries = 5; // Massimo tentativi per generare un codice unico
-                $unique_code_found = false;
-                $nome_buono = $initial_code; // Inizia con il codice ricevuto dal client
-
-                for ($i = 0; $i < $max_retries; $i++) {
-                    // Verifica se il codice attuale esiste già nel database
-                    $check_sql = "SELECT COUNT(*) FROM buoni_regalo WHERE nome = '$nome_buono'";
-                    $check_result = $conn->query($check_sql);
-                    
-                    if ($check_result && $check_result->fetch_row()[0] == 0) {
-                        // Codice unico trovato!
-                        $unique_code_found = true;
-                        break;
-                    } else {
-                        // Codice esistente, genera un nuovo codice per il prossimo tentativo
-                        $nome_buono = generate_random_code(); // Genera un nuovo codice casuale
-                    }
-                }
-
-                if (!$unique_code_found) {
-                    $gift_card_feedback_message = "<div class='feedback error'>Errore: Impossibile generare un codice buono unico dopo " . $max_retries . " tentativi. Riprova.</div>";
-                    break; // Esci dallo switch, non procedere con l'inserimento
-                }
-                
-                // Se un codice unico è stato trovato, procedi con l'inserimento
-                $sql_insert_buono = "INSERT INTO buoni_regalo (
-                    nome, valore, data_scadenza, destinatario, note, stato, data_creazione
-                ) VALUES (
-                    '$nome_buono', $valore_buono, $data_scadenza_buono, $destinatario_buono, $note_buono, '$stato_buono', NOW()
-                )";
-        
-                try {
-                    if ($conn->query($sql_insert_buono) === TRUE) {
-                        $new_buono_id = $conn->insert_id; // Get the ID of the newly inserted buono
-                        $gift_card_feedback_message = "<div class='feedback success'>Buono regalo creato con successo! Stampa in corso...</div>";
-                        // Add JavaScript to redirect to the print page after showing the message
-                        echo "<script>
-                                document.addEventListener('DOMContentLoaded', function() {
-                                    showMessage('Buono regalo creato con successo! Preparazione per la stampa.', false);
-                                    setTimeout(() => { 
-                                        window.location.href = 'stampa_buono.php?id=" . $new_buono_id . "'; 
-                                    }, 1000); // Redirect after 1 second
-                                });
-                              </script>";
-                    } else {
-                        // Questa parte dovrebbe essere raggiunta solo per errori non di duplicazione,
-                        // dato che la logica di retry e il catch sottostante gestiscono le duplicazioni.
-                        $gift_card_feedback_message = "<div class='feedback error'>Errore durante la creazione del buono: " . $conn->error . "</div>";
-                    }
-                } catch (mysqli_sql_exception $e) {
-                    // Cattura specificamente l'eccezione di duplicazione (codice 1062 per MySQL)
-                    if ($e->getCode() == 1062) {
-                        $gift_card_feedback_message = "<div class='feedback error'>Errore: Il codice buono '$nome_buono' esiste già. Riprova o contatta il supporto.</div>";
-                    } else {
-                        $gift_card_feedback_message = "<div class='feedback error'>Errore database durante la creazione del buono: " . $e->getMessage() . "</div>";
-                    }
-                }
-                break;
-
-            case 'permuta':
-                // Logica per il form di permuta
-                $numero_progressivo = (int)$_POST['numero_progressivo'];
-                $data_permuta_form = $conn->real_escape_string($_POST['data_permuta']); // Mappa a 'data' nel DB
-                $cliente_id = (int)$_POST['cliente_id'];
-                $cliente_display_name = $conn->real_escape_string($_POST['cliente_display']); // Nuovo: per la colonna 'cliente'
-                $telefono_cliente_var = $conn->real_escape_string($_POST['telefono_cliente']); // Mappa a 'telefono_cliente' nel DB
-                $stato_permuta_var = $conn->real_escape_string($_POST['stato_permuta']); // Mappa a 'status' nel DB
-                $tuo_modello_var = $conn->real_escape_string($_POST['tuo_modello']); // Mappa a 'modello_nuovo'
-                $tuo_imei_var = $conn->real_escape_string($_POST['tuo_imei']); // Mappa a 'imei_nuovo'
-                $tuo_valore_vendita_var = !empty($_POST['tuo_valore_vendita']) ? (float)$_POST['tuo_valore_vendita'] : 'NULL'; // Mappa a 'prezzo_nuovo'
-                $tuo_note_var = $conn->real_escape_string($_POST['tuo_note']); // Mappa a 'note_nuovo'
-                $cliente_modello_var = $conn->real_escape_string($_POST['cliente_modello']); // Mappa a 'modello_usato'
-                $cliente_imei_var = $conn->real_escape_string($_POST['cliente_imei']); // Mappa a 'imei_usato'
-                $cliente_note_var = $conn->real_escape_string($_POST['cliente_note']); // Mappa a 'note_usato'
-                $cliente_valore_permuta_var = !empty($_POST['cliente_valore_permuta']) ? (float)$_POST['cliente_valore_permuta'] : 'NULL'; // Mappa a 'prezzo_permuta'
-                $totale_costi_ricondizionamento_val_var = !empty($_POST['totale_costi_ricondizionamento_val']) ? (float)$_POST['totale_costi_ricondizionamento_val'] : 'NULL'; // Mappa a 'costo_riparazione'
-                $costo_accessori_input_var = !empty($_POST['costo_accessori_input']) ? (float)$_POST['costo_accessori_input'] : 'NULL'; // Mappa a 'costo_accessori'
-                $costo_prodotto_input_var = !empty($_POST['costo_prodotto_input']) ? (float)$_POST['costo_prodotto_input'] : 'NULL'; // Mappa a 'costo_prodotto'
-                $prezzo_vendita_input_var = !empty($_POST['prezzo_vendita_input']) ? (float)$_POST['prezzo_vendita_input'] : 'NULL'; // Mappa a 'prezzo_vendita'
-                $valore_netto_ricevuto_val_var = !empty($_POST['valore_netto_ricevuto_val']) ? (float)$_POST['valore_netto_ricevuto_val'] : 'NULL'; // Mappa a 'differenza'
-                $note_generali_input_var = $conn->real_escape_string($_POST['note_generali_input']); // Mappa a 'note_generali'
-
-                // JSON data for 'test_ok'
-                $valutazione_tecnica = [];
-                $valutazione_campi = [
-                    'display', 'touch', 'batteria', 'cam_post', 'cam_ant', 'audio', 'mic',
-                    'wifi', 'bt', 'ricarica', 'tasti', 'sensori', 'sblocco_bio', 'reset_fabbrica', 'accounts', 'altro'
-                ];
-                foreach ($valutazione_campi as $campo) {
-                    $esito_key = "test_{$campo}_esito";
-                    $note_key = "test_{$campo}_note";
-                    $valutazione_tecnica[$campo] = [
-                        'esito' => isset($_POST[$esito_key]) ? $conn->real_escape_string($_POST[$esito_key]) : '',
-                        'note' => isset($_POST[$note_key]) ? $conn->real_escape_string($_POST[$note_key]) : ''
-                    ];
-                }
-                $valutazione_json = json_encode($valutazione_tecnica); // Mappa a 'test_ok'
-
-                // Photo paths for 'foto_ceduto_paths'
-                $tuo_foto_paths = [];
-                if (isset($_FILES['tuo_foto']) && is_array($_FILES['tuo_foto']['name'])) {
-                    foreach ($_FILES['tuo_foto']['name'] as $key => $name) {
-                        if ($_FILES['tuo_foto']['error'][$key] == UPLOAD_ERR_OK) {
-                            $tmp_name = $_FILES['tuo_foto']['tmp_name'][$key];
-                            $upload_dir = 'uploads/'; // Assicurati che questa cartella esista e sia scrivibile
-                            $filename = uniqid('tuo_foto_') . '_' . basename($name);
-                            // move_uploaded_file($tmp_name, $upload_dir . $filename); // In un ambiente reale, esegui il move
-                            $tuo_foto_paths[] = $upload_dir . $filename; // Salva il percorso fittizio
-                        }
-                    }
-                }
-                $tuo_foto_json = json_encode($tuo_foto_paths); // Mappa a 'foto_ceduto_paths'
-
-                // Photo paths for 'foto_ricevuto_paths'
-                $cliente_foto_paths = [];
-                if (isset($_FILES['cliente_foto']) && is_array($_FILES['cliente_foto']['name'])) {
-                    foreach ($_FILES['cliente_foto']['name'] as $key => $name) {
-                        if ($_FILES['cliente_foto']['error'][$key] == UPLOAD_ERR_OK) {
-                            $tmp_name = $_FILES['cliente_foto']['tmp_name'][$key];
-                            $upload_dir = 'uploads/';
-                            $filename = uniqid('cliente_foto_') . '_' . basename($name);
-                            // move_uploaded_file($tmp_name, $upload_dir . $filename);
-                            $cliente_foto_paths[] = $upload_dir . $filename;
-                        }
-                    }
-                }
-                $cliente_foto_json = json_encode($cliente_foto_paths); // Mappa a 'foto_ricevuto_paths'
-
-                $sql_insert_permuta = "INSERT INTO permute_nuovo (
-                    progressivo, data, cliente_id, telefono_cliente, cliente, status,
-                    modello_nuovo, imei_nuovo, prezzo_nuovo, note_nuovo, foto_ceduto_paths,
-                    modello_usato, imei_usato, note_usato, prezzo_permuta, foto_ricevuto_paths,
-                    test_ok, costo_riparazione,
-                    costo_accessori, costo_prodotto, prezzo_vendita, differenza, note_generali, created_at
-                ) VALUES (
-                    '$numero_progressivo', '$data_permuta_form', '$cliente_id', '$telefono_cliente_var', '$cliente_display_name', '$stato_permuta_var',
-                    '$tuo_modello_var', '$tuo_imei_var', $tuo_valore_vendita_var, '$tuo_note_var', '$tuo_foto_json',
-                    '$cliente_modello_var', '$cliente_imei_var', '$cliente_note_var', $cliente_valore_permuta_var, '$cliente_foto_json',
-                    '$valutazione_json', $totale_costi_ricondizionamento_val_var,
-                    $costo_accessori_input_var, $costo_prodotto_input_var, $prezzo_vendita_input_var, $valore_netto_ricevuto_val_var, '$note_generali_input_var', NOW()
-                )";
-        
-                if ($conn->query($sql_insert_permuta) === TRUE) {
-                    $new_permuta_id = $conn->insert_id;
-                    $permuta_feedback_message = "<div class='feedback success'>Permuta salvata con successo! Numero Permuta: PMT-" . str_pad($new_permuta_id, 5, '0', STR_PAD_LEFT) . " Il popup si chiuderà tra 1 secondo.</div>";
-                } else {
-                    $permuta_feedback_message = "<div class='feedback error'>Errore durante il salvataggio della permuta: " . $conn->error . "</div>";
-                }
-                break;
-
-            case 'prenotazione_prodotto':
-                // Logica per il form di prenotazione prodotto
-                $product_id = null; // Il prodotto è digitato liberamente, quindi non avrà un ID da `prodotti`
-                $product_name = $_POST['productName'] ?? '';
-                $quantity = $_POST['quantity'] ?? 0;
-                $unit_price = $_POST['unitPrice'] ?? 0;
-                $client_id_prenotazione = $_POST['clientId'] ?? null; // ID del cliente selezionato nel form prenotazione
-                $customer_name = $_POST['customerName'] ?? '';
-                $customer_phone = $_POST['customerPhone'] ?? null;
-                $customer_secondary_phone = $_POST['customerSecondaryPhone'] ?? null;
-                $customer_email = $_POST['customerEmail'] ?? null;
-                $reservation_date = $_POST['reservationDate'] ?? '';
-                $notes = $_POST['notes'] ?? null;
-                $product_total_price = $_POST['productTotalPrice'] ?? 0;
-                $deposit_amount = $_POST['depositAmount'] ?? 0;
-                $remaining_amount = $_POST['remainingAmount'] ?? 0;
-                $status = 'Pending';
-            
-                if (empty($product_name) || !is_numeric($quantity) || $quantity <= 0 || !is_numeric($unit_price) || $unit_price <= 0 || empty($customer_name) || empty($reservation_date)) {
-                    $prenotazione_feedback_message = "<div class='feedback error'>Tutti i campi obbligatori (Prodotto, Quantità, Prezzo Unitario, Nome Cliente, Data Prenotazione) devono essere validi e compilati.</div>";
-                    break; // Esci dallo switch, il feedback verrà mostrato nel popup
-                }
-            
-                try {
-                    mysqli_begin_transaction($conn);
-            
-                    $stmt_insert_reservation = $conn->prepare("INSERT INTO prenotazioni_prodotti (product_id, product_name, unit_price, quantity, client_id, customer_name, customer_phone, customer_secondary_phone, customer_email, reservation_date, notes, product_total_price, deposit_amount, remaining_amount, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                    if ($stmt_insert_reservation === false) {
-                        throw new mysqli_sql_exception("Errore nella preparazione della query di inserimento prenotazione: " . $conn->error);
-                    }
-                    // 'isdisssssssddds'
-                    $stmt_insert_reservation->bind_param('isdisssssssddds',
-                        $product_id,
-                        $product_name,
-                        $unit_price,
-                        $quantity,
-                        $client_id_prenotazione, // Usa l'ID cliente specifico per la prenotazione
-                        $customer_name,
-                        $customer_phone,
-                        $customer_secondary_phone,
-                        $customer_email,
-                        $reservation_date,
-                        $notes,
-                        $product_total_price,
-                        $deposit_amount,
-                        $remaining_amount,
-                        $status
-                    );
-                    if ($stmt_insert_reservation->execute() === false) {
-                        throw new mysqli_sql_exception("Errore nell'esecuzione dell'inserimento prenotazione: " . $stmt_insert_reservation->error);
-                    }
-                    
-                    $id_prenotazione_appena_salvata = $conn->insert_id;
-                    $stmt_insert_reservation->close();
-            
-                    mysqli_commit($conn);
-                    
-                    $prenotazione_feedback_message = "<div class='feedback success'>Prenotazione creata con successo! Stampa in corso...</div>";
-                    // Reindirizza alla pagina di stampa solo dopo aver mostrato il messaggio di successo nel popup
-                    // Questo renderà il popup e poi redirigerà, dando all'utente un feedback visivo immediato.
-                    echo "<script>
-                            document.addEventListener('DOMContentLoaded', function() {
-                                showMessage('Prenotazione creata con successo! Preparazione per la stampa.', false);
-                                setTimeout(() => { 
-                                    window.location.href = 'stampa_prenotazione.php?id=" . $id_prenotazione_appena_salvata . "'; 
-                                }, 1000);
-                            });
-                          </script>";
-                } catch (mysqli_sql_exception $e) {
-                    mysqli_rollback($conn);
-                    $prenotazione_feedback_message = "<div class='feedback error'>Errore database: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . "</div>";
-                    error_log("ERRORE SALVATAGGIO PRENOTAZIONE (SQL): " . $e->getMessage() . " - Stack: " . $e->getTraceAsString());
-                } catch (Exception $e) {
-                    mysqli_rollback($conn);
-                    $prenotazione_feedback_message = "<div class='feedback error'>Errore generale: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . "</div>";
-                    error_log("ERRORE GENERALE SALVATAGGIO PRENOTAZIONE: " . $e->getMessage() . " - Stack: " . $e->getTraceAsString());
-                }
-                break;
-        }
-    }
-}
-
-
-// --- 3. Recupero dati per popolare il form (Clienti e Prodotti per autocomplete) ---
-$clienti = []; // Per la select di riparazione
-$mappaTelefoni = []; // Per la select di riparazione
-$sql_clienti = "SELECT id, nome, cognome, telefono FROM clienti_nuovo ORDER BY cognome, nome";
-$result_clienti_select = $conn->query($sql_clienti);
-if ($result_clienti_select && $result_clienti_select->num_rows > 0) {
-    while ($row = $result_clienti_select->fetch_assoc()) {
-        $clienti[] = $row;
-        $mappaTelefoni[(int)$row['id']] = htmlspecialchars((string)($row['telefono'] ?? '')); // Aggiunta gestione null
-    }
-}
-$result_clienti_select->free();
-
-// Per l'autocomplete generale dei clienti (usato da permuta e prenotazione)
-$clienti_esistenti = [];
+// --- Recupero dati buoni regalo ---
+$buoni_data = [];
 try {
-    $result_clienti_autocomplete = $conn->query("SELECT id, nome, cognome, ragione_sociale, telefono, email FROM clienti_nuovo ORDER BY nome, cognome");
-    if ($result_clienti_autocomplete) {
-        $clienti_raw = $result_clienti_autocomplete->fetch_all(MYSQLI_ASSOC);
-        $result_clienti_autocomplete->free();
+    $searchTerm = $_GET['search'] ?? '';
+    $whereClause = '';
+    $queryParams = [];
+    $paramTypes = '';
 
-        foreach($clienti_raw as $c) {
-            $displayName = '';
-            if (!empty($c['ragione_sociale'])) {
-                $displayName = $c['ragione_sociale'];
-            } else {
-                $displayName = trim($c['nome'] . ' ' . $c['cognome']);
-            }
-            if (empty($displayName)) {
-                $displayName = 'ID Cliente: ' . $c['id'];
-            }
-
-            $clienti_esistenti[] = [
-                'id' => $c['id'],
-                'nome' => $c['nome'],
-                'cognome' => $c['cognome'],
-                'ragione_sociale' => $c['ragione_sociale'],
-                'telefono_principale' => $c['telefono'],
-                'telefono_secondario' => null, // Non presente nella query, assumo sia sempre null qui
-                'email' => $c['email'],
-                'display_name' => $displayName
-            ];
-        }
+    if (!empty($searchTerm)) {
+        $whereClause = " WHERE nome LIKE ? OR destinatario LIKE ? OR note LIKE ? OR stato LIKE ? OR CAST(valore AS CHAR) LIKE ?";
+        $searchTermLike = '%' . $searchTerm . '%';
+        $queryParams = array_fill(0, 5, $searchTermLike);
+        $paramTypes = 'sssss';
     }
+
+    $sql = "SELECT * FROM buoni_regalo" . $whereClause . " ORDER BY data_creazione DESC";
+    $stmt = $conn->prepare($sql);
+    if ($stmt === false) throw new mysqli_sql_exception("Errore nella preparazione della query: " . $conn->error);
+    if (!empty($queryParams)) $stmt->bind_param($paramTypes, ...$queryParams);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $buoni_data = $result->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
 } catch (mysqli_sql_exception $e) {
-    error_log("Errore nel caricamento clienti per autocomplete: " . $e->getMessage());
+    $message .= "<script>document.addEventListener('DOMContentLoaded', function() { showToast('Errore nel caricamento dei buoni: " . addslashes($e->getMessage()) . "', 'error'); });</script>";
+    error_log("Errore Visualizza Buoni (SQL): " . $e->getMessage());
 }
 
-// Prodotti esistenti per autocomplete (per permuta, non più per prenotazione diretta)
-$prodotti_esistenti = [];
-try {
-    $result_prodotti = $conn->query("SELECT id, nome, categoria, quantita, prezzo_acquisto, barcode, prezzo_vendita1, prezzo_vendita2 FROM prodotti ORDER BY nome");
-    if ($result_prodotti) {
-        $prodotti_raw = $result_prodotti->fetch_all(MYSQLI_ASSOC);
-        $result_prodotti->free();
+// Calcolo statistiche
+$totalBuoni = count($buoni_data);
+$attivi = count(array_filter($buoni_data, fn($b) => ($b['stato'] ?? '') === 'Attivo'));
+$usati = count(array_filter($buoni_data, fn($b) => ($b['stato'] ?? '') === 'Usato'));
+$scaduti = count(array_filter($buoni_data, fn($b) => ($b['stato'] ?? '') === 'Scaduto'));
+$valoreTotaleAttivi = array_sum(array_map(fn($b) => (float)($b['valore'] ?? 0), array_filter($buoni_data, fn($b) => ($b['stato'] ?? '') === 'Attivo')));
 
-        foreach($prodotti_raw as $p) {
-            $prodotti_esistenti[] = [
-                'id' => $p['id'],
-                'name' => $p['nome'],
-                'category' => $p['categoria'],
-                'current_stock' => (int)$p['quantita'],
-                'priceNet' => (float)$p['prezzo_acquisto'],
-                'priceSale1' => (float)($p['prezzo_vendita1'] ?? 0.00),
-                'priceSale2' => (float)($p['prezzo_vendita2'] ?? 0.00),
-                'code' => $p['barcode'],
-                'um' => 'pz'
-            ];
-        }
-    }
-} catch (mysqli_sql_exception $e) {
-    error_log("Errore nel caricamento prodotti per autocomplete: " . $e->getMessage());
+function formatCurrencyBuoni($value) {
+    return number_format((float)$value, 2, ',', '.') . ' &euro;';
 }
 
-// Chiusura della connessione al database
-// $conn->close(); // Rimosso per evitare "mysqli object is already closed"
-
+function getExpiryClass($dateStr) {
+    if (empty($dateStr) || $dateStr === '0000-00-00') return 'none';
+    $today = new DateTime('today');
+    $expiry = new DateTime($dateStr);
+    $diff = $today->diff($expiry);
+    $days = (int)$diff->format('%R%a');
+    if ($days < 0) return 'expired';
+    if ($days <= 7) return 'warning';
+    return 'ok';
+}
 ?>
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Elenco Buoni Regalo - TS Service</title>
-<style>
-  /* Gli stili globali per body e font-family sono già nel header.php */
-  body {
-    padding: 2rem;
-  }
-
-  .main-container {
-      max-width: 1200px;
-      margin: 0 auto;
-  }
-
-  h1 {
-    color: var(--text-dark);
-    text-align: left;
-    margin-bottom: 25px;
-    font-weight: 700;
-  }
-
-  .controls-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    gap: 20px;
-    flex-wrap: wrap;
-    padding: 15px;
-    background-color: var(--bg-white);
-    border-radius: 12px;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border-color);
-  }
-
-  .filter-container {
-    display: inline-flex;
-    border-radius: 10px;
-    overflow: hidden;
-    border: 1px solid var(--border-color);
-  }
-
-  .filter-btn {
-    background-color: transparent;
-    color: var(--text-light);
-    border: none;
-    padding: 8px 16px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 600;
-    transition: all 0.2s ease;
-    border-right: 1px solid var(--border-color);
-  }
-  .filter-btn:last-child {
-      border-right: none;
-  }
-
-  .filter-btn:hover {
-    background-color: #f0f0f0;
-    color: var(--text-dark);
-  }
-  .filter-btn.active {
-    background-color: var(--brand-color);
-    color: white;
-  }
-
-
-  .search-container {
-    display: flex;
-    gap: 10px;
-    flex-grow: 1;
-    max-width: 400px;
-  }
-
-  .search-container input[type="text"] {
-    flex-grow: 1;
-    padding: 10px 15px;
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    font-size: 1rem;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
-    transition: border-color 0.2s ease;
-  }
-
-  .search-container input[type="text"]:focus {
-    border-color: var(--brand-color);
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
-  }
-
-  .search-container button {
-    background-color: var(--brand-color);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: 600;
-    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-  }
-
-  .search-container button:hover {
-    background-color: var(--brand-dark);
-    transform: translateY(-1px);
-    box-shadow: 0 5px 12px rgba(0,0,0,0.15);
-  }
-
-  .cards-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 25px;
-    margin: 0 auto;
-  }
-
-  .gift-card-item {
-    background: var(--bg-white);
-    border-radius: 20px;
-    box-shadow: var(--shadow-md);
-    padding: 25px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border: 1px solid var(--border-color);
-  }
-
-  .gift-card-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  }
-
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 15px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  .card-header .code-value {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-  }
-
-  .card-header .code {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: var(--brand-dark);
-  }
-
-  .card-header .value {
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: var(--brand-color);
-  }
-  
-  .status-badge {
-      font-size: 0.8rem;
-      font-weight: 600;
-      padding: 4px 10px;
-      border-radius: 20px;
-      color: white;
-      text-transform: uppercase;
-  }
-  .status-attivo { background-color: var(--brand-color); }
-  .status-usato { background-color: #6c757d; }
-  .status-scaduto { background-color: #dc3545; }
-
-
-  .card-body {
-    flex-grow: 1;
-    margin-bottom: 20px;
-  }
-
-  .card-detail {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.95rem;
-    margin-bottom: 8px;
-  }
-
-  .card-detail strong {
-    color: var(--text-dark);
-  }
-
-  .card-detail span {
-    color: var(--text-light);
-  }
-
-  .card-notes {
-    font-style: italic;
-    font-size: 0.85rem;
-    color: var(--text-light);
-    margin-top: 10px;
-    word-break: break-word;
-  }
-
-  .card-footer {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    padding-top: 15px;
-    border-top: 1px dashed var(--border-color);
-    gap: 10px;
-  }
-
-  .btn-edit, .btn-print {
-    background: var(--brand-color);
-    color: white;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 12px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.9rem;
-    transition: background-color 0.25s ease, transform 0.2s ease, box-shadow 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-  }
-  .btn-edit:hover, .btn-print:hover {
-    background-color: var(--brand-dark);
-    transform: translateY(-1px);
-    box-shadow: 0 5px 12px rgba(0,0,0,0.15);
-    text-decoration: none;
-    color: white;
-  }
-
-  .no-data {
-    text-align: center;
-    font-style: italic;
-    color: var(--text-light);
-    margin-top: 40px;
-    font-size: 1.1rem;
-    grid-column: 1 / -1; /* Occupa tutta la larghezza della griglia */
-  }
-
-.back-link {
-  display: block;
-  width: fit-content;
-  margin: 30px auto 0;
-  text-align: center;
-  font-weight: 600;
-  color: white;
-  background: linear-gradient(135deg, var(--brand-color), var(--brand-dark));
-  padding: 12px 20px;
-  border-radius: 20px;
-  text-decoration: none;
-  font-size: 1.1rem;
-  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.6);
-  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard Buoni Regalo | TS Service</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/header-styles.css?v=1">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+                <style>
+:root {
+    --primary: #22c55e;
+    --primary-dark: #16a34a;
+    --primary-light: #dcfce7;
+    --primary-glow: rgba(34, 197, 94, 0.4);
+    --secondary: #3b82f6;
+    --secondary-dark: #2563eb;
+    --secondary-light: #dbeafe;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --info: #3b82f6;
+    --purple: #8b5cf6;
+    --gray: #64748b;
+    --bg-page: #f8fafc;
+    --bg-card: #ffffff;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    --border-color: #e2e8f0;
+    --border-light: #f1f5f9;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-glow: 0 0 40px rgba(34, 197, 94, 0.15);
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    --radius-sm: 0.375rem;
+    --radius: 0.5rem;
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
 }
-
-.back-link:hover {
-  background: linear-gradient(135deg, var(--brand-dark), var(--brand-color));
-  box-shadow: 0 6px 16px rgba(30, 126, 52, 0.8);
-  transform: translateY(-2px);
-  text-decoration: none;
-  color: white;
+.hidden { display: none !important; }
+*, *::before, *::after { box-sizing: border-box; }
+body {
+    margin: 0; font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, var(--bg-page) 0%, #e2e8f0 100%);
+    min-height: 100vh; color: var(--text-primary);
+    padding-top: 80px; line-height: 1.6; overflow-x: hidden;
 }
-
-/* --- POPUP MODIFICA BUONO --- */
-.popup-overlay {
-    position: fixed;
-    inset: 0;
-    background-color: rgba(52, 73, 94, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-    padding: 1rem;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+/* PARTICLES */
+.particles-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+.particle { position: absolute; border-radius: 50%; opacity: 0.15; animation: floatParticle 20s infinite ease-in-out; }
+.particle:nth-child(1) { width: 300px; height: 300px; background: var(--primary); top: -100px; left: -100px; animation-delay: 0s; }
+.particle:nth-child(2) { width: 200px; height: 200px; background: var(--secondary); top: 50%; right: -50px; animation-delay: -5s; }
+.particle:nth-child(3) { width: 150px; height: 150px; background: var(--purple); bottom: 10%; left: 20%; animation-delay: -10s; }
+.particle:nth-child(4) { width: 100px; height: 100px; background: var(--warning); top: 30%; left: 60%; animation-delay: -15s; }
+@keyframes floatParticle {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(30px, -30px) scale(1.05); }
+    50% { transform: translate(-20px, 20px) scale(0.95); }
+    75% { transform: translate(15px, 15px) scale(1.02); }
 }
-
-.popup-overlay.visible {
-    opacity: 1;
-    visibility: visible;
-}
-
-.popup-content {
-  width: 100%;
-  background-color: var(--bg-white);
-  border-radius: 16px;
-  box-shadow: var(--shadow-lg);
-  max-height: 95vh;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  animation: scaleInPopup 0.4s ease;
-  max-width: 700px;
-}
-
-@keyframes scaleInPopup { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-
-.close-btn {
-    position: absolute;
-    top: 15px;
-    right: 25px;
-    background: transparent;
-    border: none;
-    font-size: 2.5rem;
-    color: #bdc3c7;
-    cursor: pointer;
-    z-index: 10;
-    transition: color 0.2s ease, transform 0.2s ease;
-    line-height: 1;
-}
-.close-btn:hover { color: var(--text-dark); transform: rotate(90deg); }
-
-.popup-header {
-  padding: 1.5rem 2.5rem;
-  border-bottom: 1px solid var(--border-color);
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.popup-header .icon {
-    width: 32px;
-    height: 32px;
-    color: var(--brand-color);
-}
-
-.popup-header h2 { font-size: 1.6rem; text-align: left; margin: 0; font-weight: 600; color: var(--text-dark); }
-
-.popup-body {
-    padding: 2.5rem;
-    background-color: var(--bg-light);
-}
-
-.form-grid { 
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.8rem;
-}
-.form-group { display: flex; flex-direction: column; gap: 0.6rem; }
-.form-group.full-width { grid-column: 1 / -1; }
-label { font-weight: 500; font-size: 0.95rem; color: var(--text-dark); margin-bottom: 0.2rem; }
-input, select, textarea {
-  width: 100%; padding: 0.85rem 1.1rem;
-  border: 1px solid #dcdfe6;
-  border-radius: 10px;
-  font-size: 1rem; color: var(--text-dark);
-  box-sizing: border-box; transition: all 0.2s ease;
-  background-color: white;
-}
-input:focus, select:focus, textarea:focus {
-  border-color: var(--brand-color); outline: none; box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.2);
-}
-
-input[readonly] {
-    background-color: #f8f9fa;
-    color: #6c757d;
-    cursor: not-allowed;
-}
-
-.popup-footer {
-  display: flex; justify-content: flex-end;
-  padding: 1.5rem 2.5rem; border-top: 1px solid var(--border-color);
-  background-color: #fdfdfd; flex-shrink: 0;
-  gap: 1rem;
-}
-.popup-btn {
-  padding: 0.8rem 1.5rem;
-  font-size: 1rem; font-weight: 600;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-width: 150px;
-}
-.popup-btn .spinner-icon {
-    display: none;
-    width: 18px;
-    height: 18px;
-    border: 2px solid rgba(255, 255, 255, 0.5);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-.popup-btn.loading .spinner-icon {
-    display: inline-block;
-}
-.popup-btn.loading .btn-text {
-    display: none;
-}
-.popup-btn.submit { 
-    background-color: var(--brand-color); 
-    color: white;
-}
-.popup-btn.submit:hover {
-    background-color: var(--brand-dark);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 12px rgba(0,0,0,0.15);
-}
-.popup-btn:disabled { 
-    background: #ecf0f1; 
-    color: #c0c0c0; 
-    cursor: not-allowed; 
-    box-shadow: none;
-    transform: none;
-}
-
-.form-group.value-group input {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--brand-color);
-    text-align: center;
-}
-
-/* Message Box for notifications */
-.message-box {
-    position: fixed;
-    top: 1rem;
-    left: 50%;
-    transform: translateX(-50%) translateY(-20px);
-    background-color: #4CAF50;
-    color: white;
-    padding: 1.25rem 1.75rem;
-    border-radius: 0.75rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    z-index: 2500;
-    font-size: 1.1rem;
-    font-weight: bold;
-    border: 2px solid white;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-    text-align: center;
-}
-.message-box.error {
-    background-color: #f44336;
-    border-color: #ff9999;
-}
-.message-box.show {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(-50%) translateY(0);
-}
-
-@media (max-width: 768px) {
-    .controls-container {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    .cards-container {
-        grid-template-columns: 1fr;
-        padding: 0 15px;
-    }
-    .gift-card-item {
-        padding: 20px;
-    }
-    .card-header .code, .card-header .value {
-        font-size: 1.2rem;
-    }
-    .card-detail {
-        flex-direction: column;
-        align-items: flex-start;
-        margin-bottom: 10px;
-    }
-    .card-detail span {
-        margin-top: 2px;
-    }
-
-    .popup-content {
-        padding: 1rem;
-    }
-    .popup-header, .popup-body, .popup-footer {
-        padding: 1rem 1.5rem;
-    }
-    .form-grid {
-        gap: 1rem;
-    }
-    .popup-btn {
-        padding: 0.7rem 1.5rem;
-        font-size: 0.9rem;
-    }
-}
+/* TOAST */
+.toast-container { position: fixed; top: 100px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
+.toast { background: var(--bg-card); border-radius: var(--radius-lg); padding: 16px 20px; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px; min-width: 320px; max-width: 450px; pointer-events: auto; transform: translateX(120%); opacity: 0; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); border-left: 4px solid var(--primary); }
+.toast.show { transform: translateX(0); opacity: 1; }
+.toast.toast-success { border-left-color: var(--success); }
+.toast.toast-error { border-left-color: var(--danger); }
+.toast-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem; }
+.toast-success .toast-icon { background: var(--primary-light); color: var(--primary); }
+.toast-error .toast-icon { background: #fee2e2; color: var(--danger); }
+.toast-content { flex: 1; }
+.toast-title { font-weight: 600; font-size: 0.95rem; color: var(--text-primary); }
+.toast-close { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; border-radius: var(--radius-sm); }
+.toast-close:hover { background: var(--border-light); color: var(--text-primary); }
+/* MAIN */
+.main-content-container { max-width: 1500px; margin: 0 auto; padding: 24px 32px; position: relative; z-index: 1; }
+/* PAGE HEADER */
+.page-header { text-align: center; margin-bottom: 32px; animation: fadeInUp 0.6s ease-out; }
+.page-header h1 { font-size: 2.75rem; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px; letter-spacing: -0.02em; }
+.page-header p { color: var(--text-secondary); font-size: 1.1rem; margin: 0; }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+/* SUMMARY */
+.summary-panel { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; margin-bottom: 28px; }
+.summary-card { background: var(--bg-card); border-radius: var(--radius-xl); padding: 24px; box-shadow: var(--shadow); border: 1px solid var(--border-color); position: relative; overflow: hidden; cursor: pointer; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); opacity: 0; transform: translateY(30px); animation: cardSlideIn 0.5s ease-out forwards; }
+.summary-card:nth-child(1) { animation-delay: 0.1s; }
+.summary-card:nth-child(2) { animation-delay: 0.15s; }
+.summary-card:nth-child(3) { animation-delay: 0.2s; }
+.summary-card:nth-child(4) { animation-delay: 0.25s; }
+.summary-card:nth-child(5) { animation-delay: 0.3s; }
+@keyframes cardSlideIn { to { opacity: 1; transform: translateY(0); } }
+.summary-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--card-accent), var(--card-accent-light, var(--card-accent))); opacity: 0; transition: opacity 0.3s ease; }
+.summary-card:hover::before { opacity: 1; }
+.summary-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg), 0 0 0 1px var(--card-accent); }
+.summary-card.active { box-shadow: var(--shadow-lg), 0 0 0 2px var(--card-accent); }
+.summary-card.active::before { opacity: 1; }
+.summary-card--total { --card-accent: var(--primary); }
+.summary-card--attivi { --card-accent: var(--secondary); }
+.summary-card--usati { --card-accent: var(--gray); }
+.summary-card--scaduti { --card-accent: var(--danger); }
+.summary-card--valore { --card-accent: var(--purple); }
+.summary-icon { width: 52px; height: 52px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; transition: transform 0.3s ease; }
+.summary-card:hover .summary-icon { transform: scale(1.1) rotate(-5deg); }
+.summary-card--total .summary-icon { background: var(--primary-light); color: var(--primary); }
+.summary-card--attivi .summary-icon { background: var(--secondary-light); color: var(--secondary); }
+.summary-card--usati .summary-icon { background: #f1f5f9; color: var(--gray); }
+.summary-card--scaduti .summary-icon { background: #fee2e2; color: var(--danger); }
+.summary-card--valore .summary-icon { background: #ede9fe; color: var(--purple); }
+.summary-icon svg { width: 26px; height: 26px; }
+.summary-label { font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.summary-value { font-size: 2rem; font-weight: 700; color: var(--text-primary); line-height: 1.1; }
+.summary-card--valore .summary-value { font-size: 1.6rem; color: var(--purple); }
+/* FILTER BAR */
+.filter-bar { background: var(--bg-card); border-radius: var(--radius-xl); padding: 20px 24px; box-shadow: var(--shadow); border: 1px solid var(--border-color); margin-bottom: 24px; display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap; animation: fadeInUp 0.6s ease-out 0.3s both; }
+.filter-group { flex: 1; min-width: 200px; }
+.filter-group label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+.filter-input { width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius-md); font-size: 0.95rem; background: var(--bg-page); color: var(--text-primary); transition: all 0.2s ease; font-family: 'Inter', sans-serif; }
+.filter-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); background: var(--bg-card); }
+.filter-input::placeholder { color: var(--text-muted); }
+.filter-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+/* BUTTONS */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border-radius: var(--radius-md); font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; border: none; position: relative; overflow: hidden; text-decoration: none; font-family: 'Inter', sans-serif; white-space: nowrap; }
+.btn::after { content: ''; position: absolute; width: 100%; height: 100%; top: 0; left: 0; background: linear-gradient(rgba(255,255,255,0.2), rgba(255,255,255,0)); opacity: 0; transition: opacity 0.2s; }
+.btn:hover::after { opacity: 1; }
+.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; box-shadow: 0 4px 14px var(--primary-glow); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--primary-glow); }
+.btn-secondary { background: var(--border-light); color: var(--text-secondary); }
+.btn-secondary:hover { background: var(--border-color); color: var(--text-primary); }
+.btn svg { width: 18px; height: 18px; }
+/* SECTION HEADER */
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.section-title { font-size: 1.3rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
+.section-title svg { width: 24px; height: 24px; color: var(--primary); }
+.buoni-count { background: var(--primary-light); color: var(--primary-dark); padding: 4px 12px; border-radius: 999px; font-size: 0.85rem; font-weight: 600; }
+/* BUONI GRID */
+.buoni-section { animation: fadeInUp 0.6s ease-out 0.4s both; }
+.buoni-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px; }
+/* BUONO CARD */
+.buono-card { background: var(--bg-card); border-radius: var(--radius-xl); box-shadow: var(--shadow); border: 1px solid var(--border-color); overflow: hidden; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); opacity: 0; transform: translateY(20px) scale(0.98); animation: buonoCardIn 0.4s ease-out forwards; }
+@keyframes buonoCardIn { to { opacity: 1; transform: translateY(0) scale(1); } }
+.buono-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg), var(--shadow-glow); }
+.buono-card-header { padding: 18px 22px; display: flex; justify-content: space-between; align-items: center; position: relative; overflow: hidden; }
+.buono-card-header.attivo { background: linear-gradient(135deg, var(--primary), #10b981); }
+.buono-card-header.usato { background: linear-gradient(135deg, #475569, #334155); }
+.buono-card-header.scaduto { background: linear-gradient(135deg, var(--danger), #dc2626); }
+.buono-card-header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%); animation: shimmerRotate 3s infinite; }
+@keyframes shimmerRotate { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(180deg); } }
+.buono-code-area { display: flex; align-items: center; gap: 10px; position: relative; z-index: 1; }
+.buono-code-badge { background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: var(--radius); font-weight: 700; font-size: 1rem; color: white; backdrop-filter: blur(10px); font-family: 'Courier New', monospace; letter-spacing: 1.5px; }
+.buono-id-small { font-size: 0.8rem; opacity: 0.85; color: white; position: relative; z-index: 1; }
+.buono-status-badge { padding: 6px 14px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; position: relative; z-index: 1; background: rgba(255,255,255,0.25); color: white; backdrop-filter: blur(10px); }
+.buono-card-body { padding: 22px; }
+/* VALUE AREA */
+.buono-value-area { display: flex; align-items: center; justify-content: center; margin-bottom: 20px; padding: 16px; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-radius: var(--radius-lg); border: 2px solid #bbf7d0; }
+.buono-value-area .euro-sign { font-size: 1.2rem; font-weight: 600; color: var(--primary); margin-right: 4px; opacity: 0.7; }
+.buono-value-area .value-number { font-size: 2rem; font-weight: 800; color: var(--primary-dark); letter-spacing: -0.5px; }
+.buono-card.usato-card .buono-value-area { background: linear-gradient(135deg, #f1f5f9, #e2e8f0); border-color: #cbd5e1; }
+.buono-card.usato-card .buono-value-area .euro-sign, .buono-card.usato-card .buono-value-area .value-number { color: var(--gray); }
+.buono-card.scaduto-card .buono-value-area { background: linear-gradient(135deg, #fef2f2, #fee2e2); border-color: #fecaca; }
+.buono-card.scaduto-card .buono-value-area .euro-sign, .buono-card.scaduto-card .buono-value-area .value-number { color: var(--danger); }
+/* INFO GRID */
+.buono-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.buono-info-item { background: var(--bg-page); padding: 12px 14px; border-radius: var(--radius-md); border: 1px solid var(--border-light); }
+.buono-info-item.full-width { grid-column: 1 / -1; }
+.buono-info-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+.buono-info-label svg { width: 13px; height: 13px; }
+.buono-info-value { font-weight: 600; font-size: 0.95rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* EXPIRY */
+.expiry-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 0.7rem; font-weight: 600; padding: 3px 8px; border-radius: 999px; margin-top: 4px; }
+.expiry-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+.expiry-ok { background: #dcfce7; color: #15803d; }
+.expiry-ok::before { background: var(--primary); }
+.expiry-warning { background: #fef3c7; color: #92400e; }
+.expiry-warning::before { background: var(--warning); animation: pulse 2s infinite; }
+.expiry-expired { background: #fee2e2; color: #991b1b; }
+.expiry-expired::before { background: var(--danger); }
+.expiry-none { background: #f1f5f9; color: var(--text-muted); }
+.expiry-none::before { background: var(--text-muted); }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+/* CARD FOOTER */
+.buono-card-footer { display: flex; justify-content: flex-end; align-items: center; padding-top: 16px; border-top: 1px solid var(--border-light); gap: 8px; }
+.btn-action { width: 38px; height: 38px; border-radius: var(--radius); border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; }
+.btn-action:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); box-shadow: var(--shadow); }
+.btn-action.danger:hover { border-color: var(--danger); color: var(--danger); background: #fee2e2; }
+.btn-action svg { width: 18px; height: 18px; }
+/* EMPTY STATE */
+.empty-state { text-align: center; padding: 60px 20px; background: var(--bg-card); border-radius: var(--radius-xl); border: 2px dashed var(--border-color); }
+.empty-icon { width: 80px; height: 80px; margin: 0 auto 20px; background: var(--primary-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary); }
+.empty-icon svg { width: 40px; height: 40px; }
+.empty-title { font-size: 1.3rem; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+.empty-text { color: var(--text-secondary); max-width: 400px; margin: 0 auto; }
+/* MODAL */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+.modal-overlay.show { opacity: 1; visibility: visible; }
+.modal-content { background: var(--bg-card); border-radius: 20px; box-shadow: var(--shadow-lg); max-width: 95%; width: 650px; max-height: 90vh; overflow: hidden; transform: scale(0.9) translateY(20px); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.modal-overlay.show .modal-content { transform: scale(1) translateY(0); }
+.modal-header-green { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+.modal-header-green h2 { color: white; font-size: 1.3rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 0.75rem; }
+.modal-header-green h2 svg { width: 24px; height: 24px; }
+.modal-close-btn { background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.modal-close-btn:hover { background: rgba(255,255,255,0.3); }
+.modal-close-btn svg { width: 24px; height: 24px; }
+.modal-body-form { padding: 2rem; max-height: 65vh; overflow-y: auto; background: #f8fafc; }
+.edit-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+.edit-field { display: flex; flex-direction: column; gap: 0.35rem; }
+.edit-field.full-width { grid-column: 1 / -1; }
+.edit-field label { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+.edit-field input, .edit-field textarea, .edit-field select { padding: 0.75rem 1rem; border: 2px solid var(--border-color); border-radius: 10px; font-size: 0.95rem; transition: all 0.2s; background: white; font-family: 'Inter', sans-serif; }
+.edit-field input:focus, .edit-field textarea:focus, .edit-field select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15); background: white; }
+.edit-field input[readonly] { background: #e2e8f0; color: var(--text-secondary); cursor: not-allowed; }
+.edit-field textarea { min-height: 80px; resize: vertical; }
+.edit-field .value-input { font-size: 1.3rem; font-weight: 700; text-align: center; color: var(--primary-dark); border-color: var(--primary); background: linear-gradient(135deg, #f0fdf4, #dcfce7); }
+.modal-footer-btns { padding: 1.25rem 2rem; background: white; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 0.75rem; }
+.btn-modal-cancel { padding: 0.75rem 1.5rem; background: white; border: 2px solid var(--border-color); border-radius: 10px; font-weight: 600; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; font-size: 0.95rem; }
+.btn-modal-cancel:hover { background: #f1f5f9; border-color: #cbd5e1; }
+.btn-modal-save { padding: 0.75rem 1.5rem; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border: none; border-radius: 10px; font-weight: 600; color: white; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 12px var(--primary-glow); font-family: 'Inter', sans-serif; font-size: 0.95rem; }
+.btn-modal-save:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--primary-glow); }
+.btn-modal-save svg { width: 18px; height: 18px; }
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+/* RESPONSIVE */
+@media (max-width: 1400px) { .summary-panel { grid-template-columns: repeat(3, 1fr); } .buoni-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 1100px) { .summary-panel { grid-template-columns: repeat(2, 1fr); } .filter-bar { flex-direction: column; } .filter-group { min-width: auto; } }
+@media (max-width: 768px) { .summary-panel { grid-template-columns: 1fr 1fr; gap: 12px; } .summary-card { padding: 16px; } .summary-value { font-size: 1.5rem; } .buoni-grid { grid-template-columns: 1fr; } .main-content-container { padding: 16px; } .page-header h1 { font-size: 2rem; } .edit-grid { grid-template-columns: 1fr; } .modal-body-form { padding: 1rem; } }
+@media (max-width: 500px) { .summary-panel { grid-template-columns: 1fr; } .buono-info-grid { grid-template-columns: 1fr; } .page-header h1 { font-size: 1.6rem; } .filter-actions { flex-direction: column; width: 100%; } .filter-actions .btn { width: 100%; } }
 </style>
 </head>
 <body>
 <?php include 'header.php'; ?>
-<div class="main-container">
-<h1>Elenco Buoni Regalo</h1>
 
-<div class="controls-container">
-    <div class="filter-container">
-        <button class="filter-btn active" data-filter="tutti">Tutti</button>
-        <button class="filter-btn" data-filter="Attivo">Attivi</button>
-        <button class="filter-btn" data-filter="Usato">Usati</button>
-        <button class="filter-btn" data-filter="Scaduto">Scaduti</button>
-    </div>
-    <form method="GET" action="" class="search-container">
-        <input type="text" name="search_query" placeholder="Cerca per codice, destinatario..." value="<?= htmlspecialchars($search_query) ?>">
-        <button type="submit">Cerca</button>
-    </form>
+<div class="particles-container">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
 </div>
 
-<div class="cards-container">
-<?php if ($result && $result->num_rows > 0): ?>
-  <?php while($row = $result->fetch_assoc()): 
-    $stato_class = 'status-' . strtolower(htmlspecialchars($row['stato']));
-  ?>
-  <div class="gift-card-item" data-stato="<?= htmlspecialchars($row['stato']) ?>">
-    <div class="card-header">
-      <div class="code-value">
-        <span class="code"><?= htmlspecialchars($row['nome']) ?></span>
-        <span class="value"><?= number_format($row['valore'], 2, ',', '.') ?> &euro;</span>
-      </div>
-      <span class="status-badge <?= $stato_class ?>"><?= htmlspecialchars($row['stato']) ?></span>
-    </div>
-    <div class="card-body">
-      <div class="card-detail">
-        <strong>ID:</strong> <span><?= htmlspecialchars($row['id']) ?></span>
-      </div>
-      <div class="card-detail">
-        <strong>Data Scadenza:</strong> 
-        <span class="dynamic-expiry" data-expiry-date="<?= htmlspecialchars($row['data_scadenza']) ?>"><?= htmlspecialchars($row['data_scadenza']) ?: '-' ?></span>
-      </div>
-      <div class="card-detail">
-        <strong>Destinatario:</strong> <span><?= htmlspecialchars($row['destinatario']) ?: '-' ?></span>
-      </div>
-      <div class="card-detail">
-        <strong>Data Creazione:</strong> <span><?= htmlspecialchars($row['data_creazione']) ?></span>
-      </div>
-      <?php if (!empty($row['note'])): ?>
-        <div class="card-notes">
-          <strong>Note:</strong> <br> <?= nl2br(htmlspecialchars($row['note'])) ?>
-        </div>
-      <?php endif; ?>
-    </div>
-    <div class="card-footer">
-      <button class="btn-edit open-edit-buono-popup-btn" 
-              data-id="<?= htmlspecialchars($row['id']) ?>" 
-              data-nome="<?= htmlspecialchars($row['nome']) ?>" 
-              data-valore="<?= htmlspecialchars($row['valore']) ?>" 
-              data-destinatario="<?= htmlspecialchars($row['destinatario']) ?>" 
-              data-data_scadenza="<?= htmlspecialchars($row['data_scadenza']) ?>" 
-              data-note="<?= htmlspecialchars($row['note']) ?>"
-              data-stato="<?= htmlspecialchars($row['stato']) ?>"
-              title="Modifica Buono">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/></svg>
-              Modifica</button>
-      <button class="btn-print" 
-              data-id="<?= htmlspecialchars($row['id']) ?>"
-              title="Stampa Buono">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/><path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/></svg>
-              Stampa</button>
-    </div>
-  </div>
-  <?php endwhile; ?>
-<?php else: ?>
-  <p class="no-data">Nessun buono regalo trovato.</p>
-<?php endif; ?>
-</div>
+<div class="toast-container" id="toastContainer"></div>
 
-<a href="homepage.php" class="back-link" role="button" aria-label="Torna alla Home">← Torna alla Home</a>
-</div>
-<!-- Nuovo popup per la Modifica Buono Regalo -->
-<div class="popup-overlay" id="editBuonoRegaloPopup">
-    <div class="popup-content">
-        <button type="button" class="close-btn" id="close-edit-buono-regalo-popup-btn">&times;</button>
-        <div class="popup-header">
-            <div class="icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2ZM18 20H6V4H13V9H18V20Z"/></svg>
+<div class="main-content-container">
+    <?php echo $message; ?>
+
+    <div class="page-header">
+        <h1>Dashboard Buoni Regalo</h1>
+        <p>Gestisci tutti i buoni regalo in un unico posto</p>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-panel">
+        <div class="summary-card summary-card--total" onclick="filterByStatus('')" data-status="">
+            <div class="summary-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12"></path><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
             </div>
-            <h2>Modifica Buono Regalo</h2>
+            <div class="summary-label">Totale Buoni</div>
+            <div class="summary-value" data-count="<?php echo $totalBuoni; ?>">0</div>
         </div>
-        
-        <form id="edit-buono-regalo-form">
-            <input type="hidden" name="id" id="edit_buono_id">
-            <div class="popup-body">
-                <div class="form-grid">
-                    <div class="form-group value-group">
-                        <label for="edit_buono_valore">Valore Buono (€)</label>
-                        <input type="number" id="edit_buono_valore" name="valore" step="0.01" min="0" required>
+        <div class="summary-card summary-card--attivi" onclick="filterByStatus('Attivo')" data-status="Attivo">
+            <div class="summary-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+            <div class="summary-label">Attivi</div>
+            <div class="summary-value" data-count="<?php echo $attivi; ?>">0</div>
+        </div>
+        <div class="summary-card summary-card--usati" onclick="filterByStatus('Usato')" data-status="Usato">
+            <div class="summary-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            </div>
+            <div class="summary-label">Usati</div>
+            <div class="summary-value" data-count="<?php echo $usati; ?>">0</div>
+        </div>
+        <div class="summary-card summary-card--scaduti" onclick="filterByStatus('Scaduto')" data-status="Scaduto">
+            <div class="summary-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </div>
+            <div class="summary-label">Scaduti</div>
+            <div class="summary-value" data-count="<?php echo $scaduti; ?>">0</div>
+        </div>
+        <div class="summary-card summary-card--valore">
+            <div class="summary-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            </div>
+            <div class="summary-label">Valore Attivi</div>
+            <div class="summary-value"><?php echo formatCurrencyBuoni($valoreTotaleAttivi); ?></div>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <div class="filter-group" style="flex: 2;">
+            <label>Cerca Buono</label>
+            <input type="text" id="searchInput" class="filter-input" placeholder="Codice, destinatario, note, valore..." value="<?php echo htmlspecialchars($searchTerm ?? ''); ?>">
+        </div>
+        <div class="filter-actions">
+            <button class="btn btn-primary" onclick="applySearch()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+                Cerca
+            </button>
+            <a href="visualizza_buoni.php" class="btn btn-secondary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+                Reset
+            </a>
+            <button class="btn btn-primary" onclick="openCreateModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Nuovo Buono
+            </button>
+        </div>
+    </div>
+
+    <!-- Buoni Section -->
+    <div class="buoni-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v10H4V12"></path><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path></svg>
+                Elenco Buoni Regalo
+            </h2>
+            <span class="buoni-count" id="buoniCount"><?php echo $totalBuoni; ?> buoni</span>
+        </div>
+
+        <?php if (!empty($buoni_data)): ?>
+        <div class="buoni-grid" id="buoniGrid">
+            <?php foreach ($buoni_data as $index => $row): 
+                $stato = htmlspecialchars($row['stato'] ?? 'Attivo');
+                $statoLower = strtolower($stato);
+                $valore = (float)($row['valore'] ?? 0);
+                $codice = htmlspecialchars($row['nome'] ?? 'N/A');
+                $destinatario = htmlspecialchars($row['destinatario'] ?? '');
+                $dataCreazione = !empty($row['data_creazione']) ? date('d/m/Y H:i', strtotime($row['data_creazione'])) : '-';
+                $dataScadenza = $row['data_scadenza'] ?? '';
+                $dataScadenzaVis = (!empty($dataScadenza) && $dataScadenza !== '0000-00-00') ? date('d/m/Y', strtotime($dataScadenza)) : 'Nessuna';
+                $expiryClass = getExpiryClass($dataScadenza);
+                $note = htmlspecialchars($row['note'] ?? '');
+                $cardClass = ($statoLower === 'usato') ? 'usato-card' : (($statoLower === 'scaduto') ? 'scaduto-card' : '');
+                
+                $expiryLabel = 'Nessuna scadenza';
+                if (!empty($dataScadenza) && $dataScadenza !== '0000-00-00') {
+                    $today = new DateTime('today');
+                    $expiry = new DateTime($dataScadenza);
+                    $days = (int)$today->diff($expiry)->format('%R%a');
+                    if ($days > 0) $expiryLabel = $days . 'g rimanenti';
+                    elseif ($days === 0) $expiryLabel = 'Scade oggi!';
+                    else $expiryLabel = 'Scaduto da ' . abs($days) . 'g';
+                }
+            ?>
+            <div class="buono-card <?php echo $cardClass; ?>" 
+                 style="animation-delay: <?php echo min($index * 0.05, 1); ?>s"
+                 data-status="<?php echo $stato; ?>"
+                 data-id="<?php echo $row['id']; ?>"
+                 data-nome="<?php echo $codice; ?>"
+                 data-valore="<?php echo $valore; ?>"
+                 data-destinatario="<?php echo $destinatario; ?>"
+                 data-scadenza="<?php echo htmlspecialchars($dataScadenza); ?>"
+                 data-note="<?php echo $note; ?>"
+                 data-stato="<?php echo $stato; ?>">
+                
+                <div class="buono-card-header <?php echo $statoLower; ?>">
+                    <div class="buono-code-area">
+                        <span class="buono-code-badge"><?php echo $codice; ?></span>
+                        <span class="buono-id-small">#<?php echo $row['id']; ?></span>
                     </div>
-                    <div class="form-group">
-                        <label for="edit_buono_stato">Stato</label>
-                        <select id="edit_buono_stato" name="stato_buono">
-                            <option value="Attivo">Attivo</option>
-                            <option value="Usato">Usato</option>
-                            <option value="Scaduto">Scaduto</option>
-                        </select>
+                    <span class="buono-status-badge"><?php echo $stato; ?></span>
+                </div>
+
+                <div class="buono-card-body">
+                    <div class="buono-value-area">
+                        <span class="euro-sign">&euro;</span>
+                        <span class="value-number"><?php echo number_format($valore, 2, ',', '.'); ?></span>
                     </div>
 
-                    <div class="form-group full-width">
-                        <label for="edit_buono_codice">Codice Buono (non modificabile)</label>
-                        <input type="text" id="edit_buono_codice" name="codice_buono" readonly>
+                    <div class="buono-info-grid">
+                        <div class="buono-info-item">
+                            <div class="buono-info-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                Destinatario
+                            </div>
+                            <div class="buono-info-value"><?php echo $destinatario ?: '-'; ?></div>
+                        </div>
+                        <div class="buono-info-item">
+                            <div class="buono-info-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                Data Creazione
+                            </div>
+                            <div class="buono-info-value"><?php echo $dataCreazione; ?></div>
+                        </div>
+                        <div class="buono-info-item full-width">
+                            <div class="buono-info-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                Scadenza
+                            </div>
+                            <div class="buono-info-value"><?php echo $dataScadenzaVis; ?></div>
+                            <span class="expiry-badge expiry-<?php echo $expiryClass; ?>"><?php echo $expiryLabel; ?></span>
+                        </div>
+                        <?php if (!empty($note)): ?>
+                        <div class="buono-info-item full-width">
+                            <div class="buono-info-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                Note
+                            </div>
+                            <div class="buono-info-value" style="white-space: normal; font-weight: 400; font-size: 0.85rem; color: var(--text-secondary);"><?php echo nl2br($note); ?></div>
+                        </div>
+                        <?php endif; ?>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="edit_buono_destinatario">Destinatario</label>
-                        <input type="text" id="edit_buono_destinatario" name="destinatario" placeholder="Nome (opzionale)">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_buono_data_scadenza">Data Scadenza</label>
-                        <input type="date" id="edit_buono_data_scadenza" name="data_scadenza">
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="edit_buono_mittente_note">Note</label>
-                        <textarea id="edit_buono_mittente_note" name="mittente_note" rows="3" placeholder="Note aggiuntive..."></textarea>
+
+                    <div class="buono-card-footer">
+                        <button class="btn-action" onclick="openEditModal(<?php echo $row['id']; ?>)" title="Modifica">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        </button>
+                        <button class="btn-action" onclick="window.open('stampa_buono.php?id=<?php echo $row['id']; ?>','_blank')" title="Stampa">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                        </button>
+                        <button class="btn-action danger" onclick="deleteBuono(<?php echo $row['id']; ?>)" title="Elimina">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </button>
                     </div>
                 </div>
             </div>
+            <?php endforeach; ?>
+        </div>
+        <?php else: ?>
+        <div class="empty-state">
+            <div class="empty-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v10H4V12"></path><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+            </div>
+            <h3 class="empty-title">Nessun buono regalo trovato</h3>
+            <p class="empty-text">Non ci sono buoni che corrispondono ai criteri di ricerca. Prova a modificare i filtri o crea un nuovo buono.</p>
+        </div>
+        <?php endif; ?>
+    </div>
+</div>
 
-            <div class="popup-footer">
-                <button type="submit" class="popup-btn submit" id="edit-buono-submit-btn">
-                    <span class="btn-text">Salva Modifiche</span>
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal-content">
+        <div class="modal-header-green">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                Modifica Buono Regalo
+            </h2>
+            <button class="modal-close-btn" onclick="closeModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        <form id="editBuonoForm">
+            <input type="hidden" id="editId" name="id">
+            <div class="modal-body-form">
+                <div class="edit-grid">
+                    <div class="edit-field">
+                        <label>Valore Buono (&euro;)</label>
+                        <input type="number" id="editValore" name="valore" step="0.01" min="0" required class="value-input">
+                    </div>
+                    <div class="edit-field">
+                        <label>Stato</label>
+                        <select id="editStato" name="stato_buono">
+                            <option value="Attivo">&#x2705; Attivo</option>
+                            <option value="Usato">&#x1F4CB; Usato</option>
+                            <option value="Scaduto">&#x274C; Scaduto</option>
+                        </select>
+                    </div>
+                    <div class="edit-field full-width">
+                        <label>Codice Buono</label>
+                        <input type="text" id="editCodice" name="codice_buono" readonly>
+                    </div>
+                    <div class="edit-field">
+                        <label>Destinatario</label>
+                        <input type="text" id="editDestinatario" name="destinatario" placeholder="Nome destinatario...">
+                    </div>
+                    <div class="edit-field">
+                        <label>Data Scadenza</label>
+                        <input type="date" id="editScadenza" name="data_scadenza">
+                    </div>
+                    <div class="edit-field full-width">
+                        <label>Note</label>
+                        <textarea id="editNote" name="mittente_note" rows="3" placeholder="Note aggiuntive..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer-btns">
+                <button type="button" class="btn-modal-cancel" onclick="closeModal()">Annulla</button>
+                <button type="submit" class="btn-modal-save">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                    Salva Modifiche
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Create Buono Modal -->
+<style>
+.create-modal .modal-content {
+    max-width: 560px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05);
+    animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes modalSlideUp {
+    from { opacity: 0; transform: translateY(40px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.create-modal .modal-header-green {
+    background: linear-gradient(135deg, #059669, #10b981, #34d399);
+    padding: 24px 28px;
+    position: relative;
+    overflow: hidden;
+}
+.create-modal .modal-header-green::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -30%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+}
+.create-modal .modal-header-green::after {
+    content: '';
+    position: absolute;
+    bottom: -40%;
+    left: -20%;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+}
+.create-modal .modal-header-green h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+.create-modal .modal-header-green h2 svg {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
+}
+.create-modal .header-subtitle {
+    color: rgba(255,255,255,0.85);
+    font-size: 0.82rem;
+    margin-top: 4px;
+    margin-left: 38px;
+    position: relative;
+    z-index: 1;
+}
+.create-modal .modal-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    border-radius: 10px;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    z-index: 2;
+    backdrop-filter: blur(4px);
+}
+.create-modal .modal-close-btn:hover {
+    background: rgba(255,255,255,0.35);
+    transform: rotate(90deg);
+}
+.create-modal .modal-close-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: #fff;
+}
+.create-modal .modal-body-form {
+    padding: 28px;
+    background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 40%);
+}
+.create-modal .create-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.create-modal .create-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.create-modal .create-field.full-width {
+    grid-column: 1 / -1;
+}
+.create-modal .create-field label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #374151;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.create-modal .create-field label .required-dot {
+    width: 6px;
+    height: 6px;
+    background: #ef4444;
+    border-radius: 50%;
+    display: inline-block;
+}
+.create-modal .create-field input,
+.create-modal .create-field select,
+.create-modal .create-field textarea {
+    padding: 12px 14px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+    color: #1f2937;
+    background: #fff;
+    transition: all 0.25s;
+    outline: none;
+}
+.create-modal .create-field input:focus,
+.create-modal .create-field select:focus,
+.create-modal .create-field textarea:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
+}
+.create-modal .create-field input::placeholder,
+.create-modal .create-field textarea::placeholder {
+    color: #9ca3af;
+}
+.create-modal .create-field .value-input {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #059669;
+    letter-spacing: 0.5px;
+}
+.create-modal .code-input-wrap {
+    display: flex;
+    gap: 8px;
+}
+.create-modal .code-input-wrap input {
+    flex: 1;
+    font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: #059669;
+    background: #f0fdf4;
+    border-style: dashed;
+}
+.create-modal .btn-copy-code,
+.create-modal .btn-gen-code {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s;
+}
+.create-modal .btn-copy-code:hover { border-color: #10b981; background: #f0fdf4; }
+.create-modal .btn-gen-code:hover { border-color: #8b5cf6; background: #f5f3ff; }
+.create-modal .btn-copy-code svg,
+.create-modal .btn-gen-code svg {
+    width: 18px;
+    height: 18px;
+    stroke: #6b7280;
+    transition: stroke 0.2s;
+}
+.create-modal .btn-copy-code:hover svg { stroke: #059669; }
+.create-modal .btn-gen-code:hover svg { stroke: #7c3aed; }
+.create-modal .modal-footer-btns {
+    padding: 20px 28px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    border-top: 1px solid #f3f4f6;
+    background: #fff;
+}
+.create-modal .btn-modal-cancel {
+    padding: 12px 24px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+    color: #6b7280;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+.create-modal .btn-modal-cancel:hover { border-color: #d1d5db; background: #f9fafb; color: #374151; }
+.create-modal .btn-modal-create {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #059669, #10b981);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.25s;
+    font-family: 'Inter', sans-serif;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+    position: relative;
+    overflow: hidden;
+}
+.create-modal .btn-modal-create::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+.create-modal .btn-modal-create:hover::before { left: 100%; }
+.create-modal .btn-modal-create:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+}
+.create-modal .btn-modal-create:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+.create-modal .btn-modal-create svg {
+    width: 18px;
+    height: 18px;
+}
+.create-modal .create-field select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+}
+.create-modal .quick-value-chips {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+.create-modal .quick-chip {
+    padding: 5px 12px;
+    border: 1.5px solid #d1fae5;
+    border-radius: 20px;
+    background: #ecfdf5;
+    color: #059669;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+.create-modal .quick-chip:hover { background: #d1fae5; border-color: #10b981; }
+.create-modal .quick-chip.active { background: #059669; color: #fff; border-color: #059669; }
+.create-modal .spinner-icon {
+    display: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top: 2px solid #fff;
+    border-radius: 50%;
+    animation: spinBtn 0.6s linear infinite;
+}
+@keyframes spinBtn { to { transform: rotate(360deg); } }
+@media (max-width: 600px) {
+    .create-modal .modal-content { margin: 10px; border-radius: 16px; }
+    .create-modal .create-grid { grid-template-columns: 1fr; }
+    .create-modal .modal-body-form { padding: 20px; }
+}
+</style>
+
+<div class="modal-overlay create-modal" id="createModal">
+    <div class="modal-content">
+        <div class="modal-header-green">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v10H4V12"></path><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+                Nuovo Buono Regalo
+            </h2>
+            <p class="header-subtitle">Compila i dettagli per creare un nuovo buono regalo</p>
+            <button class="modal-close-btn" onclick="closeCreateModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        <form id="createBuonoForm">
+            <div class="modal-body-form">
+                <div class="create-grid">
+                    <!-- Valore -->
+                    <div class="create-field">
+                        <label>Valore Buono (&euro;) <span class="required-dot"></span></label>
+                        <input type="number" id="createValore" name="valoreBuono" step="0.01" min="0.01" required class="value-input" placeholder="0,00">
+                        <div class="quick-value-chips">
+                            <button type="button" class="quick-chip" onclick="setQuickValue(25)">25&euro;</button>
+                            <button type="button" class="quick-chip" onclick="setQuickValue(50)">50&euro;</button>
+                            <button type="button" class="quick-chip" onclick="setQuickValue(100)">100&euro;</button>
+                            <button type="button" class="quick-chip" onclick="setQuickValue(200)">200&euro;</button>
+                        </div>
+                    </div>
+                    <!-- Stato -->
+                    <div class="create-field">
+                        <label>Stato</label>
+                        <select id="createStato" name="stato">
+                            <option value="Attivo">&#x2705; Attivo</option>
+                            <option value="Usato">&#x1F4CB; Usato</option>
+                            <option value="Scaduto">&#x274C; Scaduto</option>
+                        </select>
+                    </div>
+                    <!-- Codice Buono -->
+                    <div class="create-field full-width">
+                        <label>Codice Buono <span class="required-dot"></span></label>
+                        <div class="code-input-wrap">
+                            <input type="text" id="createCodice" name="nomeBuono" readonly placeholder="Generato automaticamente...">
+                            <button type="button" class="btn-gen-code" onclick="regenerateCode()" title="Rigenera codice">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                            </button>
+                            <button type="button" class="btn-copy-code" onclick="copyCode()" title="Copia codice">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Destinatario -->
+                    <div class="create-field">
+                        <label>Destinatario</label>
+                        <input type="text" id="createDestinatario" name="destinatario" placeholder="Nome destinatario...">
+                    </div>
+                    <!-- Data Scadenza -->
+                    <div class="create-field">
+                        <label>Data Scadenza <span class="required-dot"></span></label>
+                        <input type="date" id="createScadenza" name="dataScadenza" required>
+                    </div>
+                    <!-- Note -->
+                    <div class="create-field full-width">
+                        <label>Mittente / Note</label>
+                        <textarea id="createNote" name="note" rows="3" placeholder="Note aggiuntive, mittente, messaggio personale..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer-btns">
+                <button type="button" class="btn-modal-cancel" onclick="closeCreateModal()">Annulla</button>
+                <button type="submit" class="btn-modal-create" id="createSubmitBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v10H4V12"></path><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path></svg>
+                    <span class="btn-text">Crea Buono</span>
                     <span class="spinner-icon"></span>
                 </button>
             </div>
@@ -1046,228 +948,211 @@ input[readonly] {
     </div>
 </div>
 
-<!-- Message Box for notifications (globale) -->
-<div id="messageBox" class="message-box"></div>
-
 <script>
-    // --- Utility Functions (globali) ---
-    /**
-     * Mostra un messaggio all'utente (successo o errore).
-     * @param {string} message - Il testo del messaggio.
-     * @param {boolean} isError - True se è un messaggio di errore, false altrimenti.
-     */
-    window.showMessage = function(message, isError = false) {
-        const messageBox = document.getElementById('messageBox');
-        if (!messageBox) {
-            console.error('MessageBox element not found!');
-            return;
+var allBuoni = <?php echo json_encode($buoni_data); ?>;
+var currentStatusFilter = '';
+
+function showToast(message, type) {
+    type = type || 'success';
+    var container = document.getElementById('toastContainer');
+    var toast = document.createElement('div');
+    toast.className = 'toast toast-' + type;
+    var iconHtml = type === 'error' ? '<i class="fas fa-times-circle"></i>' : '<i class="fas fa-check-circle"></i>';
+    toast.innerHTML = '<div class="toast-icon">' + iconHtml + '</div><div class="toast-content"><div class="toast-title">' + message + '</div></div><button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>';
+    container.appendChild(toast);
+    setTimeout(function() { toast.classList.add('show'); }, 10);
+    setTimeout(function() { toast.classList.remove('show'); setTimeout(function() { toast.remove(); }, 400); }, 4000);
+}
+
+function animateCounters() {
+    document.querySelectorAll('.summary-value[data-count]').forEach(function(el) {
+        var target = parseInt(el.dataset.count);
+        var duration = 1000;
+        var start = performance.now();
+        function update(now) {
+            var elapsed = now - start;
+            var progress = Math.min(elapsed / duration, 1);
+            var eased = 1 - Math.pow(1 - progress, 3);
+            el.textContent = Math.round(target * eased);
+            if (progress < 1) requestAnimationFrame(update);
         }
-
-        // Pulisci qualsiasi timeout di nascondimento esistente
-        if (messageBox.hideTimeout) {
-            clearTimeout(messageBox.hideTimeout);
-        }
-
-        messageBox.textContent = message;
-        messageBox.classList.remove('error'); // Rimuovi sempre prima
-        if (isError) {
-            messageBox.classList.add('error');
-        }
-
-        // Mostra il messaggio
-        messageBox.classList.add('show');
-        messageBox.style.visibility = 'visible'; // Assicurati la visibilità per la transizione
-
-        // Nascondi dopo un ritardo
-        messageBox.hideTimeout = setTimeout(() => {
-            messageBox.classList.remove('show');
-            // Dopo la transizione, imposta la visibilità su hidden
-            messageBox.addEventListener('transitionend', function handler() {
-                messageBox.style.visibility = 'hidden';
-                messageBox.removeEventListener('transitionend', handler);
-            }, { once: true });
-        }, 3000); // Visibile per 3 secondi
-    }
-
-    /**
-     * Formatta un numero come valuta.
-     * @param {number} value - Il numero da formattare.
-     * @returns {string} - Il valore formattato.
-     */
-    function formatCurrency(value) {
-        return new Intl.NumberFormat('it-IT', {
-            style: 'currency',
-            currency: 'EUR'
-        }).format(value);
-    }
-    
-    /**
-     * Aggiorna le date di scadenza per mostrare un testo dinamico (es. "Scade tra 5 giorni").
-     */
-    function updateDynamicExpiries() {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Normalizza per confronti basati solo sulla data
-
-        document.querySelectorAll('.dynamic-expiry').forEach(span => {
-            const expiryDateStr = span.dataset.expiryDate;
-            
-            // Se non c'è data di scadenza o è invalida
-            if (!expiryDateStr || expiryDateStr === '0000-00-00') {
-                span.textContent = 'Nessuna scadenza';
-                return;
-            }
-
-            const expiryDate = new Date(expiryDateStr);
-            expiryDate.setHours(0, 0, 0, 0); // Normalizza anche la data di scadenza
-
-            const diffTime = expiryDate.getTime() - today.getTime();
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-            let dynamicText = '';
-            span.style.fontWeight = 'normal';
-            span.style.color = 'var(--text-light)';
-
-            if (diffDays > 0) {
-                dynamicText = `Scade tra ${diffDays} giorni`;
-                if (diffDays <= 7) { // Evidenzia se scade a breve
-                    span.style.color = 'var(--warning-color)';
-                    span.style.fontWeight = '600';
-                }
-            } else if (diffDays === 0) {
-                dynamicText = 'Scade oggi';
-                span.style.color = 'var(--warning-color)';
-                span.style.fontWeight = '600';
-            } else {
-                dynamicText = `Scaduto da ${Math.abs(diffDays)} giorni`;
-                span.style.color = 'var(--danger-color)';
-                span.style.fontWeight = '600';
-            }
-            
-            span.textContent = dynamicText;
-        });
-    }
-
-    // --- Script per Filtri e Popup ---
-    (() => {
-        const popup = document.getElementById('editBuonoRegaloPopup');
-        const closeBtn = document.getElementById('close-edit-buono-regalo-popup-btn');
-        const buonoRegaloEditForm = document.getElementById('edit-buono-regalo-form');
-        const filterButtons = document.querySelectorAll('.filter-btn');
-        const giftCards = document.querySelectorAll('.gift-card-item');
-        const noDataMessage = document.querySelector('.no-data');
-
-        // Campi del form di modifica
-        const buonoIdInput = document.getElementById('edit_buono_id');
-        const buonoValoreInput = document.getElementById('edit_buono_valore');
-        const buonoCodiceInput = document.getElementById('edit_buono_codice');
-        const buonoDestinatarioInput = document.getElementById('edit_buono_destinatario');
-        const buonoDataScadenzaInput = document.getElementById('edit_buono_data_scadenza');
-        const buonoMittenteNoteInput = document.getElementById('edit_buono_mittente_note');
-        const buonoStatoSelect = document.getElementById('edit_buono_stato');
-        const submitBtn = document.getElementById('edit-buono-submit-btn');
-
-        const openPopup = () => popup.classList.add('visible');
-        const closePopup = () => popup.classList.remove('visible');
-        
-        closeBtn.addEventListener('click', closePopup);
-        
-        popup.addEventListener('click', (e) => {
-            if (e.target === popup) closePopup();
-        });
-
-        document.addEventListener('click', (e) => {
-            const editBtn = e.target.closest('.open-edit-buono-popup-btn');
-            const printBtn = e.target.closest('.btn-print');
-
-            if (editBtn) {
-                e.preventDefault();
-                buonoIdInput.value = editBtn.dataset.id;
-                buonoValoreInput.value = parseFloat(editBtn.dataset.valore).toFixed(2);
-                buonoCodiceInput.value = editBtn.dataset.nome;
-                buonoDestinatarioInput.value = editBtn.dataset.destinatario === '-' ? '' : editBtn.dataset.destinatario;
-                buonoDataScadenzaInput.value = editBtn.dataset.data_scadenza === '-' ? '' : editBtn.dataset.data_scadenza;
-                buonoMittenteNoteInput.value = editBtn.dataset.note === '-' ? '' : editBtn.dataset.note;
-                buonoStatoSelect.value = editBtn.dataset.stato;
-                openPopup();
-            } else if (printBtn) {
-                e.preventDefault();
-                const buonoId = printBtn.dataset.id;
-                if (buonoId) {
-                    window.open('stampa_buono.php?id=' + buonoId, '_blank');
-                }
-            }
-        });
-
-        buonoRegaloEditForm.addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData.entries());
-
-            if (!data.valore || parseFloat(data.valore) <= 0) {
-                showMessage('Il valore del buono non può essere vuoto o minore/uguale a zero.', true);
-                return;
-            }
-
-            submitBtn.classList.add('loading');
-            submitBtn.disabled = true;
-
-            try {
-                const response = await fetch('update_buono.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                const result = await response.json();
-                if (response.ok && result.success) {
-                    showMessage(result.message || 'Buono regalo aggiornato con successo!', false);
-                    closePopup();
-                    setTimeout(() => location.reload(), 500); 
-                } else {
-                    showMessage(result.message || 'Errore durante l\'aggiornamento.', true);
-                }
-            } catch (error) {
-                showMessage('Errore di comunicazione. Riprova.', true);
-            } finally {
-                submitBtn.classList.remove('loading');
-                submitBtn.disabled = false;
-            }
-        });
-
-        // Logica per i filtri
-        filterButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const filter = button.dataset.filter;
-                
-                filterButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                
-                let visibleCards = 0;
-                giftCards.forEach(card => {
-                    const cardState = card.dataset.stato;
-                    if (filter === 'tutti' || cardState === filter) {
-                        card.style.display = 'flex';
-                        visibleCards++;
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-
-                if (noDataMessage) {
-                    noDataMessage.style.display = visibleCards > 0 ? 'none' : 'block';
-                }
-            });
-        });
-
-    })();
-
-    document.addEventListener('DOMContentLoaded', function() {
-        // Questa parte gestisce solo i messaggi da sessione,
-        // che vengono inseriti inline dallo script PHP
-        <?php echo $message_from_session; ?>
-        updateDynamicExpiries();
+        requestAnimationFrame(update);
     });
+}
 
+function filterByStatus(status) {
+    if (currentStatusFilter === status) { currentStatusFilter = ''; } else { currentStatusFilter = status; }
+    document.querySelectorAll('.summary-card').forEach(function(c) { c.classList.remove('active'); });
+    if (currentStatusFilter) {
+        var ac = document.querySelector('.summary-card[data-status="' + currentStatusFilter + '"]');
+        if (ac) ac.classList.add('active');
+    }
+    var cards = document.querySelectorAll('.buono-card');
+    var visibleCount = 0;
+    cards.forEach(function(card) {
+        if (!currentStatusFilter || card.dataset.status === currentStatusFilter) { card.style.display = ''; visibleCount++; } else { card.style.display = 'none'; }
+    });
+    document.getElementById('buoniCount').textContent = visibleCount + ' buoni';
+}
+
+function applySearch() {
+    var term = document.getElementById('searchInput').value.trim();
+    window.location.href = term ? 'visualizza_buoni.php?search=' + encodeURIComponent(term) : 'visualizza_buoni.php';
+}
+
+document.getElementById('searchInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') { e.preventDefault(); applySearch(); } });
+
+// --- Edit Modal ---
+var editModal = document.getElementById('editModal');
+
+function openEditModal(id) {
+    var card = document.querySelector('.buono-card[data-id="' + id + '"]');
+    if (!card) return;
+    document.getElementById('editId').value = id;
+    document.getElementById('editValore').value = parseFloat(card.dataset.valore).toFixed(2);
+    document.getElementById('editCodice').value = card.dataset.nome;
+    document.getElementById('editDestinatario').value = card.dataset.destinatario || '';
+    document.getElementById('editScadenza').value = (card.dataset.scadenza && card.dataset.scadenza !== '0000-00-00') ? card.dataset.scadenza : '';
+    document.getElementById('editNote').value = card.dataset.note || '';
+    document.getElementById('editStato').value = card.dataset.stato || 'Attivo';
+    editModal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() { editModal.classList.remove('show'); document.body.style.overflow = ''; }
+editModal.addEventListener('click', function(e) { if (e.target === editModal) closeModal(); });
+
+document.getElementById('editBuonoForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var formData = new FormData(this);
+    var data = {};
+    formData.forEach(function(value, key) { data[key] = value; });
+    if (!data.valore || parseFloat(data.valore) <= 0) { showToast('Il valore deve essere maggiore di zero.', 'error'); return; }
+    fetch('update_buono.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+    .then(function(response) { return response.json().then(function(result) { return { ok: response.ok, result: result }; }); })
+    .then(function(resp) {
+        if (resp.ok && resp.result.success) { closeModal(); showToast('Buono aggiornato con successo!', 'success'); setTimeout(function() { location.reload(); }, 800); }
+        else { showToast(resp.result.message || "Errore durante l'aggiornamento.", 'error'); }
+    })
+    .catch(function() { showToast('Errore di rete. Riprova.', 'error'); });
+});
+
+// --- Create Modal ---
+var createModal = document.getElementById('createModal');
+
+function generateRandomCode() {
+    var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    var code = 'BUONO-';
+    for (var i = 0; i < 8; i++) { code += chars.charAt(Math.floor(Math.random() * chars.length)); }
+    return code;
+}
+
+function openCreateModal() {
+    document.getElementById('createBuonoForm').reset();
+    document.getElementById('createCodice').value = generateRandomCode();
+    document.getElementById('createStato').value = 'Attivo';
+    // Set default expiry to 1 year from now
+    var defaultExpiry = new Date();
+    defaultExpiry.setFullYear(defaultExpiry.getFullYear() + 1);
+    document.getElementById('createScadenza').value = defaultExpiry.toISOString().split('T')[0];
+    // Remove active chips
+    document.querySelectorAll('.quick-chip').forEach(function(c) { c.classList.remove('active'); });
+    createModal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function() { document.getElementById('createValore').focus(); }, 300);
+}
+
+function closeCreateModal() { createModal.classList.remove('show'); document.body.style.overflow = ''; }
+createModal.addEventListener('click', function(e) { if (e.target === createModal) closeCreateModal(); });
+
+function regenerateCode() {
+    var input = document.getElementById('createCodice');
+    input.style.opacity = '0.3';
+    setTimeout(function() {
+        input.value = generateRandomCode();
+        input.style.opacity = '1';
+    }, 150);
+}
+
+function copyCode() {
+    var code = document.getElementById('createCodice').value;
+    if (!code) return;
+    navigator.clipboard.writeText(code).then(function() {
+        showToast('Codice copiato: ' + code, 'success');
+    }).catch(function() {
+        // Fallback
+        var temp = document.createElement('textarea');
+        temp.value = code;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        document.body.removeChild(temp);
+        showToast('Codice copiato: ' + code, 'success');
+    });
+}
+
+function setQuickValue(val) {
+    document.getElementById('createValore').value = val;
+    document.querySelectorAll('.quick-chip').forEach(function(c) {
+        c.classList.toggle('active', parseInt(c.textContent) === val);
+    });
+}
+
+document.getElementById('createBuonoForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var btn = document.getElementById('createSubmitBtn');
+    var btnText = btn.querySelector('.btn-text');
+    var spinner = btn.querySelector('.spinner-icon');
+    var valore = parseFloat(document.getElementById('createValore').value);
+    var codice = document.getElementById('createCodice').value.trim();
+    var scadenza = document.getElementById('createScadenza').value;
+
+    if (!valore || valore <= 0) { showToast('Inserisci un valore valido per il buono.', 'error'); return; }
+    if (!codice) { showToast('Il codice buono \u00e8 obbligatorio.', 'error'); return; }
+    if (!scadenza) { showToast('La data di scadenza \u00e8 obbligatoria.', 'error'); return; }
+
+    // Show loading state
+    btn.disabled = true;
+    btnText.textContent = 'Creazione...';
+    spinner.style.display = 'inline-block';
+
+    var formData = new FormData(this);
+
+    fetch('salva_buono_regalo.php', { method: 'POST', body: formData })
+    .then(function(response) { return response.json(); })
+    .then(function(result) {
+        if (result.success) {
+            closeCreateModal();
+            showToast('Buono regalo creato con successo!', 'success');
+            setTimeout(function() { location.reload(); }, 800);
+        } else {
+            showToast(result.message || 'Errore durante la creazione.', 'error');
+        }
+    })
+    .catch(function(err) {
+        showToast('Errore di rete. Riprova.', 'error');
+    })
+    .finally(function() {
+        btn.disabled = false;
+        btnText.textContent = 'Crea Buono';
+        spinner.style.display = 'none';
+    });
+});
+
+// --- Escape key closes any open modal ---
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        if (createModal.classList.contains('show')) { closeCreateModal(); }
+        else if (editModal.classList.contains('show')) { closeModal(); }
+    }
+});
+
+function deleteBuono(id) {
+    if (!confirm('Sei sicuro di voler eliminare questo buono regalo? Questa azione \u00e8 irreversibile.')) return;
+    showToast('Funzione di eliminazione in fase di implementazione.', 'error');
+}
+
+document.addEventListener('DOMContentLoaded', function() { animateCounters(); });
 </script>
 </body>
 </html>
-

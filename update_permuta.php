@@ -5,10 +5,11 @@ session_start();
 // Imposta l'header per il tipo di contenuto JSON
 header('Content-Type: application/json');
 
-// Attivazione debugging (solo per sviluppo)
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+// Disabilita output errori per non corrompere il JSON — errori vanno nel log
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
 error_reporting(E_ALL);
+ob_start(); // Buffering per catturare eventuali output indesiderati
 
 // Includi il file di connessione al database
 if (!file_exists('db.php')) {
@@ -28,15 +29,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
     $id = intval($_POST['id']); // Assicurati che l'ID sia un intero
 
     // Recupera e sanitizza tutti i dati dal POST
-    // Utilizza htmlspecialchars per prevenire XSS e real_escape_string per prevenire SQL injection nei valori delle stringhe
-    // ma preferisci i prepared statement per una maggiore sicurezza.
-    $cliente = isset($_POST['cliente']) ? htmlspecialchars($conn->real_escape_string($_POST['cliente'])) : '';
-    $telefono = isset($_POST['telefono']) ? htmlspecialchars($conn->real_escape_string($_POST['telefono'])) : '';
+    // Utilizziamo prepared statements, quindi non è necessario real_escape_string.
+    // htmlspecialchars va applicato SOLO in output (HTML), MAI prima del salvataggio in DB.
+    $cliente = isset($_POST['cliente']) ? trim($_POST['cliente']) : '';
+    $telefono = isset($_POST['telefono']) ? trim($_POST['telefono']) : '';
     // Il progressivo non dovrebbe essere modificabile dall'esterno, ma lo includiamo per completezza se necessario.
     // Per un campo readonly sul frontend, non è necessario rileggere il suo valore da POST se non lo si aggiorna.
-    // $progressivo = isset($_POST['progressivo']) ? htmlspecialchars($conn->real_escape_string($_POST['progressivo'])) : '';
+    // $progressivo = isset($_POST['progressivo']) ? trim($_POST['progressivo']) : '';
     
-    $data_permuta_str = isset($_POST['data']) ? htmlspecialchars($_POST['data']) : null;
+    $data_permuta_str = isset($_POST['data']) ? trim($_POST['data']) : null;
     $data = null;
     if ($data_permuta_str) {
         // Formatta la data nel formato YYYY-MM-DD per il database
@@ -48,24 +49,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
         exit;
     }
 
-    $modello_nuovo = isset($_POST['modello_nuovo']) ? htmlspecialchars($conn->real_escape_string($_POST['modello_nuovo'])) : '';
-    $imei_nuovo = isset($_POST['imei_nuovo']) ? htmlspecialchars($conn->real_escape_string($_POST['imei_nuovo'])) : '';
-    $note_nuovo = isset($_POST['note_nuovo']) ? htmlspecialchars($conn->real_escape_string($_POST['note_nuovo'])) : '';
+    $modello_nuovo = isset($_POST['modello_nuovo']) ? trim($_POST['modello_nuovo']) : '';
+    $imei_nuovo = isset($_POST['imei_nuovo']) ? trim($_POST['imei_nuovo']) : '';
+    $note_nuovo = isset($_POST['note_nuovo']) ? trim($_POST['note_nuovo']) : '';
     $prezzo_nuovo = isset($_POST['prezzo_nuovo']) ? floatval($_POST['prezzo_nuovo']) : 0.00;
     $costo_prodotto = isset($_POST['costo_prodotto']) ? floatval($_POST['costo_prodotto']) : 0.00;
     
-    $modello_usato = isset($_POST['modello_usato']) ? htmlspecialchars($conn->real_escape_string($_POST['modello_usato'])) : '';
-    $imei_usato = isset($_POST['imei_usato']) ? htmlspecialchars($conn->real_escape_string($_POST['imei_usato'])) : '';
-    $note_usato = isset($_POST['note_usato']) ? htmlspecialchars($conn->real_escape_string($_POST['note_usato'])) : '';
+    $modello_usato = isset($_POST['modello_usato']) ? trim($_POST['modello_usato']) : '';
+    $imei_usato = isset($_POST['imei_usato']) ? trim($_POST['imei_usato']) : '';
+    $note_usato = isset($_POST['note_usato']) ? trim($_POST['note_usato']) : '';
     $prezzo_permuta = isset($_POST['prezzo_permuta']) ? floatval($_POST['prezzo_permuta']) : 0.00;
     $costo_riparazione = isset($_POST['costo_riparazione']) ? floatval($_POST['costo_riparazione']) : 0.00;
     
     $costo_accessori = isset($_POST['costo_accessori']) ? floatval($_POST['costo_accessori']) : 0.00;
     $differenza = isset($_POST['differenza']) ? floatval($_POST['differenza']) : 0.00;
     $prezzo_vendita = isset($_POST['prezzo_vendita']) ? floatval($_POST['prezzo_vendita']) : 0.00;
-    $status = isset($_POST['status']) ? htmlspecialchars($conn->real_escape_string($_POST['status'])) : 'In Trattativa'; // Valore di default
-    $test_ok = isset($_POST['test_ok']) ? htmlspecialchars($conn->real_escape_string($_POST['test_ok'])) : '';
-    $note_generali = isset($_POST['note_generali']) ? htmlspecialchars($conn->real_escape_string($_POST['note_generali'])) : '';
+    $status = isset($_POST['status']) ? trim($_POST['status']) : 'In Trattativa'; // Valore di default
+    $test_ok = isset($_POST['test_ok']) ? trim($_POST['test_ok']) : '';
+    $note_generali = isset($_POST['note_generali']) ? trim($_POST['note_generali']) : '';
 
     // Esegui l'aggiornamento nel database usando un prepared statement per sicurezza
     try {
@@ -92,22 +93,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
         );
 
         if ($stmt->execute()) {
+            ob_end_clean(); // Pulisci eventuali output PHP prima del JSON
             if ($stmt->affected_rows > 0) {
                 $_SESSION['message'] = 'Permuta aggiornata con successo!';
                 $_SESSION['isError'] = false;
                 echo json_encode(['success' => true, 'message' => 'Permuta aggiornata con successo!']);
             } else {
                 $_SESSION['message'] = 'Nessuna modifica apportata o permuta non trovata.';
-                $_SESSION['isError'] = false; // Non è un errore, ma un'informazione
+                $_SESSION['isError'] = false;
                 echo json_encode(['success' => true, 'message' => 'Nessuna modifica apportata o permuta non trovata.']);
             }
         } else {
             throw new Exception("Errore nell'esecuzione della query: " . $stmt->error);
         }
     } catch (Exception $e) {
+        ob_end_clean(); // Pulisci eventuali output PHP prima del JSON
         $_SESSION['message'] = 'Errore durante l\'aggiornamento della permuta: ' . $e->getMessage();
         $_SESSION['isError'] = true;
-        error_log("Errore aggiornamento permuta: " . $e->getMessage()); // Log dell'errore per il debugging
+        error_log("Errore aggiornamento permuta: " . $e->getMessage());
         echo json_encode(['success' => false, 'message' => 'Errore durante l\'aggiornamento della permuta: ' . $e->getMessage()]);
     } finally {
         if (isset($stmt) && $stmt instanceof mysqli_stmt) {
@@ -118,6 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
         }
     }
 } else {
+    ob_end_clean();
     $_SESSION['message'] = 'Richiesta non valida o ID permuta mancante.';
     $_SESSION['isError'] = true;
     echo json_encode(['success' => false, 'message' => 'Richiesta non valida.']);

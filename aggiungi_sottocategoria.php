@@ -57,7 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Aggiungi Sottocategoria - Gestionale</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>Aggiungi Sottocategoria - Gestionale</title>
 <style>
 /* Stili come prima */
 body { font-family: Arial, sans-serif; background:#f5f7fa; padding:20px; }

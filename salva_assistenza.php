@@ -5,7 +5,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 header('Content-Type: application/json');
-require_once '../db.php'; // Percorso relativo a db.php
+require_once 'db.php'; // Same directory
 
 $response = ['success' => false, 'message' => ''];
 

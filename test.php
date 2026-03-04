@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Gestione Cliente e Buono Spesa</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>Gestione Cliente e Buono Spesa</title>
 <style>
 /* Stile originale dai blocchi inviati */
 body {

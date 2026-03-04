@@ -3,8 +3,8 @@
 
 ob_start(); // Inizia il buffering dell'output
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
 error_reporting(E_ALL);
 
 header('Content-Type: application/json');
@@ -20,8 +20,8 @@ try {
     require_once 'db.php';
 
     // Controlla se la connessione al database è stata stabilita correttamente
-    if (!isset($conn) || $conn->connect_error) {
-        throw new Exception('Errore di connessione al database: ' . ($conn->connect_error ?? 'Sconosciuto'));
+    if (!isset($conn) || $conn === null) {
+        throw new Exception('Errore di connessione al database: ' . ($db_connection_error ?? 'Sconosciuto'));
     }
 
     // Verifica che la richiesta sia di tipo POST e contenga i dati necessari

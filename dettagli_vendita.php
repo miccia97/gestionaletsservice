@@ -5,11 +5,14 @@ include('db.php');
 $id_vendita = $_GET['id'];
 
 // Recupera i dettagli della vendita
-$query = "SELECT * FROM dettagli_vendita WHERE vendita_id = $id_vendita";
+$query = "SELECT * FROM vendite_dettagli WHERE id_vendita = $id_vendita";
 $result = $conn->query($query);
 $vendita_query = "SELECT * FROM vendite WHERE id = $id_vendita";
 $vendita_result = $conn->query($vendita_query);
 $vendita = $vendita_result->fetch_assoc();
+if (!$vendita) {
+    die("Vendita non trovata.");
+}
 ?>
 
 <!DOCTYPE html>
@@ -17,13 +20,14 @@ $vendita = $vendita_result->fetch_assoc();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dettagli Vendita</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>Dettagli Vendita</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container mt-5">
         <h1>Dettagli della Vendita</h1>
-        <p><strong>Cliente:</strong> <?= $vendita['cliente_id'] ?></p>
+        <p><strong>Cliente:</strong> <?= htmlspecialchars($vendita['nome_cliente'] ?? $vendita['id_cliente'] ?? 'N/A') ?></p>
         <p><strong>Data Vendita:</strong> <?= $vendita['data_vendita'] ?></p>
         <p><strong>Totale:</strong> <?= $vendita['totale'] ?> €</p>
 

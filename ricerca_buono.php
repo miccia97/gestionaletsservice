@@ -1,8 +1,5 @@
 <?php
-$conn = new mysqli("localhost", "root", "", "gestionale_tsservice");
-if ($conn->connect_error) {
-  die("Connessione fallita: " . $conn->connect_error);
-}
+require_once 'db.php';
 
 $query = isset($_GET['q']) ? $_GET['q'] : '';
 $sql = "SELECT id, codice_buono, importo FROM buono_spesa WHERE codice_buono LIKE ?";

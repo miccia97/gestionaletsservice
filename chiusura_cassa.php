@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chiusura Cassa Gestionale Verde - Layout Orizzontale</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>Chiusura Cassa Gestionale Verde - Layout Orizzontale</title>
     <!-- Inclusione di Tailwind CSS per uno styling rapido e responsivo -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>

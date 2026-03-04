@@ -8,15 +8,10 @@ error_reporting(E_ALL);
 
 header('Content-Type: application/json');
 
-// Connessione al database
-$host = 'localhost';
-$db   = 'gestionale_tsservice';
-$user = 'root';
-$pass = '';
-
-$conn = new mysqli($host, $user, $pass, $db);
-if ($conn->connect_error) {
-    echo json_encode(['success' => false, 'message' => 'Errore di connessione al database: ' . $conn->connect_error]);
+// Connessione al database centralizzata
+require_once 'db.php';
+if (!$conn) {
+    echo json_encode(['success' => false, 'message' => 'Errore di connessione al database.']);
     exit;
 }
 

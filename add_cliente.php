@@ -1,27 +1,11 @@
 <?php
 // add_cliente.php
-// Questo script gestisce l'aggiunta di un nuovo cliente al database 'clienti_nuovo',
-// inclusi tutti i campi personali e aziendali.
+// Gestisce l'aggiunta di un nuovo cliente al database 'clienti_nuovo'
 
-header('Content-Type: application/json'); // Indica che la risposta sarà JSON
+header('Content-Type: application/json');
 
-// Configurazione del database
-// *** SOSTITUISCI QUESTI VALORI CON LE TUE CREDENZIALI REALI DEL DATABASE MYSQL SE NECESSARIO ***
-$servername = "localhost";
-$username = "root"; // Esempio: "root"
-$password = ""; // Esempio: "" (spesso vuota per root su XAMPP/MAMP)
-$dbname = "gestionale_tsservice"; // Esempio: "my_gestionale_db"
-
-// Connessione al database
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Controlla la connessione
-if ($conn->connect_error) {
-    // In caso di errore, registra nel log e restituisce una risposta JSON
-    error_log("Errore di connessione al database in add_cliente.php: " . $conn->connect_error);
-    echo json_encode(["status" => "error", "message" => "Impossibile connettersi al database. Contatta l'amministratore.", "details" => $conn->connect_error]);
-    exit();
-}
+// Usa il file db.php centralizzato
+require_once 'db.php';
 
 // Ottieni i dati JSON inviati dalla richiesta POST
 $input = file_get_contents('php://input');
@@ -76,7 +60,8 @@ if (isset($data['nome']) && isset($data['cognome'])) {
 
         // Esegui lo statement
         if ($stmt->execute()) {
-            echo json_encode(["status" => "success", "message" => "Cliente '$nome $cognome' aggiunto con successo!"]);
+            $newId = $conn->insert_id;
+            echo json_encode(["status" => "success", "message" => "Cliente '$nome $cognome' aggiunto con successo!", "id" => $newId]);
         } else {
             // Registra l'errore e restituisce una risposta JSON in caso di fallimento
             error_log("Errore nell'esecuzione della query INSERT in add_cliente.php: " . $stmt->error);
@@ -95,6 +80,6 @@ if (isset($data['nome']) && isset($data['cognome'])) {
     echo json_encode(["status" => "error", "message" => "Dati cliente obbligatori (nome e cognome) mancanti nella richiesta."]);
 }
 
-// Chiudi la connessione al database
-$conn->close();
+// Chiudi la connessione al database (gestita da db.php)
+// $conn->close();
 ?>

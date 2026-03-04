@@ -13,7 +13,8 @@ if (isset($_SESSION['login_error'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accedi al Gestionale</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>Accedi al Gestionale</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         /* Stili Generali del Body */

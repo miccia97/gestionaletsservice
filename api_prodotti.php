@@ -5,17 +5,9 @@ error_reporting(E_ALL);
 
 header('Content-Type: application/json');
 
-// --- DATI DI ACCESSO AL DATABASE DEL TUO GESTIONALE ---
-$servername = "localhost";
-$username = "root"; // <-- MODIFICA QUI
-$password = ""; // <-- MODIFICA QUI
-$dbname = "gestionale_tsservice";   // <-- MODIFICA QUI
-// --------------------------------------------------------
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    echo json_encode(["error" => "Connessione al database fallita: " . $conn->connect_error]);
+require_once 'db.php';
+if (!$conn) {
+    echo json_encode(["error" => "Connessione al database fallita."]);
     exit();
 }
 

@@ -202,11 +202,17 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualizza Prenotazioni</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>Visualizza Prenotazioni</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/header-styles.css?v=1">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
+        <style>
         /* ========== MODERN DESIGN SYSTEM ========== */
         :root {
             --primary: #22c55e;
@@ -1774,7 +1780,7 @@ try {
     const searchForm = document.getElementById('searchForm');
     const searchTermInput = document.getElementById('search');
     const resetBtn = document.getElementById('resetBtn');
-    const reservationsTableBody = document.getElementById('reservationsTableBody');
+    const reservationsTableBody = document.getElementById('reservationsGrid');
 
     const mainModal = document.getElementById('mainModal');
     const editReservationModalContent = document.getElementById('editReservationModalContent');

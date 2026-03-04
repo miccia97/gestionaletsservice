@@ -133,10 +133,16 @@ function getStatusClasses($status) {
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Dettagli Riparazione #<?php echo htmlspecialchars($id); ?></title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>Dettagli Riparazione #<?php echo htmlspecialchars($id); ?></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/header-styles.css?v=1">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
+        <style>
         /* Variabili CSS per il tema verde e stili generali (da visualizza_riparazioni.php) */
         :root {
             --brand-green: #28a745;        /* Base Green */

@@ -154,7 +154,8 @@ function generateReservationBlock($type, $reservation_details, $client_details) 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stampa Prenotazione #<?php echo htmlspecialchars($reservation_details['id']); ?></title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>Stampa Prenotazione #<?php echo htmlspecialchars($reservation_details['id']); ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>

@@ -4,20 +4,10 @@
 
 header('Content-Type: application/json'); // La risposta sarà JSON
 
-// Configurazione del database
-// *** SOSTITUISCI QUESTI VALORI CON LE TUE CREDENZIALI REALI DEL DATABASE MYSQL ***
-$servername = "localhost";
-$username = "root"; // Esempio: "root"
-$password = "";     // Esempio: "" (spesso vuota per root su XAMPP/MAMP)
-$dbname = "gestionale_tsservice"; // Esempio: "my_gestionale_db"
-
-// Connessione al database
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Controlla la connessione
-if ($conn->connect_error) {
-    error_log("Errore di connessione al database in salva_permuta.php: " . $conn->connect_error);
-    echo json_encode(["status" => "error", "message" => "Impossibile connettersi al database. Contatta l'amministratore.", "details" => $conn->connect_error]);
+// Connessione al database centralizzata
+require_once 'db.php';
+if (!$conn) {
+    echo json_encode(["status" => "error", "message" => "Impossibile connettersi al database."]);
     exit();
 }
 
@@ -172,37 +162,7 @@ try {
     // s (note_generali)
     // s (foto_ceduto_paths)
     // s (foto_ricevuto_paths)
-    $type_string_for_bind = "sssssssdsdsssddddddssss"; // 22 caratteri, senza spazi
-
-    // Debugging: Log counts before binding
-    error_log("DEBUG: SQL_INSERT_PERMUTA: " . $sql_insert_permuta); // Log the full SQL query
-
-    $columns_in_insert = 0;
-    $column_list_debug = '';
-    if (preg_match('/INSERT INTO permute_nuovo \((.*?)\) VALUES/', $sql_insert_permuta, $matches)) {
-        $column_list_debug = $matches[1];
-        $columns_in_insert = count(explode(', ', $column_list_debug));
-    }
-    error_log("DEBUG: Extracted column list: '" . $column_list_debug . "'");
-    error_log("DEBUG: Calculated columns in INSERT: " . $columns_in_insert);
-
-    $type_string_length = strlen($type_string_for_bind);
-    $num_bound_variables = count([
-        $formatted_progressive_number, $data_permuta, $cliente_display_name, $telefono_cliente, $stato_permuta,
-        $tuo_modello, $tuo_imei, $tuo_note, $tuo_valore_vendita,
-        $cliente_modello, $cliente_imei, $cliente_note, $cliente_valore_permuta,
-        $totale_costi_ricondizionamento, $costo_accessori, $costo_prodotto, $conguaglio_cliente, $prezzo_vendita_finale,
-        $test_ok_json, $note_generali_aggiuntive, $tuo_foto_paths_json, $cliente_foto_paths_json
-    ]);
-
-    error_log("DEBUG: bind_param type string: '" . $type_string_for_bind . "'"); // Log the type string
-    error_log("DEBUG: bind_param type string length: " . $type_string_length);
-    error_log("DEBUG: Number of variables bound (counted from array): " . $num_bound_variables);
-
-    if ($columns_in_insert !== $num_bound_variables || $type_string_length !== $num_bound_variables) {
-        error_log("DEBUG: Mismatch detected in counts before binding parameters! SQL Columns: $columns_in_insert, Bound Variables: $num_bound_variables, Type String Length: $type_string_length");
-        throw new Exception("Mismatch in column/value count or type string length. Check server logs for details.");
-    }
+    $type_string_for_bind = "ssssssssdsssddddddssss"; // 22 caratteri: 8s, 1d, 3s, 6d, 4s
 
     $stmt->bind_param($type_string_for_bind,
         $formatted_progressive_number, $data_permuta, $cliente_display_name, $telefono_cliente, $stato_permuta,

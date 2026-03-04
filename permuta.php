@@ -1,42 +1,6 @@
 <?php
-// Note sulla simulazione PHP:
-// Questo blocco PHP concettuale mostra come potresti gestire l'inclusione di file di configurazione
-// e la pre-popolazione di dati (come un numero di permuta) se questa pagina fosse servita da un server PHP.
-// Nel contesto del Canvas, gran parte di questa logica lato server è simulata via JavaScript
-// o rappresentata in uno script PHP separato (es. salva_permuta.php o get_clienti.php).
-
-// In un ambiente reale, avresti un file di configurazione per il database:
-// require_once 'db_config.php'; // Contiene $servername, $username, $password, $dbname
-
-/*
-// Esempio concettuale di connessione al database in PHP per la pre-popolazione:
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    // In un'applicazione reale, dovresti gestire gli errori in modo più elegante
-    // ad esempio, mostrando una pagina di errore o registrando l'errore.
-    die("Connessione al database fallita: " . $conn->connect_error);
-}
-
-// Funzione PHP per generare il prossimo ID progressivo (simulazione)
-// In un sistema reale, questo dovrebbe essere atomico e transazionale per evitare duplicati
-function getNextPermutaProgressiveNumber($conn_db) {
-    $sql = "SELECT MAX(numero_progressivo) AS last_id FROM permute";
-    $result = $conn_db->query($sql);
-    $row = $result->fetch_assoc();
-    $last_id = $row['last_id'];
-    return $last_id ? ($last_id + 1) : 1; // Se non ci sono record, inizia da 1
-}
-
-$next_progressive_number = getNextPermutaProgressiveNumber($conn);
-$data_odierna_php = date('Y-m-d'); // Data odierna nel formatoYYYY-MM-DD
-
-// Chiudi la connessione dopo aver recuperato i dati necessari per la pagina
-$conn->close();
-*/
-
-// Per la visualizzazione nel Canvas, useremo JavaScript per pre-popolare questi campi.
-// I dati effettivi verranno inviati al file salva_permuta.php tramite POST.
+session_start();
+include 'auth_check.php';
 ?>
 
 <!DOCTYPE html>
@@ -44,9 +8,11 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestione Nuova Permuta</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>Nuova Permuta | TS Service</title>
     <!-- Font Awesome per le icone -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/header-styles.css?v=<?php echo time(); ?>">
     <style>
         /* CSS per lo stile della pagina - Design Migliorato */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
@@ -56,6 +22,7 @@ $conn->close();
             background-color: #f0f4f8; /* Sfondo leggero e moderno */
             margin: 0;
             padding: 20px;
+            padding-top: 100px; /* Spazio per header fisso */
             color: #334155; /* Colore testo scuro ma morbido */
             display: flex;
             justify-content: center;
@@ -77,7 +44,7 @@ $conn->close();
 
         h1 {
             text-align: center;
-            color: #007bff; /* Blu primario più vibrante */
+            color: #22c55e; /* Blu primario più vibrante */
             margin-bottom: 40px;
             font-size: 2.5em; /* Dimensione più grande */
             font-weight: 900; /* Più audace */
@@ -96,7 +63,7 @@ $conn->close();
         legend {
             font-size: 1.4em; /* Legenda più grande */
             font-weight: 700; /* Più audace */
-            color: #1a73e8; /* Blu scuro per la legenda */
+            color: #16a34a; /* Blu scuro per la legenda */
             padding: 0 20px;
             border-bottom: none;
             width: auto;
@@ -139,7 +106,7 @@ $conn->close();
         .form-group input[type="date"]:focus,
         .form-group textarea:focus,
         .form-group select:focus {
-            border-color: #007bff; /* Blu primario al focus */
+            border-color: #22c55e; /* Blu primario al focus */
             box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.25); /* Anello di focus blu */
             outline: none;
         }
@@ -165,7 +132,7 @@ $conn->close();
         h4 {
             margin-top: 40px;
             margin-bottom: 25px;
-            color: #007bff;
+            color: #22c55e;
             border-bottom: 2px solid #e0f2ff; /* Bordo più spesso */
             padding-bottom: 10px;
             font-size: 1.35em;
@@ -200,7 +167,7 @@ $conn->close();
         table th {
             background-color: #e0f2ff; /* Sfondo per l'intestazione */
             font-weight: 700;
-            color: #0056b3;
+            color: #16a34a;
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
@@ -226,7 +193,7 @@ $conn->close();
         }
         table input[type="text"]:focus,
         table select:focus {
-            border-color: #007bff;
+            border-color: #22c55e;
             box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
             outline: none;
         }
@@ -235,7 +202,7 @@ $conn->close();
             margin-right: 8px;
             transform: scale(1.3); /* Rende la checkbox più visibile */
             vertical-align: middle;
-            accent-color: #007bff; /* Colore blu per la checkbox */
+            accent-color: #22c55e; /* Colore blu per la checkbox */
         }
 
         .costo-item {
@@ -314,7 +281,7 @@ $conn->close();
 
         .summary-line span {
             font-weight: 700;
-            color: #007bff;
+            color: #22c55e;
             text-align: right;
             min-width: 120px;
             font-size: 1.1em;
@@ -369,16 +336,16 @@ $conn->close();
             font-weight: 700;
             transition: all 0.3s ease;
             box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-            background-image: linear-gradient(to right, #007bff 0%, #0056b3 100%); /* Gradiente per submit */
+            background-image: linear-gradient(to right, #22c55e 0%, #16a34a 100%); /* Gradiente per submit */
             color: white;
         }
 
         .form-actions button[type="submit"] {
-             background-image: linear-gradient(to right, #007bff 0%, #0056b3 100%);
+             background-image: linear-gradient(to right, #22c55e 0%, #16a34a 100%);
         }
 
         .form-actions button[type="submit"]:hover {
-            background-image: linear-gradient(to right, #0056b3 0%, #003d7a 100%);
+            background-image: linear-gradient(to right, #16a34a 0%, #14532d 100%);
             transform: translateY(-3px);
             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
         }
@@ -423,7 +390,7 @@ $conn->close();
             max-width: 150px; /* Immagini leggermente più grandi */
             max-height: 150px;
             object-fit: cover;
-            border: 3px solid #007bff; /* Bordo colorato */
+            border: 3px solid #22c55e; /* Bordo colorato */
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s ease, border-color 0.2s ease;
@@ -547,7 +514,6 @@ $conn->close();
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.6); /* Sfondo semi-trasparente */
-            display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1000;
@@ -577,7 +543,7 @@ $conn->close();
 
         .modal-header h3 {
             margin: 0;
-            color: #007bff;
+            color: #22c55e;
             font-size: 1.4em; /* Dimensione ridotta */
             font-weight: 700;
         }
@@ -620,7 +586,7 @@ $conn->close();
         .modal-body input[type="text"]:focus,
         .modal-body input[type="email"]:focus,
         .modal-body textarea:focus {
-            border-color: #007bff;
+            border-color: #22c55e;
             box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
             outline: none;
         }
@@ -628,7 +594,7 @@ $conn->close();
         .modal-body h4 {
             margin-top: 25px; /* Ridotto il margine superiore */
             margin-bottom: 10px; /* Ridotto il margine inferiore */
-            color: #007bff;
+            color: #22c55e;
             border-bottom: 1px solid #e0f2ff;
             padding-bottom: 5px; /* Ridotto il padding */
             font-size: 1.1em; /* Dimensione del font leggermente ridotta */
@@ -738,15 +704,15 @@ $conn->close();
         }
 
         .tab-button.active {
-            background-color: #007bff;
+            background-color: #22c55e;
             color: white;
-            border-color: #007bff;
+            border-color: #22c55e;
             border-bottom-color: transparent; /* Nasconde il bordo inferiore della scheda attiva */
         }
 
         .tab-button:hover:not(.active) {
             background-color: #e2f0ff;
-            color: #0056b3;
+            color: #16a34a;
         }
 
         .tab-content {
@@ -800,7 +766,7 @@ $conn->close();
 
         .product-suggestion-item .model-name, .client-suggestion-item .client-name {
             font-weight: 600;
-            color: #007bff;
+            color: #22c55e;
         }
 
         .product-suggestion-item .imei-info, .client-suggestion-item .phone-info {
@@ -812,6 +778,7 @@ $conn->close();
     </style>
 </head>
 <body>
+    <?php include 'header.php'; ?>
     <div class="container">
         <h1>Gestione Nuova Permuta</h1>
 

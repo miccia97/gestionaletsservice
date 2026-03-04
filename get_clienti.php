@@ -5,21 +5,10 @@
 
 header('Content-Type: application/json'); // Indica che la risposta sarà JSON
 
-// Configurazione del database
-// *** SOSTITUISCI QUESTI VALORI CON LE TUE CREDENZIALI REALI DEL DATABASE MYSQL ***
-$servername = "localhost";
-$username = "root"; // Esempio: "root"
-$password = "";     // Esempio: "" (spesso vuota per root su XAMPP/MAMP)
-$dbname = "gestionale_tsservice"; // Esempio: "my_gestionale_db"
-
-// Connessione al database
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Controlla la connessione
-if ($conn->connect_error) {
-    // In caso di errore, registra nel log e restituisce una risposta JSON
-    error_log("Errore di connessione al database in get_clienti.php: " . $conn->connect_error);
-    echo json_encode(["status" => "error", "message" => "Impossibile connettersi al database. Contatta l'amministratore.", "details" => $conn->connect_error]);
+// Connessione al database centralizzata
+require_once 'db.php';
+if (!$conn) {
+    echo json_encode(["status" => "error", "message" => "Impossibile connettersi al database."]);
     exit();
 }
 

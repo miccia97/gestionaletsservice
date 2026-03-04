@@ -57,7 +57,8 @@ $carrello = isset($_SESSION['carrello']) ? $_SESSION['carrello'] : [];
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>TS SERVICE - Gestionale</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>TS SERVICE - Gestionale</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
     /* Solo per aggiunta riepilogo carrello a destra */

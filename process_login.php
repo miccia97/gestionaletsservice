@@ -52,6 +52,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // E controlla se l'account è attivo (il campo 'attivo' dovrebbe essere 1)
         if (password_verify($password_input, $user['password']) && $user['attivo'] == 1) {
             // --- Login riuscito! ---
+            // Imposta il flag di login per auth_check.php
+            $_SESSION['loggedin'] = true;
             // Salva le informazioni essenziali dell'utente nella sessione
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['nome_utente']; // Il nome utente per login

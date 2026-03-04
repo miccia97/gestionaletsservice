@@ -11,7 +11,7 @@ $q = isset($_GET['q']) ? $conn->real_escape_string($_GET['q']) : '';
 $suggerimenti = [];
 
 if (!empty($q)) {
-    $stmt = $conn->prepare("SELECT codice_buono FROM buoni_spesa WHERE codice_buono LIKE CONCAT(?, '%') LIMIT 10");
+    $stmt = $conn->prepare("SELECT codice_buono FROM buono_spesa WHERE codice_buono LIKE CONCAT(?, '%') LIMIT 10");
     $stmt->bind_param("s", $q);
     $stmt->execute();
     $result = $stmt->get_result();

@@ -2,18 +2,18 @@
 // stampa_permuta.php - Design Moderno 2024
 // Scheda di permuta formattata per la stampa con design professionale
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+session_start();
+
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
 error_reporting(E_ALL);
 
-// Connessione al database
-$host = 'localhost';
-$dbname = 'gestionale_tsservice';
-$user = 'root';
-$pass = '';
-
+// Connessione al database - usa le credenziali centralizzate da db.php
+require_once 'db.php';
+// db.php definisce $host, $user, $password, $dbname e crea $conn (mysqli).
+// Questa pagina usa PDO per compatibilità con il codice esistente.
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $user, $pass);
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $user, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
@@ -158,7 +158,8 @@ $telefono = $permuta['telefono_cliente'] ?? $permuta['telefono'] ?? 'N/D';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scheda Permuta #<?= escapeHtml($permuta['progressivo'] ?? $permuta['id']) ?> - TS Service</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>Scheda Permuta #<?= escapeHtml($permuta['progressivo'] ?? $permuta['id']) ?> - TS Service</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {

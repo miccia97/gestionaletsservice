@@ -27,6 +27,7 @@ $allegati = $stmt->get_result();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <title>Allegati Riparazione #<?php echo htmlspecialchars($ripId); ?></title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-dHw6qILqo+K8fP5h6vv0e8KraXpWcS0Xqp69g0JytjKIPdX6v+ziM2qgFt0Oht6ujxYkdOi0Zr4Pps11YTL+Sw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>

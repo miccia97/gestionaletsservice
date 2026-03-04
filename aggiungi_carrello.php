@@ -17,14 +17,9 @@ if (!$id || $quantita <= 0 || $prezzo <= 0) {
     exit;
 }
 
-// Connessione DB per prendere dati prodotto e giacenza
-$db_host = 'localhost';
-$db_user = 'root';
-$db_pass = '';
-$db_name = 'gestionale_tsservice';
-
-$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
-if ($conn->connect_error) {
+// Connessione DB centralizzata
+require_once 'db.php';
+if (!$conn) {
     echo json_encode(['success' => false, 'message' => 'Errore connessione DB']);
     exit;
 }

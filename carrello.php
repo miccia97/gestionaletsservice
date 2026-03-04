@@ -3,6 +3,9 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
+require_once 'db.php';
+
 // Recupera il carrello dal POST o inizializza come array vuoto
 $carrello = [];
 if (isset($_POST['carrello_json'])) {
@@ -48,11 +51,58 @@ foreach ($carrello as $item) {
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Carrello - TS SERVICE</title>
-<!-- SweetAlert2 da CDN per messaggi utente più moderni e non bloccanti -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>Carrello - TS SERVICE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="assets/header-styles.css?v=1">
+
 <style>
+    /* === PREMIUM CONFIRM DIALOG === */
+    .pcd-overlay {
+        display:none; position:fixed; inset:0; background:rgba(15,23,42,0.5);
+        backdrop-filter:blur(4px); z-index:9600; justify-content:center; align-items:center;
+        opacity:0; transition:opacity .3s ease;
+    }
+    .pcd-overlay.visible { display:flex; opacity:1; }
+    .pcd-box {
+        background:#fff; border-radius:20px; padding:32px; max-width:420px; width:90%;
+        box-shadow:0 20px 25px -5px rgb(0 0 0/.1); text-align:center;
+        transform:scale(.92); opacity:0; transition:all .3s cubic-bezier(.34,1.56,.64,1);
+    }
+    .pcd-overlay.visible .pcd-box { transform:scale(1); opacity:1; }
+    .pcd-icon { width:56px; height:56px; border-radius:50%; display:flex; align-items:center;
+        justify-content:center; margin:0 auto 16px; font-size:1.5rem; }
+    .pcd-icon.warn { background:#fef3c7; color:#f59e0b; }
+    .pcd-icon.info { background:#dbeafe; color:#3b82f6; }
+    .pcd-title { font-size:1.2rem; font-weight:700; color:#0f172a; margin-bottom:8px; font-family:'Inter',sans-serif; }
+    .pcd-text { font-size:.9rem; color:#64748b; margin-bottom:24px; line-height:1.5; }
+    .pcd-actions { display:flex; gap:12px; justify-content:center; }
+    .pcd-btn { padding:11px 24px; border-radius:12px; font-weight:700; font-size:.88rem;
+        font-family:'Inter',sans-serif; cursor:pointer; border:none; transition:all .2s ease; }
+    .pcd-btn-cancel { background:transparent; color:#64748b; border:1.5px solid #e2e8f0; }
+    .pcd-btn-cancel:hover { background:#f1f5f9; color:#0f172a; border-color:#94a3b8; }
+    .pcd-btn-danger { background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff;
+        box-shadow:0 4px 12px rgba(239,68,68,.4); }
+    .pcd-btn-danger:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(239,68,68,.4); }
+
+    /* === PREMIUM TOAST === */
+    .pt-toast {
+        position:fixed; top:24px; right:24px; z-index:9700; padding:14px 22px;
+        border-radius:14px; font-family:'Inter',sans-serif; font-size:.9rem; font-weight:600;
+        color:#fff; box-shadow:0 8px 24px rgba(0,0,0,.15);
+        transform:translateX(120%); transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+        display:flex; align-items:center; gap:10px; max-width:400px;
+    }
+    .pt-toast.visible { transform:translateX(0); }
+    .pt-toast.success { background:linear-gradient(135deg,#22c55e,#16a34a); }
+    .pt-toast.error { background:linear-gradient(135deg,#ef4444,#dc2626); }
+    .pt-toast.info { background:linear-gradient(135deg,#3b82f6,#2563eb); }
+    .pt-toast i { font-size:1.1rem; }
+
     body {
         margin: 0;
         font-family: Arial, sans-serif;
@@ -62,85 +112,7 @@ foreach ($carrello as $item) {
         min-height: 100vh;
     }
 
-    .top-bar {
-        background-color: #28a745;
-        color: white;
-        padding: 20px 30px;
-        font-size: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 80px;
-    }
-
-    .logo {
-        font-size: 36px;
-        font-weight: bold;
-        white-space: nowrap;
-    }
-
-    .menu {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .menu button {
-        background-color: white;
-        border: none;
-        color: #1a1a1a;
-        font-size: 15px;
-        padding: 10px 20px;
-        cursor: pointer;
-        border-radius: 8px;
-        position: relative;
-        transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-    }
-
-    .menu button:hover {
-        background-color: #e6f4ea;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    }
-
-    .dropdown {
-        position: relative;
-    }
-
-    .dropdown-content {
-        display: none;
-        position: absolute;
-        right: 0;
-        background-color: #fff;
-        min-width: 180px;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-        border-radius: 8px;
-        z-index: 1000;
-        overflow: hidden;
-        opacity: 0;
-        transform: translateY(10px);
-        transition: opacity 0.25s ease, transform 0.25s ease;
-    }
-
-    .dropdown:hover .dropdown-content {
-        display: block;
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    .dropdown-content a {
-        color: #333;
-        padding: 8px 12px;
-        text-decoration: none;
-        display: block;
-        transition: background-color 0.2s ease;
-    }
-
-    .dropdown-content a:hover {
-        background-color: #28a745;
-        color: white;
-    }
+    /* Header styles - gestiti da header-styles.css */
 
     /* Contenitore principale della pagina, usa CSS Grid per il layout complesso */
     .page-content-wrapper {
@@ -692,154 +664,7 @@ foreach ($carrello as $item) {
     }
 
 
-    #modalCliente {
-        display: none;
-        position: fixed;
-        z-index: 2000;
-        left: 0;
-        top: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: rgba(0,0,0,0.6);
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-    }
 
-    #modalCliente.active {
-        display: flex;
-        opacity: 1;
-        visibility: visible;
-    }
-
-    #modalCliente .modal-content {
-        background: white;
-        border-radius: 12px;
-        padding: 25px 30px;
-        width: 380px;
-        max-width: 90%;
-        box-sizing: border-box;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-        position: relative;
-        transform: translateY(-20px);
-        transition: transform 0.3s ease-in-out;
-    }
-    #modalCliente.active .modal-content {
-        transform: translateY(0);
-    }
-
-    #modalCliente .modal-header {
-        font-size: 24px;
-        font-weight: 700;
-        margin-bottom: 20px;
-        color: #28a745;
-        text-align: center;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 10px;
-    }
-
-    #modalCliente .close-btn {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        background: transparent;
-        border: none;
-        font-size: 30px;
-        cursor: pointer;
-        color: #888;
-        font-weight: normal;
-        line-height: 1;
-        transition: color 0.2s ease;
-    }
-    #modalCliente .close-btn:hover {
-        color: #333;
-    }
-
-    #modalCliente label {
-        font-weight: 600;
-        font-size: 14px;
-        color: #555;
-        margin-bottom: 6px;
-        display: block;
-    }
-
-    #modalCliente input, #modalCliente textarea {
-        width: 100%;
-        padding: 10px 15px;
-        margin-bottom: 15px;
-        border-radius: 8px;
-        border: 1px solid #ddd;
-        font-size: 15px;
-        box-sizing: border-box;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-        transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    }
-    #modalCliente input:focus, #modalCliente textarea:focus {
-        outline: none;
-        border-color: #28a745;
-        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
-    }
-
-    #modalCliente button.submit-btn {
-        background-color: #28a745;
-        border: none;
-        color: white;
-        font-size: 16px;
-        padding: 12px 0;
-        width: 100%;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 600;
-        transition: background-color 0.25s ease, transform 0.1s ease;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    #modalCliente button.submit-btn:hover {
-        background-color: #218838;
-        transform: translateY(-2px);
-    }
-
-    .tab-switcher {
-        display: flex;
-        border-bottom: 2px solid #ddd;
-        margin-bottom: 15px;
-        background-color: #f8f8f8;
-        border-radius: 8px 8px 0 0;
-        overflow: hidden;
-    }
-    .tab-btn {
-        flex: 1;
-        background: none;
-        border: none;
-        padding: 12px 10px;
-        font-weight: 600;
-        font-size: 1em;
-        cursor: pointer;
-        border-bottom: 3px solid transparent;
-        transition: border-color 0.25s ease-in-out, color 0.25s ease-in-out, background-color 0.25s ease;
-        color: #555;
-    }
-    .tab-btn.active {
-        border-color: #28a745;
-        color: #28a745;
-        background-color: #fff;
-    }
-    .tab-btn:hover:not(.active) {
-        background-color: #f0f0f0;
-    }
-    .tab-content {
-        display: none;
-        padding-top: 5px;
-    }
-    .tab-content.active {
-        display: block;
-    }
-
-    .swal2-container {
-      z-index: 20000 !important;
-    }
 
     #residuo {
         padding: 8px 15px;
@@ -1051,7 +876,7 @@ include 'header.php';
             />
             <input type="hidden" id="idCliente" name="id_cliente" value="<?= htmlspecialchars($id_cliente) ?>" />
 
-            <button class="icon-btn" title="Aggiungi nuovo cliente" onclick="openModalCliente()" aria-label="Aggiungi nuovo cliente">
+            <button class="icon-btn" title="Aggiungi nuovo cliente" onclick="openNewClientModal()" aria-label="Aggiungi nuovo cliente">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -1381,76 +1206,59 @@ include 'header.php';
 
 </form>
 
-
-<!-- Modal per nuovo cliente -->
-<div id="modalCliente" role="dialog" aria-modal="true" aria-labelledby="modalClienteTitle" class="modal">
-  <div class="modal-content">
-    <button class="close-btn" aria-label="Chiudi" onclick="closeModalCliente()">×</button>
-    <div class="modal-header" id="modalClienteTitle">Nuovo Cliente</div>
-
-    <!-- Nav schede -->
-    <div class="tab-switcher">
-      <button type="button" class="tab-btn active" data-tab="persona">Persona</button>
-      <button type="button" class="tab-btn" data-tab="azienda">Azienda</button>
+<!-- Premium Confirm Dialog -->
+<div class="pcd-overlay" id="pcdOverlay">
+    <div class="pcd-box">
+        <div class="pcd-icon warn" id="pcdIcon"><i class="fas fa-triangle-exclamation"></i></div>
+        <div class="pcd-title" id="pcdTitle"></div>
+        <div class="pcd-text" id="pcdText"></div>
+        <div class="pcd-actions">
+            <button class="pcd-btn pcd-btn-cancel" id="pcdCancel">Annulla</button>
+            <button class="pcd-btn pcd-btn-danger" id="pcdConfirm">Conferma</button>
+        </div>
     </div>
-    <!-- Contenuto del form all'interno del modal, non c'è più un popupCliente esterno -->
-    <div>
-        <form id="formCliente" action="salva_cliente.php" method="POST">
-            <!-- Scheda Persona -->
-            <div class="tab-content active" data-tab="persona">
-                <label for="cognome">Cognome</label>
-                <input id="cognome" name="cognome" type="text" autocomplete="family-name" class="custom-input" required />
-
-                <label for="nome">Nome</label>
-                <input id="nome" name="nome" type="text" autocomplete="given-name" class="custom-input" required />
-
-                <label for="email">Email</label>
-                <input id="email" name="email" type="email" autocomplete="email" class="custom-input" required />
-
-                <label for="telefono">Telefono</label>
-                <input id="telefono" name="telefono" type="tel" autocomplete="tel" class="custom-input" required />
-
-                <label for="indirizzo">Indirizzo</label>
-                <input id="indirizzo" name="indirizzo" type="text" autocomplete="street-address" class="custom-input" />
-
-                <label for="citta">Città</label>
-                <input id="citta" name="citta" type="text" autocomplete="address-level2" class="custom-input" />
-
-                <label for="note">Note</label>
-                <textarea id="note" name="note" rows="3" class="custom-input"></textarea>
-                <input type="hidden" name="tipo_cliente" value="persona">
-            </div>
-
-            <!-- Scheda Azienda -->
-            <div class="tab-content" data-tab="azienda">
-                <label for="partitaIva">Partita IVA</label>
-                <input id="partitaIva" name="partitaIva" type="text" class="custom-input" />
-
-                <label for="ragioneSociale">Ragione Sociale</label>
-                <input id="ragioneSociale" name="ragioneSociale" type="text" class="custom-input" />
-
-                <label for="indirizzoAzienda">Indirizzo Azienda</label>
-                <input id="indirizzoAzienda" name="indirizzoAzienda" type="text" class="custom-input" />
-
-                <label for="cittaAzienda">Città Azienda</label>
-                <input id="cittaAzienda" name="cittaAzienda" type="text" class="custom-input" />
-
-                <label for="telefonoAzienda">Telefono Azienda</label>
-                <input id="telefonoAzienda" name="telefonoAzienda" type="tel" class="custom-input" />
-
-                <label for="emailAzienda">Email Azienda</label>
-                <input id="emailAzienda" name="emailAzienda" type="email" class="custom-input" />
-
-                <label for="noteAzienda">Note Azienda</label>
-                <textarea id="noteAzienda" name="noteAzienda" rows="3" class="custom-input"></textarea>
-                <input type="hidden" name="tipo_cliente" value="azienda">
-            </div>
-
-            <button type="submit" class="submit-btn">Aggiungi Cliente</button>
-        </form>
-    </div>
-  </div>
 </div>
+<!-- Premium Toast -->
+<div class="pt-toast" id="ptToast"><i></i><span></span></div>
+
+<script>
+// Premium toast function for carrello 
+function premiumToast(message, type, duration) {
+    type = type || 'success';
+    duration = duration || 3000;
+    var toast = document.getElementById('ptToast');
+    var icon = toast.querySelector('i');
+    var span = toast.querySelector('span');
+    toast.className = 'pt-toast ' + type;
+    span.textContent = message;
+    icon.className = type === 'success' ? 'fas fa-check-circle' :
+                     type === 'error' ? 'fas fa-circle-exclamation' :
+                     'fas fa-circle-info';
+    toast.classList.add('visible');
+    clearTimeout(toast._hideTimer);
+    toast._hideTimer = setTimeout(function() { toast.classList.remove('visible'); }, duration);
+}
+
+// Premium confirm dialog
+function premiumConfirm(title, text, confirmLabel, onConfirm) {
+    var overlay = document.getElementById('pcdOverlay');
+    document.getElementById('pcdTitle').textContent = title;
+    document.getElementById('pcdText').textContent = text;
+    document.getElementById('pcdConfirm').textContent = confirmLabel || 'Conferma';
+    overlay.style.display = 'flex';
+    requestAnimationFrame(function() { overlay.classList.add('visible'); });
+
+    function close() {
+        overlay.classList.remove('visible');
+        setTimeout(function() { overlay.style.display = 'none'; }, 300);
+        document.getElementById('pcdConfirm').onclick = null;
+        document.getElementById('pcdCancel').onclick = null;
+    }
+    document.getElementById('pcdCancel').onclick = close;
+    overlay.onclick = function(e) { if (e.target === overlay) close(); };
+    document.getElementById('pcdConfirm').onclick = function() { close(); if (onConfirm) onConfirm(); };
+}
+</script>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -1644,100 +1452,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // --- Gestione Modale Cliente ---
-    const modalCliente = document.getElementById('modalCliente');
+    // --- Riferimenti input cliente ---
     const clienteInput = document.getElementById('clienteInput');
     const idClienteInput = document.getElementById('idCliente');
     const clienteSuggerimenti = document.getElementById('clienteRisultati');
-
-    window.openModalCliente = function() {
-        modalCliente.classList.add('active');
-        // Imposta il focus sul primo campo della scheda "Persona"
-        document.getElementById('cognome').focus();
-    };
-
-    window.closeModalCliente = function() {
-        modalCliente.classList.remove('active');
-        document.getElementById('formCliente').reset(); // Resetta il form alla chiusura
-        // Riattiva la scheda "Persona" come predefinita
-        document.querySelectorAll('#modalCliente .tab-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelector('#modalCliente .tab-btn[data-tab="persona"]').classList.add('active');
-        document.querySelectorAll('#modalCliente .tab-content').forEach(content => content.classList.remove('active'));
-        document.querySelector('#modalCliente .tab-content[data-tab="persona"]').classList.add('active');
-    };
-
-    // Chiudi modali con tasto ESC
-    document.addEventListener('keydown', function(e) {
-        if (e.key === "Escape") {
-            if (modalCliente.classList.contains('active')) {
-                closeModalCliente();
-            }
-        }
-    });
-
-    // Gestione cambio schede nel modal cliente
-    document.querySelectorAll('#modalCliente .tab-btn').forEach(button => {
-        button.addEventListener('click', () => {
-            const tab = button.getAttribute('data-tab');
-            document.querySelectorAll('#modalCliente .tab-btn').forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-            document.querySelectorAll('#modalCliente .tab-content').forEach(content => {
-                content.classList.remove('active');
-                if (content.getAttribute('data-tab') === tab) {
-                    content.classList.add('active');
-                    const firstInput = content.querySelector('input, textarea');
-                    if (firstInput) firstInput.focus();
-                }
-            });
-        });
-    });
-
-    // Gestione submit del form cliente (dentro il modal)
-    document.getElementById('formCliente').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const form = e.target;
-        const formData = new FormData(form);
-
-        // Determina il tipo di cliente dalla scheda attiva
-        const activeTab = document.querySelector('#modalCliente .tab-content.active').getAttribute('data-tab');
-        formData.append('tipo_cliente', activeTab);
-
-        fetch(form.action, {
-            method: form.method,
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Cliente salvato!',
-                    text: data.message || 'Registrazione completata.',
-                    timer: 2000,
-                    showConfirmButton: false
-                }).then(() => {
-                    closeModalCliente();
-                    // Aggiorna l'input del cliente principale con il nome appena salvato e il suo ID
-                    clienteInput.value = data.nome_completo || data.ragione_sociale || '';
-                    idClienteInput.value = data.id_cliente || '';
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Errore',
-                    text: data.message || 'Errore nel salvataggio.'
-                });
-            }
-        })
-        .catch(err => {
-            Swal.fire({
-                icon: 'error',
-                title: 'Errore di rete',
-                text: 'Impossibile completare la richiesta: ' + err.message
-            });
-            console.error('Errore fetch cliente:', err);
-        });
-    });
 
     // --- Autocomplete per Cliente ---
     if (clienteInput && clienteSuggerimenti) {
@@ -1799,15 +1517,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const chkScontrino = document.getElementById('chk-scontrino');
             
             // Mostra il messaggio di caricamento
-            Swal.fire({
-                icon: 'info',
-                title: 'Conferma Vendita',
-                text: 'Invio dei dati di vendita...',
-                showConfirmButton: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
+            premiumToast('Invio dei dati di vendita...', 'info', 10000);
 
             // Invio del form tramite fetch API
             fetch(formVendita.action, {
@@ -1819,22 +1529,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 return response.json();
             })
             .then(data => {
-                Swal.close(); // Chiudi il messaggio di caricamento
-
                 if (data.success) {
                     console.log("Vendita registrata con successo. Dati:", data);
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Vendita Registrata!',
-                        text: data.message || 'Vendita completata con successo.',
-                        timer: 2000, // Mostra per 2 secondi
-                        showConfirmButton: false
-                    }).then(() => {
-                        // Svuota il carrello da localStorage QUI, prima di reindirizzare.
-                        console.log("Svuoto il carrello da localStorage.");
-                        localStorage.removeItem("cart"); 
-                        console.log("localStorage['cart'] dopo rimozione:", localStorage.getItem('cart'));
+                    premiumToast(data.message || 'Vendita completata con successo.', 'success', 2000);
 
+                    // Svuota il carrello da localStorage QUI, prima di reindirizzare.
+                    console.log("Svuoto il carrello da localStorage.");
+                    localStorage.removeItem("cart"); 
+                    console.log("localStorage['cart'] dopo rimozione:", localStorage.getItem('cart'));
+
+                    setTimeout(function() {
                         // Se lo scontrino è selezionato, avvia la stampa professionale
                         if (chkScontrino && chkScontrino.checked) {
                             if (data.id_vendita) { // Assicurati che l'ID della vendita sia presente
@@ -1842,62 +1546,43 @@ document.addEventListener("DOMContentLoaded", function () {
                                 const printWindow = window.open(scontrinoPrintUrl, '_blank', 'width=400,height=600,toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1');
                                 
                                 // Event listener per quando la finestra dello scontrino si carica
-                                printWindow.onload = function() {
-                                    setTimeout(() => { // Dai un piccolo ritardo per assicurare il rendering
-                                        printWindow.print();
-                                        // Puoi scegliere di chiudere automaticamente la finestra dopo la stampa
-                                        // printWindow.close(); 
-                                    }, 500); // Piccolo ritardo per la stampante
-                                };
+                                if (printWindow) {
+                                    printWindow.onload = function() {
+                                        setTimeout(() => { printWindow.print(); }, 500);
+                                    };
+                                    printWindow.onafterprint = function() {
+                                        console.log("Stampa scontrino completata/annullata. Reindirizzo a homepage.php.");
+                                        window.location.href = 'homepage.php?venditaSuccesso=true';
+                                    };
+                                }
 
-                                // Event listener per quando la stampa è completata o annullata dall'utente
-                                // Questo è più affidabile per il reindirizzamento dopo l'interazione con la finestra di stampa
-                                printWindow.onafterprint = function() {
-                                    console.log("Stampa scontrino completata/annullata. Reindirizzo a homepage.php.");
-                                    window.location.href = 'homepage.php?venditaSuccesso=true'; // Reindirizza dopo la stampa/annullamento
-                                };
-
-                                // Fallback per browser che potrebbero bloccare i popup o non attivare onload/onafterprint
-                                // Reindirizza comunque dopo un breve ritardo se la finestra non si è aperta o è stata chiusa
+                                // Fallback
                                 setTimeout(() => {
-                                    if (!printWindow || printWindow.closed) { // Se la finestra è stata bloccata o chiusa
+                                    if (!printWindow || printWindow.closed) {
                                         console.log("Finestra di stampa non aperta o chiusa. Reindirizzo a homepage.php.");
                                         window.location.href = 'homepage.php?venditaSuccesso=true';
                                     }
-                                }, 3000); // 3 secondi di attesa prima del fallback
+                                }, 3000);
                                 
                             } else {
-                                Swal.fire({
-                                    icon: 'warning',
-                                    title: 'Stampa Scontrino',
-                                    text: 'ID vendita non ricevuto per la stampa dello scontrino. Reindirizzo alla homepage.'
-                                }).then(() => {
-                                    console.log("ID vendita non presente. Reindirizzo a homepage.php.");
-                                    window.location.href = 'homepage.php?venditaSuccesso=true'; // Reindirizza comunque alla homepage
-                                });
+                                premiumToast('ID vendita non ricevuto per la stampa dello scontrino.', 'error', 2000);
+                                setTimeout(function() {
+                                    window.location.href = 'homepage.php?venditaSuccesso=true';
+                                }, 2000);
                             }
                         } else {
                             // Se lo scontrino non è selezionato, reindirizza immediatamente alla homepage
                             console.log("Scontrino non selezionato. Reindirizzo a homepage.php.");
                             window.location.href = 'homepage.php?venditaSuccesso=true'; 
                         }
-                    });
+                    }, 1500);
                 } else {
                     console.error("Errore durante la registrazione della vendita. Dati:", data);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Errore Vendita',
-                        text: data.message || 'Si è verificato un errore durante la registrazione della vendita.'
-                    });
+                    premiumToast(data.message || 'Si è verificato un errore durante la registrazione della vendita.', 'error', 4000);
                 }
             })
             .catch(error => {
-                Swal.close(); // Chiudi il messaggio di caricamento anche in caso di errore di rete
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Errore di Rete',
-                    text: 'Impossibile connettersi al server: ' + error.message
-                });
+                premiumToast('Impossibile connettersi al server: ' + error.message, 'error', 4000);
                 console.error('Errore durante l\'invio del form:', error);
             });
         });
@@ -1982,13 +1667,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         window.salvaModifiche = function() {
             prepareFormDataForSubmit();
-            Swal.fire({
-                icon: 'success',
-                title: 'Modifiche Salvate!',
-                text: 'I dati del carrello e dei pagamenti sono stati aggiornati (simulazione).',
-                timer: 2000,
-                showConfirmButton: false
-            });
+            premiumToast('I dati del carrello e dei pagamenti sono stati aggiornati.', 'success', 2000);
         };
     }
 
@@ -1997,34 +1676,18 @@ document.addEventListener("DOMContentLoaded", function () {
         if (targetButton) {
             const rowToDelete = targetButton.closest('tr');
             if (rowToDelete) {
-                Swal.fire({
-                    title: 'Sei sicuro?',
-                    text: "Non potrai annullare questa azione!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#dc3545',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Sì, rimuovi!',
-                    cancelButtonText: 'Annulla'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        rowToDelete.remove();
+                premiumConfirm('Sei sicuro?', 'Non potrai annullare questa azione!', 'Sì, rimuovi!', function() {
+                    rowToDelete.remove();
 
-                        const tbody = document.querySelector('.cart-table tbody');
-                        if (tbody.children.length === 0) {
-                            const emptyRow = document.createElement('tr');
-                            emptyRow.innerHTML = '<td colspan="7" style="text-align: center; padding: 20px;">Il carrello è vuoto.</td>';
-                            tbody.appendChild(emptyRow);
-                        }
-
-                        aggiornaRiepilogo();
-
-                        Swal.fire(
-                            'Rimosso!',
-                            'Il prodotto è stato rimosso dal carrello.',
-                            'success'
-                        );
+                    const tbody = document.querySelector('.cart-table tbody');
+                    if (tbody.children.length === 0) {
+                        const emptyRow = document.createElement('tr');
+                        emptyRow.innerHTML = '<td colspan="7" style="text-align: center; padding: 20px;">Il carrello è vuoto.</td>';
+                        tbody.appendChild(emptyRow);
                     }
+
+                    aggiornaRiepilogo();
+                    premiumToast('Prodotto rimosso dal carrello.', 'success', 2000);
                 });
             }
         }
@@ -2058,13 +1721,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         if (data.success && data.buono) {
                             document.getElementById('idBuono').value = data.buono.id;
                             buonoSpesaInput.dataset.id = data.buono.id; // Salva l'ID nel dataset per prepareFormDataForSubmit
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Buono Trovato!',
-                                text: `Buono valido: ${data.buono.valore}€`,
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
+                            premiumToast(`Buono valido: ${data.buono.valore}€`, 'success', 2000);
                             // AGGIORNA IL VALORE DEL BUONO IN UN POSTO ACCESSIBILE PER AGGIORNARIEPILOGO
                             // Per semplicità, qui lo useremo come valore fisso (come da precedente logica)
                             // In un sistema reale, dovresti passare 'data.buono.valore' alla funzione aggiornaRiepilogo
@@ -2076,23 +1733,13 @@ document.addEventListener("DOMContentLoaded", function () {
                         } else {
                             document.getElementById('idBuono').value = '';
                             buonoSpesaInput.dataset.id = '';
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Buono Non Valido',
-                                text: data.message || 'Il codice del buono spesa non è valido o è scaduto.',
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
+                            premiumToast(data.message || 'Buono non valido o scaduto.', 'error', 2000);
                             aggiornaRiepilogo(); // Ricalcola il totale per rimuovere l'effetto di un buono non valido
                         }
                     })
                     .catch(error => {
                         console.error('Errore ricerca buono:', error);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Errore di Rete',
-                            text: 'Impossibile ricercare il buono spesa.'
-                        });
+                        premiumToast('Impossibile ricercare il buono spesa.', 'error', 3000);
                         document.getElementById('idBuono').value = '';
                         buonoSpesaInput.dataset.id = '';
                         aggiornaRiepilogo();
@@ -2105,39 +1752,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const emptyCartButton = document.getElementById('emptyCartButton');
     if (emptyCartButton) {
         emptyCartButton.addEventListener('click', function() {
-            Swal.fire({
-                title: 'Sei sicuro?',
-                text: "Vuoi svuotare completamente il carrello? Questa azione non può essere annullata!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Sì, svuota!',
-                cancelButtonText: 'Annulla'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const tbody = document.querySelector('.cart-table tbody');
-                    // Rimuovi tutte le righe dal tbody
-                    tbody.innerHTML = ''; 
-                    
-                    // Aggiungi la riga "Il carrello è vuoto."
-                    const emptyRow = document.createElement('tr');
-                    emptyRow.innerHTML = '<td colspan="7" style="text-align: center; padding: 20px;">Il carrello è vuoto.</td>';
-                    tbody.appendChild(emptyRow);
-
-                    // Svuota il carrello anche da localStorage
-                    localStorage.removeItem("cart");
-                    console.log("Carrello svuotato da localStorage.");
-
-                    // Aggiorna tutti i totali
-                    aggiornaRiepilogo();
-
-                    Swal.fire(
-                        'Svuotato!',
-                        'Il carrello è stato svuotato con successo.',
-                        'success'
-                    );
-                }
+            premiumConfirm('Sei sicuro?', 'Vuoi svuotare completamente il carrello? Questa azione non può essere annullata!', 'Sì, svuota!', function() {
+                const tbody = document.querySelector('.cart-table tbody');
+                tbody.innerHTML = ''; 
+                const emptyRow = document.createElement('tr');
+                emptyRow.innerHTML = '<td colspan="7" style="text-align: center; padding: 20px;">Il carrello è vuoto.</td>';
+                tbody.appendChild(emptyRow);
+                localStorage.removeItem("cart");
+                console.log("Carrello svuotato da localStorage.");
+                aggiornaRiepilogo();
+                premiumToast('Carrello svuotato con successo.', 'success', 2000);
             });
         });
     }

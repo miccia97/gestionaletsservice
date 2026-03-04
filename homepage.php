@@ -176,10 +176,13 @@ $prodotti_result = $conn->query($sql);
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Homepage Gestionale</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/header-styles.css?v=1">
   <style>
     :root {
       --primary-color: #22c55e;
@@ -205,8 +208,6 @@ $prodotti_result = $conn->query($sql);
       --warning-light: #fef3c7;
       --info-color: #3b82f6;
     }
-    body {
-    
     /* Badge Nuovo sui prodotti recenti */
     .new-badge {
       position: absolute;
@@ -486,6 +487,8 @@ $prodotti_result = $conn->query($sql);
       background-color: transparent;
       border: none;
       box-shadow: none;
+      display: flex;
+      flex-direction: column;
       min-height: 400px;
       animation: fadeIn 0.4s ease-out;
     }
@@ -501,7 +504,7 @@ $prodotti_result = $conn->query($sql);
     .card-inner {
       position: relative;
       width: 100%;
-      height: 100%;
+      flex: 1;
       transition: transform 0.6s;
       transform-style: preserve-3d;
     }
@@ -509,9 +512,7 @@ $prodotti_result = $conn->query($sql);
       transform: rotateY(180deg);
     }
     .card-front, .card-back {
-      position: absolute;
       width: 100%;
-      height: 100%;
       -webkit-backface-visibility: hidden;
       backface-visibility: hidden;
       display: flex;
@@ -524,8 +525,14 @@ $prodotti_result = $conn->query($sql);
     }
     .card-front {
       background: var(--white-bg);
+      position: relative;
     }
     .card-back {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       background: linear-gradient(135deg, var(--white-bg) 0%, var(--light-bg) 100%);
       color: var(--text-dark);
       transform: rotateY(180deg);
@@ -533,6 +540,13 @@ $prodotti_result = $conn->query($sql);
       font-size: 13px;
       box-sizing: border-box;
       justify-content: flex-start;
+      pointer-events: none;
+    }
+    .product-card.is-flipped .card-back {
+      pointer-events: auto;
+    }
+    .product-card.is-flipped .card-front {
+      pointer-events: none;
     }
     .card-back h5 {
       margin: 0 0 16px 0; 
@@ -1206,9 +1220,11 @@ $prodotti_result = $conn->query($sql);
       z-index: 10000; 
       opacity: 0; 
       visibility: hidden; 
+      pointer-events: none;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
     }
-    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal-overlay.active { opacity: 1; visibility: visible; pointer-events: auto; }
+    .modal-overlay.visible { opacity: 1; visibility: visible; pointer-events: auto; }
     .modal-content { 
       background: var(--white-bg); 
       border-radius: 20px; 
@@ -1848,5 +1864,4 @@ $prodotti_result = $conn->query($sql);
   </script>
 </body>
 </html>
-
 

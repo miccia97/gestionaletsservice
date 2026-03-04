@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($quantita > 0) { // Verifica che la quantità sia maggiore di zero
                 $prezzo_unitario = $_POST['prezzi'][$prodotto_id];  // Prezzo unitario del prodotto
                 // Query per inserire i dettagli della vendita
-                $query_dettagli = "INSERT INTO dettagli_vendita (vendita_id, prodotto_id, quantita, prezzo_unitario) 
+                $query_dettagli = "INSERT INTO vendite_dettagli (id_vendita, id_prodotto, quantita, prezzo_unitario) 
                                    VALUES ('$vendita_id', '$prodotto_id', '$quantita', '$prezzo_unitario')";
                 if (!$conn->query($query_dettagli)) {
                     echo "Errore nell'inserimento dei dettagli della vendita: " . $conn->error;

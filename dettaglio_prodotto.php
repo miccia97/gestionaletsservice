@@ -1,10 +1,10 @@
 <?php
-// --- ATTIVAZIONE DEBUGGING PHP ---
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
 error_reporting(E_ALL);
 
 session_start();
+include 'auth_check.php';
 
 // Includi il file di connessione al database
 require_once 'db.php';
@@ -32,55 +32,20 @@ if ($result_prodotto->num_rows === 0) {
 $prodotto = $result_prodotto->fetch_assoc();
 $stmt_prodotto->close();
 
-
-// Recupera le informazioni dell'utente dalla sessione per l'header
-$current_user_name = $_SESSION['user_name'] ?? 'Ospite';
-$current_user_role = $_SESSION['role'] ?? 'N/D';
-
 ?>
 <!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <title>Dettaglio Prodotto - <?php echo htmlspecialchars($prodotto['nome']); ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/header-styles.css?v=<?php echo time(); ?>">
   <style>
-    /* Copia qui gli stili CSS da index.html per mantenere la coerenza */
-     :root {
-      --brand-color: #28a745;
-      --brand-dark: #218838;
-      --text-dark: #34495e;
-      --text-light: #7f8c8d;
-      --border-color: #ecf0f1;
-      --bg-light: #f7f9fc;
-      --bg-white: #ffffff;
-      --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.07);
-      --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.1);
-    }
-    body {
-      font-family: 'Poppins', sans-serif; color: var(--text-dark);
-      margin: 0; background: var(--bg-light); padding-top: 80px;
-    }
-    /* Stili Header (copiati da index.html) */
-    .top-bar {
-      background-color: var(--brand-color); color: white; padding: 0 30px;
-      height: 80px; width: 100vw; box-sizing: border-box; display: flex;
-      align-items: center; gap: 20px; position: fixed; top: 0; left: 0;
-      z-index: 1000; box-shadow: var(--shadow-md);
-    }
-    .logo { font-size: 28px; font-weight: 700; white-space: nowrap; color: white; text-decoration: none; }
-    .user-menu-container { position: relative; display: flex; align-items: center; gap: 12px; margin-left: auto; padding-left: 20px; border-left: 1px solid rgba(255, 255, 255, 0.2); cursor: pointer; }
-    .user-greeting { color: white; font-weight: 500; font-size: 15px; }
-    .user-icon-trigger { font-size: 28px; color: white; }
-    .user-dropdown { display: none; position: absolute; top: calc(100% + 15px); right: 0; background-color: var(--bg-white); border-radius: 8px; box-shadow: var(--shadow-lg); min-width: 240px; padding: 15px; z-index: 1001; }
-    .user-menu-container.active .user-dropdown { display: block; }
-    .user-dropdown-info { font-size: 15px; color: var(--text-dark); margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); text-align: center; }
-    .user-dropdown .logout-button { display: block; width: 100%; text-align: center; background-color: var(--brand-color); color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none; }
-    
     /* Stili per la pagina Dettaglio Prodotto */
     .main-container {
         padding: 2rem;
@@ -153,21 +118,7 @@ $current_user_role = $_SESSION['role'] ?? 'N/D';
 </head>
 <body>
 
-<!-- Header -->
-<header class="top-bar">
-  <a href="index.php" class="logo">TS SERVICE</a>
-  <div class="user-menu-container" id="userMenuContainer">
-    <div class="user-greeting">Ciao, <span class="user-name"><?php echo htmlspecialchars(explode(' ', $current_user_name)[0]); ?></span></div>
-    <span class="user-icon-trigger"><i class="fas fa-user-circle"></i></span>
-    <div class="user-dropdown">
-        <div class="user-dropdown-info">
-            <strong><?php echo htmlspecialchars($current_user_name); ?></strong>
-            <span><?php echo htmlspecialchars($current_user_role); ?></span>
-        </div>
-        <a href="logout.php" class="logout-button">Logout</a>
-    </div>
-  </div>
-</header>
+<?php include 'header.php'; ?>
 
 <main class="main-container">
     <div class="page-header">
@@ -190,21 +141,6 @@ $current_user_role = $_SESSION['role'] ?? 'N/D';
         </div>
     </div>
 </main>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const userMenuContainer = document.getElementById('userMenuContainer');
-    if (userMenuContainer) {
-        userMenuContainer.addEventListener('click', (event) => {
-            event.stopPropagation();
-            userMenuContainer.classList.toggle('active');
-        });
-        document.addEventListener('click', () => {
-            userMenuContainer.classList.remove('active');
-        });
-    }
-});
-</script>
 
 </body>
 </html>

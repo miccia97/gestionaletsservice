@@ -1,90 +1,120 @@
-<!-- MODAL BUONO REGALO - STILE GESTIONALE -->
-<div class="popup-overlay" id="buonoRegaloModal" style="display:none;">
-  <div class="popup-content">
-    <div class="popup-header">
-      <h2>Nuovo Buono Regalo</h2>
-      <button type="button" class="close-btn" id="close-buono-regalo-modal-btn">&times;</button>
+
+
+<!-- MODAL BUONO REGALO WIZARD ADVANCED -->
+<div class="modal-overlay" id="buonoRegaloModal" style="display:none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
+        <div style="background:#22c55e;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;">
+          <i class="fas fa-gift" style="color:#fff;font-size:1.5rem;"></i>
+        </div>
+        <h2 style="color:#fff;font-size:1.7rem;font-weight:700;margin:0;">Nuovo Buono Regalo</h2>
+      </div>
+      <button type="button" class="close-button" onclick="closeBuonoRegaloModal()">&times;</button>
     </div>
+    <!-- Wizard Step Indicator -->
+    <div class="wizard-steps">
+      <div class="wizard-step active">
+        <i class="fas fa-ticket-alt"></i>
+        <span>Dettagli</span>
+      </div>
+      <div class="wizard-step">
+        <i class="fas fa-user"></i>
+        <span>Destinatario</span>
+      </div>
+      <div class="wizard-step">
+        <i class="fas fa-check-circle"></i>
+        <span>Conferma</span>
+      </div>
+    </div>
+    <div class="wizard-progress"><div class="wizard-progress-bar" style="width:33%"></div></div>
     <form method="POST" action="" id="buono-regalo-form">
       <input type="hidden" name="form_type" value="buono_regalo">
-      <div class="popup-body">
-        <div class="form-grid">
-          <div class="form-group full-width">
-            <label for="modal_valore">Valore Buono (€) *</label>
-            <input type="number" id="modal_valore" name="valore" step="0.01" min="0" required>
+      <div class="modal-body">
+        <div class="card-section">
+          <div class="section-title">
+            <i class="fas fa-ticket-alt" style="color:#22c55e;margin-right:8px;"></i> DETTAGLI BUONO REGALO
           </div>
-          <div class="form-group full-width">
-            <label for="modal_codice">Codice Buono *</label>
-            <div class="code-input-group">
-              <input type="text" id="modal_codice" name="codice_buono" readonly required placeholder="Generato automaticamente...">
-              <button type="button" id="modal-copy-code-btn" class="copy-btn" title="Copia codice">
+          <div class="form-row">
+            <div class="form-group floating-label">
+              <input type="number" id="modal_valore" name="valore" step="0.01" min="0" required placeholder=" ">
+              <label for="modal_valore">Valore Buono (€) *</label>
+            </div>
+            <div class="form-group floating-label" style="position:relative;">
+              <input type="text" id="modal_codice" name="codice_buono" readonly required placeholder=" ">
+              <label for="modal_codice">Codice Buono *</label>
+              <button type="button" class="copy-btn" onclick="copyBuonoCode()" title="Copia codice" style="position:absolute;top:50%;right:8px;transform:translateY(-50%);">
                 <i class="fas fa-copy"></i>
               </button>
+              <div id="modal-copy-message" class="copy-message">Copiato!</div>
             </div>
-            <div id="modal-copy-message" class="copy-message">Copiato!</div>
           </div>
-          <div class="form-group">
-            <label for="modal_destinatario">Destinatario</label>
-            <input type="text" id="modal_destinatario" name="destinatario" placeholder="Nome del destinatario (opzionale)">
+          <div class="form-row">
+            <div class="form-group floating-label">
+              <input type="text" id="modal_destinatario" name="destinatario" placeholder=" ">
+              <label for="modal_destinatario">Destinatario</label>
+            </div>
+            <div class="form-group floating-label">
+              <input type="date" id="modal_data_scadenza" name="data_scadenza" placeholder=" ">
+              <label for="modal_data_scadenza">Data Scadenza</label>
+            </div>
           </div>
-          <div class="form-group">
-            <label for="modal_data_scadenza">Data Scadenza</label>
-            <input type="date" id="modal_data_scadenza" name="data_scadenza">
+          <div class="form-row">
+            <div class="form-group floating-label" style="width:100%;">
+              <textarea id="modal_mittente_note" name="mittente_note" rows="3" placeholder=" "></textarea>
+              <label for="modal_mittente_note">Mittente / Note</label>
+            </div>
           </div>
-          <div class="form-group full-width">
-            <label for="modal_mittente_note">Mittente / Note</label>
-            <textarea id="modal_mittente_note" name="mittente_note" rows="3" placeholder="Chi ha fatto il regalo o note aggiuntive..."></textarea>
-          </div>
-          <div class="form-group">
-            <label for="modal_stato">Stato</label>
-            <select id="modal_stato" name="stato_buono">
-              <option value="Attivo">Attivo</option>
-              <option value="Usato">Usato</option>
-              <option value="Scaduto">Scaduto</option>
-            </select>
+          <div class="form-row">
+            <div class="form-group floating-label" style="width:100%;">
+              <select id="modal_stato" name="stato_buono" required>
+                <option value="Attivo">Attivo</option>
+                <option value="Usato">Usato</option>
+                <option value="Scaduto">Scaduto</option>
+              </select>
+              <label for="modal_stato">Stato</label>
+            </div>
           </div>
         </div>
       </div>
-      <div class="popup-footer">
-        <button type="submit" class="popup-btn submit">Crea Buono</button>
+      <div class="modal-footer">
+        <button type="submit" class="save-button">Crea Buono</button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- Stile coerente con il gestionale -->
 <style>
-.popup-overlay {
+.modal-overlay {
+  display: none;
   position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
   background: rgba(34,197,94,0.08);
   display: flex; align-items: center; justify-content: center;
   z-index: 9999;
 }
-.popup-content {
+.modal-content {
   background: #fff;
   border-radius: 18px;
   box-shadow: 0 4px 24px rgba(34,197,94,0.10);
-  width: 420px;
+  width: 520px;
   max-width: 95vw;
   padding: 0 0 32px 0;
   position: relative;
   border: 1px solid #e5e7eb;
 }
-.popup-header {
+.modal-header {
   background: #22c55e;
   border-radius: 18px 18px 0 0;
   padding: 22px 0 16px 0;
   text-align: center;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
-.popup-header h2 {
-  color: #fff;
-  font-size: 1.7rem;
-  font-weight: 700;
-  margin: 0;
-}
-.close-btn {
+.close-button {
   position: absolute;
   top: 12px;
   right: 18px;
@@ -94,28 +124,80 @@
   color: #fff;
   cursor: pointer;
 }
-.popup-body {
-  padding: 24px 28px 0 28px;
+.wizard-steps {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 18px 28px 0 28px;
+  margin-bottom: 0;
 }
-.form-grid {
+.wizard-step {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  align-items: center;
+  font-size: 0.98rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+.wizard-step.active {
+  color: #22c55e;
+}
+.wizard-step i {
+  font-size: 1.3rem;
+  margin-bottom: 4px;
+}
+.wizard-progress {
+  width: 100%;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 6px;
+  margin: 0 0 18px 0;
+  overflow: hidden;
+}
+.wizard-progress-bar {
+  height: 100%;
+  background: #22c55e;
+  border-radius: 6px;
+  transition: width 0.3s;
+}
+.modal-body {
+  padding: 24px 28px 0 28px;
+}
+.card-section {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(34,197,94,0.08);
+  padding: 24px 18px 18px 18px;
+  margin-bottom: 18px;
+  border: 1px solid #e5e7eb;
+}
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #22c55e;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+}
+.form-row {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 18px;
 }
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  position: relative;
+  flex: 1;
 }
-.code-input-group {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-input, textarea, select {
+.floating-label input,
+.floating-label textarea,
+.floating-label select {
   border: 1.5px solid #e5e7eb;
   border-radius: 8px;
-  padding: 10px 12px;
+  padding: 14px 12px 14px 12px;
   font-size: 1.08rem;
   font-family: 'Inter', Arial, sans-serif;
   background: #f8fafc;
@@ -123,8 +205,39 @@ input, textarea, select {
   outline: none;
   transition: border-color 0.2s;
 }
-input:focus, textarea:focus, select:focus {
+.floating-label input:focus,
+.floating-label textarea:focus,
+.floating-label select:focus {
   border-color: #22c55e;
+}
+.floating-label label {
+  position: absolute;
+  left: 12px;
+  top: 14px;
+  color: #94a3b8;
+  font-size: 1rem;
+  pointer-events: none;
+  transition: all 0.2s;
+  background: transparent;
+}
+.floating-label input:not(:placeholder-shown),
+.floating-label input:focus,
+.floating-label textarea:not(:placeholder-shown),
+.floating-label textarea:focus,
+.floating-label select:valid {
+  background: #f8fafc;
+}
+.floating-label input:not(:placeholder-shown) + label,
+.floating-label input:focus + label,
+.floating-label textarea:not(:placeholder-shown) + label,
+.floating-label textarea:focus + label,
+.floating-label select:valid + label {
+  top: -10px;
+  left: 8px;
+  font-size: 0.85rem;
+  color: #22c55e;
+  background: #fff;
+  padding: 0 4px;
 }
 .copy-btn {
   background: #22c55e;
@@ -139,11 +252,11 @@ input:focus, textarea:focus, select:focus {
 .copy-btn:hover {
   background: #16a34a;
 }
-.popup-footer {
+.modal-footer {
   padding: 0 28px 0 28px;
   margin-top: 18px;
 }
-.popup-btn.submit {
+.save-button {
   background: #22c55e;
   color: #fff;
   border: none;
@@ -155,7 +268,7 @@ input:focus, textarea:focus, select:focus {
   cursor: pointer;
   transition: background 0.2s;
 }
-.popup-btn.submit:hover {
+.save-button:hover {
   background: #16a34a;
 }
 .copy-message {
@@ -165,3 +278,18 @@ input:focus, textarea:focus, select:focus {
   display: none;
 }
 </style>
+
+<script>
+function closeBuonoRegaloModal() {
+  document.getElementById('buonoRegaloModal').style.display = 'none';
+}
+function copyBuonoCode() {
+  var input = document.getElementById('modal_codice');
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand('copy');
+  var msg = document.getElementById('modal-copy-message');
+  msg.style.display = 'block';
+  setTimeout(function(){ msg.style.display = 'none'; }, 1200);
+}
+</script>
