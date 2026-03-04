@@ -96,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $valore_buono = !empty($_POST['valore']) ? (float)$_POST['valore'] : 'NULL';
                 $destinatario_buono = !empty($_POST['destinatario']) ? "'" . $conn->real_escape_string($_POST['destinatario']) . "'" : 'NULL';
                 $note_buono = !empty($_POST['mittente_note']) ? "'" . $conn->real_escape_string($_POST['mittente_note']) . "'" : 'NULL';
-                $data_scadenza_buono = !empty($_POST['data_scadenza']) ? "'" . $conn->real_escape_string($_POST['data_scadenza']) . "'" : 'NULL';
+                $data_scadenza_buono = !empty($_POST['data_scadenza']) ? "'" . $conn->real_escape_string($_POST['data_scadenza']) . "'" : "'" . date('Y-m-d', strtotime('+1 year')) . "'";
                 $stato_buono = $conn->real_escape_string($_POST['stato_buono'] ?? '');
         
                 $sql_insert_buono = "INSERT INTO buoni_regalo (
@@ -698,8 +698,9 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
                     <div class="form-card">
                         <div class="form-card-title">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="12" y1="1" x2="12" y2="23"></line>
-                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                <path d="M17.5 7.5C16 5 13.5 3.5 10.5 3.5 6.4 3.5 3 7 3 12s3.4 8.5 7.5 8.5c3 0 5.5-1.5 7-4"></path>
+                                <line x1="2" y1="10" x2="14" y2="10"></line>
+                                <line x1="2" y1="14" x2="14" y2="14"></line>
                             </svg>
                             Costi e Preventivo
                         </div>
@@ -709,8 +710,9 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
                                 <div class="input-wrapper">
                                     <input type="number" id="costo_preventivato" name="costo_preventivato" step="0.01" min="0" placeholder="0.00">
                                     <svg class="input-icon" viewBox="0 0 24 24">
-                                        <line x1="12" y1="1" x2="12" y2="23"></line>
-                                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                        <path d="M17.5 7.5C16 5 13.5 3.5 10.5 3.5 6.4 3.5 3 7 3 12s3.4 8.5 7.5 8.5c3 0 5.5-1.5 7-4"></path>
+                                        <line x1="2" y1="10" x2="14" y2="10"></line>
+                                        <line x1="2" y1="14" x2="14" y2="14"></line>
                                     </svg>
                                 </div>
                             </div>
@@ -719,8 +721,9 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
                                 <div class="input-wrapper">
                                     <input type="number" id="costo_effettivo" name="costo_effettivo" step="0.01" min="0" placeholder="0.00">
                                     <svg class="input-icon" viewBox="0 0 24 24">
-                                        <line x1="12" y1="1" x2="12" y2="23"></line>
-                                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                        <path d="M17.5 7.5C16 5 13.5 3.5 10.5 3.5 6.4 3.5 3 7 3 12s3.4 8.5 7.5 8.5c3 0 5.5-1.5 7-4"></path>
+                                        <line x1="2" y1="10" x2="14" y2="10"></line>
+                                        <line x1="2" y1="14" x2="14" y2="14"></line>
                                     </svg>
                                 </div>
                             </div>
@@ -804,58 +807,120 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
     </div>
 </div>
 
-<!-- Nuovo popup per il Buono Regalo -->
+<!-- Nuovo popup per il Buono Regalo - Design Moderno -->
 <div class="popup-overlay" id="buonoRegaloPopup">
     <div class="popup-content">
+        <button type="button" class="close-btn" id="close-buono-regalo-popup-btn">&times;</button>
+        
+        <!-- Header con icona regalo -->
         <div class="popup-header">
-            <h2>Nuovo Buono Regalo</h2>
-            <button type="button" class="close-btn" id="close-buono-regalo-popup-btn">&times;</button>
+            <div class="wizard-header-content">
+                <div class="wizard-header-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 12v10H4V12"></path>
+                        <path d="M2 7h20v5H2z"></path>
+                        <path d="M12 22V7"></path>
+                        <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
+                        <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
+                    </svg>
+                </div>
+                <h2>Nuovo Buono Regalo</h2>
+            </div>
         </div>
         
         <form method="POST" action="" id="buono-regalo-form">
             <input type="hidden" name="form_type" value="buono_regalo">
             <div class="popup-body">
                 <?php if(!empty($gift_card_feedback_message)) echo $gift_card_feedback_message; ?>
-                <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label for="buono_valore">Valore Buono (€) *</label>
-                        <input type="number" id="buono_valore" name="valore" step="0.01" min="0" required>
+                
+                <!-- Card: Dettagli Buono -->
+                <div class="form-card">
+                    <div class="form-card-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 12v10H4V12"></path>
+                            <path d="M2 7h20v5H2z"></path>
+                            <path d="M12 22V7"></path>
+                        </svg>
+                        Dettagli Buono
                     </div>
-                    <div class="form-group full-width">
-                        <label for="buono_codice">Codice Buono *</label>
-                        <div class="code-input-group">
-                            <input type="text" id="buono_codice" name="codice_buono" readonly required placeholder="Generato automaticamente...">
-                            <button type="button" id="copy-code-btn" class="copy-btn" title="Copia codice">
-                                <i class="fas fa-copy"></i>
-                            </button>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="buono_valore">Valore Buono (€) *</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="buono_valore" name="valore" step="0.01" min="0" required placeholder="0.00">
+                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17.5 7.5C16 5 13.5 3.5 10.5 3.5 6.4 3.5 3 7 3 12s3.4 8.5 7.5 8.5c3 0 5.5-1.5 7-4"></path>
+                                    <line x1="2" y1="10" x2="14" y2="10"></line>
+                                    <line x1="2" y1="14" x2="14" y2="14"></line>
+                                </svg>
+                            </div>
                         </div>
-                        <div id="copy-message" class="copy-message">Copiato!</div>
+                        <div class="form-group">
+                            <label for="buono_codice">Codice Buono *</label>
+                            <div class="code-input-group">
+                                <input type="text" id="buono_codice" name="codice_buono" readonly required placeholder="Generato automaticamente...">
+                                <button type="button" id="copy-code-btn" class="copy-btn" title="Copia codice">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="buono_stato">Stato</label>
+                            <select id="buono_stato" name="stato_buono">
+                                <option value="Attivo">✅ Attivo</option>
+                                <option value="Usato">📋 Usato</option>
+                                <option value="Scaduto">⏰ Scaduto</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="buono_data_scadenza">Data Scadenza</label>
+                            <input type="date" id="buono_data_scadenza" name="data_scadenza">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="buono_destinatario">Destinatario</label>
-                        <input type="text" id="buono_destinatario" name="destinatario" placeholder="Nome del destinatario (opzionale)">
+                </div>
+                
+                <!-- Card: Destinatario & Note -->
+                <div class="form-card">
+                    <div class="form-card-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        Destinatario & Note
                     </div>
-                    <div class="form-group">
-                        <label for="buono_data_scadenza">Data Scadenza</label>
-                        <input type="date" id="buono_data_scadenza" name="data_scadenza">
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="buono_mittente_note">Mittente / Note</label>
-                        <textarea id="buono_mittente_note" name="mittente_note" rows="3" placeholder="Chi ha fatto il regalo o note aggiuntive..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="buono_stato">Stato</label>
-                        <select id="buono_stato" name="stato_buono">
-                            <option value="Attivo">Attivo</option>
-                            <option value="Usato">Usato</option>
-                            <option value="Scaduto">Scaduto</option>
-                        </select>
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="buono_destinatario">Destinatario</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="buono_destinatario" name="destinatario" placeholder="Nome del destinatario (opzionale)">
+                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="buono_mittente_note">Mittente / Note</label>
+                            <textarea id="buono_mittente_note" name="mittente_note" rows="3" placeholder="Chi ha fatto il regalo o note aggiuntive..."></textarea>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="popup-footer">
-                <button type="submit" class="popup-btn submit">Crea Buono</button>
+                <button type="button" class="wizard-btn prev" id="cancel-buono-regalo-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    Annulla
+                </button>
+                <button type="submit" class="wizard-btn submit">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Crea Buono
+                </button>
             </div>
         </form>
     </div>

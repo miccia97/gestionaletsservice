@@ -89,7 +89,7 @@ function getExpiryClass($dateStr) {
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="assets/header-styles.css?v=1">
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
                 <style>
 :root {
     --primary: #22c55e;
@@ -277,11 +277,11 @@ body {
 .empty-icon svg { width: 40px; height: 40px; }
 .empty-title { font-size: 1.3rem; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
 .empty-text { color: var(--text-secondary); max-width: 400px; margin: 0 auto; }
-/* MODAL */
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
-.modal-overlay.show { opacity: 1; visibility: visible; }
-.modal-content { background: var(--bg-card); border-radius: 20px; box-shadow: var(--shadow-lg); max-width: 95%; width: 650px; max-height: 90vh; overflow: hidden; transform: scale(0.9) translateY(20px); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.modal-overlay.show .modal-content { transform: scale(1) translateY(0); }
+/* MODAL — override header-styles.css .modal-overlay */
+#editModal, #createModal { display: none !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; z-index: 99999 !important; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); justify-content: center; align-items: center; isolation: isolate; }
+#editModal.show, #createModal.show { display: flex !important; }
+.modal-content { background: var(--bg-card); border-radius: 20px; box-shadow: var(--shadow-lg); max-width: 95%; width: 650px; max-height: 90vh; overflow: hidden; transform: scale(0.9) translateY(20px); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: auto !important; }
+#editModal.show .modal-content, #createModal.show .modal-content { transform: scale(1) translateY(0); }
 .modal-header-green { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; }
 .modal-header-green h2 { color: white; font-size: 1.3rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 0.75rem; }
 .modal-header-green h2 svg { width: 24px; height: 24px; }
@@ -368,7 +368,7 @@ body {
         </div>
         <div class="summary-card summary-card--valore">
             <div class="summary-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 7.5C16 5 13.5 3.5 10.5 3.5 6.4 3.5 3 7 3 12s3.4 8.5 7.5 8.5c3 0 5.5-1.5 7-4"></path><line x1="2" y1="10" x2="14" y2="10"></line><line x1="2" y1="14" x2="14" y2="14"></line></svg>
             </div>
             <div class="summary-label">Valore Attivi</div>
             <div class="summary-value"><?php echo formatCurrencyBuoni($valoreTotaleAttivi); ?></div>
@@ -1024,17 +1024,44 @@ editModal.addEventListener('click', function(e) { if (e.target === editModal) cl
 
 document.getElementById('editBuonoForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    var formData = new FormData(this);
-    var data = {};
-    formData.forEach(function(value, key) { data[key] = value; });
-    if (!data.valore || parseFloat(data.valore) <= 0) { showToast('Il valore deve essere maggiore di zero.', 'error'); return; }
+    // Leggi direttamente dagli input per evitare problemi locale con FormData
+    var valoreRaw = document.getElementById('editValore').value.replace(',', '.');
+    var valoreNum = parseFloat(valoreRaw);
+    if (!valoreNum || valoreNum <= 0) { showToast('Il valore deve essere maggiore di zero.', 'error'); return; }
+    var data = {
+        id: document.getElementById('editId').value,
+        valore: valoreNum,
+        codice_buono: document.getElementById('editCodice').value,
+        stato_buono: document.getElementById('editStato').value,
+        destinatario: document.getElementById('editDestinatario').value,
+        data_scadenza: document.getElementById('editScadenza').value,
+        mittente_note: document.getElementById('editNote').value
+    };
+    console.log('Invio aggiornamento buono:', data);
+    var saveBtn = this.querySelector('.btn-modal-save');
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.style.opacity = '0.6'; }
     fetch('update_buono.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
-    .then(function(response) { return response.json().then(function(result) { return { ok: response.ok, result: result }; }); })
-    .then(function(resp) {
-        if (resp.ok && resp.result.success) { closeModal(); showToast('Buono aggiornato con successo!', 'success'); setTimeout(function() { location.reload(); }, 800); }
-        else { showToast(resp.result.message || "Errore durante l'aggiornamento.", 'error'); }
+    .then(function(response) {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        return response.json();
     })
-    .catch(function() { showToast('Errore di rete. Riprova.', 'error'); });
+    .then(function(result) {
+        console.log('Risposta server:', result);
+        if (result.success) {
+            closeModal();
+            showToast('Buono aggiornato con successo!', 'success');
+            setTimeout(function() { location.reload(); }, 800);
+        } else {
+            showToast(result.message || "Errore durante l'aggiornamento.", 'error');
+        }
+    })
+    .catch(function(err) {
+        console.error('Errore aggiornamento buono:', err);
+        showToast('Errore di rete: ' + err.message, 'error');
+    })
+    .finally(function() {
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.style.opacity = '1'; }
+    });
 });
 
 // --- Create Modal ---

@@ -1005,8 +1005,9 @@ if ($result_clienti && $result_clienti->num_rows > 0) {
                     <div class="form-card">
                         <div class="form-card-title">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="12" y1="1" x2="12" y2="23"></line>
-                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                <path d="M17.5 7.5C16 5 13.5 3.5 10.5 3.5 6.4 3.5 3 7 3 12s3.4 8.5 7.5 8.5c3 0 5.5-1.5 7-4"></path>
+                                <line x1="2" y1="10" x2="14" y2="10"></line>
+                                <line x1="2" y1="14" x2="14" y2="14"></line>
                             </svg>
                             Costi e Preventivo
                         </div>
@@ -1016,8 +1017,9 @@ if ($result_clienti && $result_clienti->num_rows > 0) {
                                 <div class="input-wrapper">
                                     <input type="number" id="costo_preventivato" name="costo_preventivato" step="0.01" min="0" placeholder="0.00">
                                     <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="12" y1="1" x2="12" y2="23"></line>
-                                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                        <path d="M17.5 7.5C16 5 13.5 3.5 10.5 3.5 6.4 3.5 3 7 3 12s3.4 8.5 7.5 8.5c3 0 5.5-1.5 7-4"></path>
+                                        <line x1="2" y1="10" x2="14" y2="10"></line>
+                                        <line x1="2" y1="14" x2="14" y2="14"></line>
                                     </svg>
                                 </div>
                             </div>
@@ -1026,8 +1028,9 @@ if ($result_clienti && $result_clienti->num_rows > 0) {
                                 <div class="input-wrapper">
                                     <input type="number" id="costo_effettivo" name="costo_effettivo" step="0.01" min="0" placeholder="0.00">
                                     <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="12" y1="1" x2="12" y2="23"></line>
-                                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                        <path d="M17.5 7.5C16 5 13.5 3.5 10.5 3.5 6.4 3.5 3 7 3 12s3.4 8.5 7.5 8.5c3 0 5.5-1.5 7-4"></path>
+                                        <line x1="2" y1="10" x2="14" y2="10"></line>
+                                        <line x1="2" y1="14" x2="14" y2="14"></line>
                                     </svg>
                                 </div>
                             </div>

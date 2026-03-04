@@ -2228,8 +2228,9 @@ function getPermutaStatusClasses($status) {
         <div class="summary-card summary-card--valore">
             <div class="summary-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="12" y1="1" x2="12" y2="23"></line>
-                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    <path d="M17.5 7.5C16 5 13.5 3.5 10.5 3.5 6.4 3.5 3 7 3 12s3.4 8.5 7.5 8.5c3 0 5.5-1.5 7-4"></path>
+                    <line x1="2" y1="10" x2="14" y2="10"></line>
+                    <line x1="2" y1="14" x2="14" y2="14"></line>
                 </svg>
             </div>
             <div class="summary-label">Valore Completate</div>
@@ -2588,8 +2589,9 @@ function getPermutaStatusClasses($status) {
                 <div class="edit-section">
                     <div class="edit-section-title">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="12" y1="1" x2="12" y2="23"></line>
-                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            <path d="M17.5 7.5C16 5 13.5 3.5 10.5 3.5 6.4 3.5 3 7 3 12s3.4 8.5 7.5 8.5c3 0 5.5-1.5 7-4"></path>
+                            <line x1="2" y1="10" x2="14" y2="10"></line>
+                            <line x1="2" y1="14" x2="14" y2="14"></line>
                         </svg>
                         Riepilogo Finanziario e Stato
                     </div>
@@ -2784,8 +2786,9 @@ function getPermutaStatusClasses($status) {
                 <div class="view-section">
                     <div class="view-section-header">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="12" y1="1" x2="12" y2="23"></line>
-                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            <path d="M17.5 7.5C16 5 13.5 3.5 10.5 3.5 6.4 3.5 3 7 3 12s3.4 8.5 7.5 8.5c3 0 5.5-1.5 7-4"></path>
+                            <line x1="2" y1="10" x2="14" y2="10"></line>
+                            <line x1="2" y1="14" x2="14" y2="14"></line>
                         </svg>
                         Riepilogo Finanziario
                     </div>

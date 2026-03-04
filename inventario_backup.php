@@ -136,7 +136,7 @@
         <h1 class="text-4xl font-bold text-gray-800 mb-6">Panoramica Inventario</h1>
 
         <div id="dashboard" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="stat-card"><div class="stat-icon bg-blue-500"><i class="fas fa-dollar-sign"></i></div><div><div id="totalValue" class="stat-value">€ 0.00</div><div class="stat-label">Valore Totale Inventario</div></div></div>
+            <div class="stat-card"><div class="stat-icon bg-blue-500"><i class="fas fa-euro-sign"></i></div><div><div id="totalValue" class="stat-value">€ 0.00</div><div class="stat-label">Valore Totale Inventario</div></div></div>
             <div class="stat-card"><div class="stat-icon bg-green-500"><i class="fas fa-boxes-stacked"></i></div><div><div id="totalItems" class="stat-value">0</div><div class="stat-label">Articoli Totali</div></div></div>
             <div class="stat-card"><div class="stat-icon bg-yellow-500"><i class="fas fa-exclamation-triangle"></i></div><div><div id="lowStockItems" class="stat-value">0</div><div class="stat-label">Articoli in Esaurimento</div></div></div>
         </div>

@@ -1,356 +1,306 @@
 <?php
-// stampa_buono.php
-
-// Abilita la visualizzazione degli errori per il debugging (rimuovere in produzione)
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-// Connessione al database
-$host = 'localhost';
-$db   = 'gestionale_tsservice';
-$user = 'root';
-$pass = '';
-
-$conn = new mysqli($host, $user, $pass, $db);
-if ($conn->connect_error) {
-    die("Connessione fallita: " . $conn->connect_error);
-}
+// stampa_buono.php — Stampa Buono Regalo Professionale
+ini_set('display_errors', 0);
+require_once 'db.php';
 
 $buono = null;
-
-// Verifica se è stato passato un ID buono valido
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $buono_id = (int)$_GET['id'];
-    
-    // Prepara e esegui la query per recuperare i dati del buono
     $stmt = $conn->prepare("SELECT * FROM buoni_regalo WHERE id = ?");
     if ($stmt) {
         $stmt->bind_param('i', $buono_id);
         $stmt->execute();
-        $result = $stmt->get_result();
-        $buono = $result->fetch_assoc();
+        $buono = $stmt->get_result()->fetch_assoc();
         $stmt->close();
     }
 }
-
-// Se il buono non è stato trovato, reindirizza o mostra un errore
-if (!$buono) {
-    echo "Buono regalo non trovato o ID non valido.";
-    // Potresti anche reindirizzare alla lista dei buoni:
-    // header('Location: visualizza_buoni.php');
-    // exit;
-}
-
+if (!$buono) { echo "Buono regalo non trovato."; exit; }
 $conn->close();
-?>
-<!DOCTYPE html>
+
+$codice      = htmlspecialchars($buono['nome']);
+$valore      = number_format($buono['valore'], 2, ',', '.');
+$destinatario= !empty($buono['destinatario']) ? htmlspecialchars($buono['destinatario']) : '—';
+$mittente    = !empty($buono['note']) ? htmlspecialchars($buono['note']) : '—';
+$scadenza    = $buono['data_scadenza'] ? date('d/m/Y', strtotime($buono['data_scadenza'])) : '—';
+$emissione   = date('d/m/Y', strtotime($buono['data_creazione']));
+$stato       = htmlspecialchars($buono['stato'] ?? 'Attivo');
+?><!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <title>Stampa Buono Regalo - <?= htmlspecialchars($buono['nome'] ?? 'Errore') ?></title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
-    <style>
-        :root {
-            --brand-color-start: #28a745;
-            --brand-color-end: #218838;
-            --text-light: #ffffff;
-            --text-dark: #34495e;
-            --bg-page: #f4f7f6;
-            --shadow-color: rgba(0, 0, 0, 0.2);
-        }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 20px;
-            color: var(--text-dark);
-            background-color: var(--bg-page);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<title>Buono Regalo <?= $codice ?> — TS Service</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+<style>
+/* ── Variables ── */
+:root {
+  --g900:#0b2618;--g800:#14532d;--g700:#1b4332;--g600:#2d6a4f;
+  --g500:#40916c;--g400:#52b788;--g300:#74c69d;--g200:#95d5b2;
+  --g100:#d1fae5;--g50:#f0fdf4;
+  --ink:#111827;--mute:#6b7280;--line:#e5e7eb;--faint:#f9fafb;
+  --gold:#f59e0b;--gold-bg:#fffbeb;--gold-bdr:#fde68a;
+}
 
-        .page-controls {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
+/* ── Reset ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',-apple-system,sans-serif;color:var(--ink);background:#e5e7eb;line-height:1.35}
+@page{size:A4 portrait;margin:12mm}
 
-        .control-btn {
-            background: var(--brand-color-start);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-        }
-        .control-btn.secondary {
-            background: #6c757d;
-        }
-        .control-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-        }
+/* ── Screen toolbar ── */
+.toolbar{text-align:center;padding:24px 0}
+.toolbar button, .toolbar a{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 28px;border-radius:12px;border:none;cursor:pointer;
+  font:600 .9rem/1 'Inter',sans-serif;text-decoration:none;
+  transition:all .2s;box-shadow:0 4px 16px rgba(0,0,0,.1);
+}
+.toolbar button:hover,.toolbar a:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.btn-print{background:linear-gradient(135deg,var(--g700),var(--g500));color:#fff}
+.btn-back{background:#f1f5f9;color:#475569;border:2px solid var(--line);margin-right:12px}
+.toolbar .hint{font-size:.72rem;color:#aaa;margin-top:8px}
 
-        .gift-card-print-container {
-            width: 100%;
-            max-width: 550px;
-            aspect-ratio: 1.586; /* Proporzioni simili a una carta di credito */
-            background: linear-gradient(135deg, var(--brand-color-start), var(--brand-color-end));
-            color: var(--text-light);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 15px 30px var(--shadow-color);
-            position: relative;
-            overflow: hidden;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        
-        .card-chip {
-            width: 50px;
-            height: 40px;
-            background: linear-gradient(135deg, #e0c580, #f8f0d3, #e0c580);
-            border-radius: 6px;
-            border: 1px solid rgba(0,0,0,0.1);
-            position: absolute;
-            top: 90px;
-            left: 40px;
-            box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
-        }
+/* ── Card Container ── */
+.card-page{
+  width:180mm;margin:0 auto 30px;background:#fff;
+  border-radius:16px;overflow:hidden;
+  box-shadow:0 8px 40px rgba(0,0,0,.1);
+}
 
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+/* ── Header ── */
+.hdr{
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,var(--g800) 0%,var(--g600) 55%,var(--g400) 100%);
+  color:#fff;padding:8mm 8mm 6mm;
+}
+.hdr::after{
+  content:'';position:absolute;right:-15mm;top:-18mm;
+  width:70mm;height:70mm;border-radius:50%;
+  background:rgba(255,255,255,.06);pointer-events:none;
+}
+.hdr-top{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  position:relative;z-index:1;margin-bottom:5mm;
+}
+.hdr-brand{display:flex;align-items:center;gap:3mm}
+.hdr-logo{height:14mm;width:auto;filter:brightness(0) invert(1);opacity:.9}
+.brand-text .name{font-size:16pt;font-weight:900;letter-spacing:2px;line-height:1}
+.brand-text .sub{font-size:6.5pt;opacity:.55;margin-top:1mm;letter-spacing:.5px}
+.hdr-badge{
+  font-size:7pt;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  background:rgba(255,255,255,.18);backdrop-filter:blur(8px);
+  padding:2mm 4mm;border-radius:20px;
+}
+.hdr-main{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  position:relative;z-index:1;
+}
+.hdr-value{
+  font-size:42pt;font-weight:900;line-height:1;letter-spacing:-1px;
+  text-shadow:0 3px 15px rgba(0,0,0,.2);
+}
+.hdr-value small{font-size:20pt;font-weight:700;vertical-align:super;margin-left:1mm}
+.hdr-qr{
+  background:#fff;padding:2.5mm;border-radius:3mm;
+  box-shadow:0 4px 16px rgba(0,0,0,.2);flex-shrink:0;
+}
+#qrcode canvas,#qrcode img{width:26mm!important;height:26mm!important;display:block}
 
-        .logo {
-            font-size: 1.5em;
-            font-weight: 800;
-            text-shadow: 1px 1px 3px var(--shadow-color);
-        }
+/* ── Code Strip ── */
+.code-strip{
+  background:var(--g900);color:#fff;
+  padding:3mm 8mm;
+  display:flex;align-items:center;justify-content:center;gap:4mm;
+}
+.code-strip .lbl{font-size:6pt;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--g400)}
+.code-strip .val{font-family:'SF Mono','Cascadia Code','Consolas',monospace;font-size:14pt;font-weight:800;letter-spacing:4px}
 
-        .title {
-            font-size: 0.9em;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            opacity: 0.8;
-        }
+/* ── Body ── */
+.card-body{padding:6mm 8mm 8mm}
 
-        .card-main {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-        }
+/* ── Sections ── */
+.sect{border:1.5px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:4mm}
+.sh{
+  padding:2mm 4mm;font-size:6.5pt;font-weight:800;
+  letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--g700);background:var(--faint);
+  border-bottom:1.5px solid var(--line);
+  display:flex;align-items:center;gap:2mm;
+}
+.sh svg{width:3.5mm;height:3.5mm;stroke:var(--g500);fill:none;stroke-width:2}
 
-        .main-info {
-            text-align: left;
-        }
+/* ── Grid ── */
+.grid{display:grid;gap:0}
+.grid-2{grid-template-columns:1fr 1fr}
+.grid-3{grid-template-columns:1fr 1fr 1fr}
+.field{padding:3mm 4mm;border-bottom:1px solid #f5f5f5}
+.grid-2 .field:nth-child(odd),.grid-3 .field:not(:nth-child(3n)){border-right:1px solid #f0f0f0}
+.fl{font-size:5.5pt;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.8px;margin-bottom:1mm}
+.fv{font-size:10pt;font-weight:600;color:var(--ink);word-break:break-word}
+.fv.big{font-size:11pt;font-weight:700}
+.fv.mono{font-family:'SF Mono','Cascadia Code','Consolas',monospace;font-size:9pt;letter-spacing:.5px}
+.fv.price{font-size:13pt;font-weight:900;color:var(--g700)}
+.fv.accent{color:var(--g600)}
 
-        .value {
-            font-size: 3.5em;
-            font-weight: 900;
-            line-height: 1;
-            text-shadow: 2px 2px 6px var(--shadow-color);
-        }
-        .code {
-            font-size: 1.4em;
-            font-weight: 600;
-            letter-spacing: 1.5px;
-            background-color: rgba(255, 255, 255, 0.15);
-            padding: 5px 10px;
-            border-radius: 8px;
-            margin-top: 10px;
-            display: inline-block;
-        }
-        
-        .qr-code {
-            background: white;
-            padding: 10px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        #qrcode canvas {
-            width: 120px !important;
-            height: 120px !important;
-        }
+/* ── Stato Badge ── */
+.stato-badge{
+  display:inline-flex;align-items:center;gap:1.5mm;
+  font-size:8pt;font-weight:700;text-transform:uppercase;letter-spacing:1px;
+  padding:1.5mm 4mm;border-radius:20px;
+}
+.stato-attivo{background:var(--g100);color:var(--g700)}
+.stato-usato{background:#fef3c7;color:#92400e}
+.stato-scaduto{background:#fee2e2;color:#991b1b}
 
+/* ── Divider ── */
+.divider{
+  border:none;margin:4mm 0;
+  border-top:2px dashed var(--line);
+}
 
-        .card-footer {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding-top: 15px;
-            border-top: 1px dashed rgba(255, 255, 255, 0.3);
-        }
-        
-        .personal-details {
-            display: flex;
-            justify-content: space-between;
-        }
+/* ── Note bar ── */
+.note-bar{
+  background:var(--gold-bg);border:1.5px solid var(--gold-bdr);
+  border-radius:8px;padding:3mm 4mm;
+  text-align:center;margin-bottom:3mm;
+}
+.note-bar p{font-size:8pt;font-weight:500;color:#92400e;line-height:1.4;margin:0}
+.note-bar strong{font-weight:700;color:#78350f}
 
-        .info-block {
-            font-size: 0.85em;
-        }
+/* ── Footer ── */
+.card-footer{
+  text-align:center;padding-top:2mm;
+}
+.card-footer .legal{font-size:5.5pt;color:#aaa;line-height:1.4;margin-bottom:2mm}
+.card-footer .store{font-size:6pt;color:#bbb;letter-spacing:.3px}
 
-        .info-block strong {
-            font-size: 0.8em;
-            font-weight: 500;
-            opacity: 0.8;
-            display: block;
-            margin-bottom: 2px;
-            text-transform: uppercase;
-        }
-        .info-block span {
-            font-weight: 600;
-        }
-
-        .expiry-details {
-            font-size: 0.9em;
-            text-align: center;
-            margin-top: 5px;
-        }
-
-        .expiry-details strong {
-             opacity: 0.8;
-        }
-        
-
-        .instructions {
-            font-size: 0.8em;
-            text-align: center;
-            opacity: 0.9;
-            margin-top: 5px;
-            font-weight: 500;
-        }
-        
-        .terms {
-            font-size: 0.7em;
-            opacity: 0.7;
-            line-height: 1.3;
-            text-align: center;
-            margin-top: 5px;
-        }
-
-        /* Stili per la stampa */
-        @media print {
-            body {
-                margin: 0;
-                padding: 0;
-                background-color: white;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-            .page-controls {
-                display: none !important;
-            }
-            .gift-card-print-container {
-                width: 90%;
-                max-width: 1000px;
-                margin: 20mm auto;
-                box-shadow: none;
-                border: none;
-                page-break-inside: avoid;
-            }
-        }
-    </style>
+/* ── Print ── */
+@media print{
+  body{background:#fff;padding:0}
+  .toolbar{display:none!important}
+  .card-page{
+    width:100%;max-width:180mm;margin:0 auto;
+    box-shadow:none;border-radius:0;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+}
+</style>
 </head>
 <body>
-    <?php if ($buono): ?>
-    <div class="page-controls">
-        <a href="visualizza_buoni.php" class="control-btn secondary" role="button">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/></svg>
-            Torna all'Elenco
-        </a>
+
+<div class="toolbar">
+  <a href="visualizza_buoni.php" class="btn-back">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Indietro
+  </a>
+  <button class="btn-print" onclick="window.print()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    Stampa Buono
+  </button>
+  <div class="hint">La stampa si avvia automaticamente</div>
+</div>
+
+<div class="card-page">
+
+  <!-- ▌HEADER ▌ -->
+  <div class="hdr">
+    <div class="hdr-top">
+      <div class="hdr-brand">
+        <img src="images/LOGO PNG2.png" class="hdr-logo" onerror="this.style.display='none'" alt="">
+        <div class="brand-text">
+          <div class="name">TS SERVICE</div>
+          <div class="sub">Buono Regalo</div>
+        </div>
+      </div>
+      <div class="hdr-badge"><?= $stato ?></div>
+    </div>
+    <div class="hdr-main">
+      <div class="hdr-value">&euro; <?= $valore ?></div>
+      <div class="hdr-qr"><div id="qrcode"></div></div>
+    </div>
+  </div>
+
+  <!-- ▌CODE STRIP ▌ -->
+  <div class="code-strip">
+    <span class="lbl">Codice</span>
+    <span class="val"><?= $codice ?></span>
+  </div>
+
+  <!-- ▌BODY ▌ -->
+  <div class="card-body">
+
+    <!-- Sezione: Dettagli -->
+    <div class="sect">
+      <div class="sh">
+        <svg viewBox="0 0 24 24"><path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/></svg>
+        Dettagli Buono
+      </div>
+      <div class="grid grid-3">
+        <div class="field">
+          <div class="fl">Valore</div>
+          <div class="fv price">&euro; <?= $valore ?></div>
+        </div>
+        <div class="field">
+          <div class="fl">Data Emissione</div>
+          <div class="fv"><?= $emissione ?></div>
+        </div>
+        <div class="field">
+          <div class="fl">Valido Fino Al</div>
+          <div class="fv"><?= $scadenza ?></div>
+        </div>
+      </div>
     </div>
 
-    <div class="gift-card-print-container">
-        <div class="card-chip"></div>
-        <div class="card-header">
-            <div class="logo">TS Service</div>
-            <div class="title">Buono Regalo</div>
+    <!-- Sezione: Destinatario -->
+    <div class="sect">
+      <div class="sh">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Destinatario & Mittente
+      </div>
+      <div class="grid grid-2">
+        <div class="field">
+          <div class="fl">Per</div>
+          <div class="fv big"><?= $destinatario ?></div>
         </div>
-
-        <div class="card-main">
-            <div class="main-info">
-                <div class="value"><?= number_format($buono['valore'], 2, ',', '.') ?> &euro;</div>
-                <div class="code"><?= htmlspecialchars($buono['nome']) ?></div>
-            </div>
-            <div class="qr-code" id="qrcode" title="Codice: <?= htmlspecialchars($buono['nome']) ?>"></div>
+        <div class="field">
+          <div class="fl">Da parte di</div>
+          <div class="fv big"><?= $mittente ?></div>
         </div>
-        
-        <div class="card-footer">
-            <div class="personal-details">
-                <div class="info-block">
-                    <strong>PER</strong>
-                    <span><?= htmlspecialchars($buono['destinatario']) ?: 'Non specificato' ?></span>
-                </div>
-                <div class="info-block" style="text-align: right;">
-                    <strong>DA PARTE DI</strong>
-                    <span><?= !empty($buono['note']) ? htmlspecialchars($buono['note']) : 'Non specificato' ?></span>
-                </div>
-            </div>
-            <div class="expiry-details">
-                <strong>Scade il:</strong>
-                <span><?= htmlspecialchars($buono['data_scadenza']) ?: 'Nessuna' ?></span>
-            </div>
-            <div class="instructions">
-                Presenta questo buono in cassa per l'utilizzo.
-            </div>
-            <div class="terms">
-                Questo buono non è rimborsabile e non può essere convertito in denaro.
-            </div>
-        </div>
+      </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const code = "<?= htmlspecialchars($buono['nome']) ?>";
-            new QRCode(document.getElementById("qrcode"), {
-                text: code,
-                width: 120,
-                height: 120,
-                colorDark : "#000000",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
-            });
-            
-            // Avvia la stampa automaticamente al caricamento della pagina
-            window.print();
+    <hr class="divider">
 
-            // Dopo la stampa (o l'annullamento), torna alla pagina precedente
-            window.onafterprint = function() {
-                window.location.href = 'visualizza_buoni.php';
-            };
-        });
-    </script>
-    <?php else: ?>
-        <p>Impossibile caricare il buono regalo per la stampa. L'ID fornito non è valido o il buono non esiste.</p>
-        <a href="visualizza_buoni.php" class="control-btn secondary" role="button">← Torna all'Elenco Buoni</a>
-    <?php endif; ?>
+    <!-- Avviso utilizzo -->
+    <div class="note-bar">
+      <p>Presenta questo buono in negozio per utilizzarlo.<br>
+      <strong>Grazie per aver scelto TS Service!</strong></p>
+    </div>
+
+    <!-- Footer -->
+    <div class="card-footer">
+      <div class="legal">Il buono non è rimborsabile, non è cumulabile con altre promozioni e non è convertibile in denaro. Valido fino alla data di scadenza indicata.</div>
+      <div class="store">C.da Castromurro 217 · 87021 Belvedere M.mo (CS) · Tel. 342 033 0279</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    new QRCode(document.getElementById("qrcode"), {
+        text: "<?= $codice ?>",
+        width: 100, height: 100,
+        colorDark: "#14532d",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+    });
+    setTimeout(() => window.print(), 600);
+    window.onafterprint = () => window.location.href = 'visualizza_buoni.php';
+});
+</script>
+
 </body>
 </html>
 

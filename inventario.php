@@ -522,7 +522,7 @@ select.filter-input {
         <!-- Dashboard Stats -->
         <div id="dashboard" class="stats-grid">
             <div class="stat-card blue">
-                <div class="stat-icon-wrap"><i class="fas fa-dollar-sign"></i></div>
+                <div class="stat-icon-wrap"><i class="fas fa-euro-sign"></i></div>
                 <div>
                     <div id="totalValue" class="stat-value">&euro; 0.00</div>
                     <div class="stat-label">Valore Totale Inventario</div>
