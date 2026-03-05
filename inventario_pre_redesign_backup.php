@@ -4,27 +4,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventario | TS Service</title>
+    <title>Inventario Premium | TS Service</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="assets/header-styles.css?v=1">
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <style>
 :root {
-    --primary: #22c55e;
-    --primary-dark: #16a34a;
-    --primary-light: #dcfce7;
-    --primary-glow: rgba(34, 197, 94, 0.4);
-    --secondary: #3b82f6;
-    --secondary-dark: #2563eb;
-    --secondary-light: #dbeafe;
-    --purple: #8b5cf6;
-    --purple-light: #ede9fe;
+    --primary: #3b82f6;
+    --primary-dark: #2563eb;
+    --primary-light: #dbeafe;
+    --primary-glow: rgba(59, 130, 246, 0.4);
+    --green: #22c55e;
+    --green-dark: #16a34a;
+    --green-light: #dcfce7;
+    --secondary: #8b5cf6;
+    --secondary-light: #ede9fe;
     --success: #10b981;
     --warning: #f59e0b;
     --warning-light: #fef3c7;
@@ -42,7 +42,7 @@
     --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-    --shadow-glow: 0 0 40px rgba(34, 197, 94, 0.15);
+    --shadow-glow: 0 0 40px rgba(59, 130, 246, 0.15);
     --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
     --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
     --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -63,10 +63,10 @@ body {
 
 /* PARTICLES */
 .particles-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
-.particle { position: absolute; border-radius: 50%; opacity: 0.15; animation: floatParticle 20s infinite ease-in-out; }
+.particle { position: absolute; border-radius: 50%; opacity: 0.12; animation: floatParticle 20s infinite ease-in-out; }
 .particle:nth-child(1) { width: 300px; height: 300px; background: var(--primary); top: -100px; left: -100px; animation-delay: 0s; }
-.particle:nth-child(2) { width: 200px; height: 200px; background: var(--secondary); top: 50%; right: -50px; animation-delay: -5s; }
-.particle:nth-child(3) { width: 150px; height: 150px; background: var(--purple); bottom: 10%; left: 20%; animation-delay: -10s; }
+.particle:nth-child(2) { width: 200px; height: 200px; background: var(--green); top: 50%; right: -50px; animation-delay: -5s; }
+.particle:nth-child(3) { width: 150px; height: 150px; background: var(--secondary); bottom: 10%; left: 20%; animation-delay: -10s; }
 .particle:nth-child(4) { width: 100px; height: 100px; background: var(--warning); top: 30%; left: 60%; animation-delay: -15s; }
 @keyframes floatParticle {
     0%, 100% { transform: translate(0, 0) scale(1); }
@@ -96,72 +96,71 @@ body {
 
 /* MAIN CONTAINER */
 .main-container {
-    max-width: 1500px; margin: 0 auto; padding: 24px 32px 60px;
+    max-width: 1400px; margin: 0 auto; padding: 0 24px 60px;
     position: relative; z-index: 1;
 }
 
 /* PAGE HEADER */
 .page-header {
-    text-align: center; margin-bottom: 32px;
-    animation: fadeInUp 0.6s ease-out;
+    margin-bottom: 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 16px;
 }
-.page-header h1 {
-    font-size: 2.75rem; font-weight: 800;
+.page-title {
+    font-size: 2.2rem; font-weight: 800; color: var(--text-primary);
+    display: flex; align-items: center; gap: 16px;
+    letter-spacing: -0.5px;
+}
+.page-title-icon {
+    width: 52px; height: 52px; border-radius: 16px;
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text; margin: 0 0 8px; letter-spacing: -0.02em;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 24px var(--primary-glow);
 }
-.page-header p { color: var(--text-secondary); font-size: 1.1rem; margin: 0; }
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.page-title-icon svg { width: 28px; height: 28px; stroke: #fff; fill: none; }
+.page-subtitle { color: var(--text-secondary); font-size: 0.95rem; font-weight: 400; margin-top: 4px; }
 
-/* STATS CARDS */
+/* DASHBOARD STATS */
 .stats-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr);
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 20px; margin-bottom: 28px;
 }
 .stat-card {
     background: var(--bg-card); border-radius: var(--radius-xl); padding: 24px;
     border: 1px solid var(--border-color); position: relative; overflow: hidden;
     display: flex; align-items: center; gap: 20px;
-    box-shadow: var(--shadow);
-    cursor: pointer; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    opacity: 0; transform: translateY(30px);
-    animation: cardSlideIn 0.5s ease-out forwards;
+    transition: all var(--transition); cursor: default;
+    box-shadow: var(--shadow-sm);
 }
-.stat-card:nth-child(1) { animation-delay: 0.1s; }
-.stat-card:nth-child(2) { animation-delay: 0.15s; }
-.stat-card:nth-child(3) { animation-delay: 0.2s; }
-@keyframes cardSlideIn { to { opacity: 1; transform: translateY(0); } }
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: transparent;
+}
 .stat-card::before {
     content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-    background: linear-gradient(90deg, var(--card-accent), var(--card-accent-light, var(--card-accent)));
-    opacity: 0; transition: opacity 0.3s ease;
 }
-.stat-card:hover::before { opacity: 1; }
-.stat-card:hover {
-    transform: translateY(-6px);
-    box-shadow: var(--shadow-lg), 0 0 0 1px var(--card-accent);
-}
-.stat-card.card-green { --card-accent: var(--primary); }
-.stat-card.card-blue { --card-accent: var(--secondary); }
-.stat-card.card-orange { --card-accent: var(--warning); }
+.stat-card.blue::before { background: linear-gradient(90deg, var(--primary), #60a5fa); }
+.stat-card.green::before { background: linear-gradient(90deg, var(--green), #4ade80); }
+.stat-card.yellow::before { background: linear-gradient(90deg, var(--warning), #fbbf24); }
+.stat-card.blue:hover { box-shadow: 0 12px 30px rgba(59, 130, 246, 0.15); }
+.stat-card.green:hover { box-shadow: 0 12px 30px rgba(34, 197, 94, 0.15); }
+.stat-card.yellow:hover { box-shadow: 0 12px 30px rgba(245, 158, 11, 0.15); }
 .stat-icon-wrap {
-    width: 56px; height: 56px; border-radius: var(--radius-lg);
+    width: 56px; height: 56px; border-radius: 16px;
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    transition: transform 0.3s ease;
 }
-.stat-card:hover .stat-icon-wrap { transform: scale(1.1) rotate(-5deg); }
-.stat-card.card-green .stat-icon-wrap { background: var(--primary-light); color: var(--primary-dark); }
-.stat-card.card-blue .stat-icon-wrap { background: var(--secondary-light); color: var(--secondary); }
-.stat-card.card-orange .stat-icon-wrap { background: var(--warning-light); color: #d97706; }
+.stat-card.blue .stat-icon-wrap { background: var(--primary-light); color: var(--primary); }
+.stat-card.green .stat-icon-wrap { background: var(--green-light); color: var(--green-dark); }
+.stat-card.yellow .stat-icon-wrap { background: var(--warning-light); color: #d97706; }
 .stat-icon-wrap i { font-size: 1.4rem; }
-.stat-label { font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
 .stat-value {
-    font-size: 2rem; font-weight: 700; line-height: 1.1; color: var(--text-primary);
+    font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px; line-height: 1.2;
 }
-.stat-card.card-green .stat-value { color: var(--primary-dark); }
-.stat-card.card-blue .stat-value { color: var(--secondary); }
-.stat-card.card-orange .stat-value { color: #d97706; }
+.stat-card.blue .stat-value { color: var(--primary); }
+.stat-card.green .stat-value { color: var(--green-dark); }
+.stat-card.yellow .stat-value { color: #d97706; }
+.stat-label { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; margin-top: 2px; }
 
 /* SHIMMER */
 @keyframes shimmer {
@@ -171,24 +170,23 @@ body {
 
 /* FILTER CARD */
 .filter-card {
-    background: var(--bg-card); border-radius: var(--radius-xl); padding: 20px 24px;
-    box-shadow: var(--shadow); border: 1px solid var(--border-color);
-    margin-bottom: 24px;
+    background: var(--bg-card); border-radius: var(--radius-xl); padding: 24px;
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);
+    margin-bottom: 28px;
     display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px;
-    animation: fadeInUp 0.6s ease-out 0.25s both;
 }
-.filter-field { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 200px; }
+.filter-field { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 180px; }
 .filter-field label {
-    font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
+    font-size: 0.78rem; font-weight: 600; text-transform: uppercase;
     letter-spacing: 0.5px; color: var(--text-secondary);
 }
 .filter-input {
-    padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius-md);
-    font-size: 0.95rem; font-family: 'Inter', sans-serif; color: var(--text-primary);
-    background: var(--bg-page); outline: none; transition: all var(--transition);
+    padding: 10px 14px; border: 2px solid var(--border-color); border-radius: var(--radius-md);
+    font-size: 0.9rem; font-family: 'Inter', sans-serif; color: var(--text-primary);
+    background: var(--bg-card); outline: none; transition: all var(--transition);
     width: 100%;
 }
-.filter-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); background: var(--bg-card); }
+.filter-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12); }
 .filter-input::placeholder { color: var(--text-muted); }
 select.filter-input {
     appearance: none;
@@ -196,70 +194,52 @@ select.filter-input {
     background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px;
 }
 .filter-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
-
-/* BUTTONS */
 .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    padding: 12px 24px; border: none; border-radius: var(--radius-md);
-    font-size: 0.95rem; font-weight: 600; font-family: 'Inter', sans-serif;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border: none; border-radius: var(--radius-md);
+    font-size: 0.88rem; font-weight: 600; font-family: 'Inter', sans-serif;
     cursor: pointer; transition: all var(--transition); white-space: nowrap;
-    position: relative; overflow: hidden;
 }
-.btn::after {
-    content: ''; position: absolute; width: 100%; height: 100%; top: 0; left: 0;
-    background: linear-gradient(rgba(255,255,255,0.2), rgba(255,255,255,0)); opacity: 0; transition: opacity 0.2s;
-}
-.btn:hover::after { opacity: 1; }
-.btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+.btn svg { width: 16px; height: 16px; flex-shrink: 0; }
 .btn-primary {
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    color: #fff; box-shadow: 0 4px 14px var(--primary-glow);
+    color: #fff; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--primary-glow); }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4); }
+.btn-green {
+    background: linear-gradient(135deg, var(--green), var(--green-dark));
+    color: #fff; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+.btn-green:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4); }
 .btn-secondary {
-    background: var(--border-light); color: var(--text-secondary);
+    background: var(--bg-card); color: var(--text-secondary); border: 2px solid var(--border-color);
 }
-.btn-secondary:hover { background: var(--border-color); color: var(--text-primary); }
+.btn-secondary:hover { border-color: var(--text-muted); color: var(--text-primary); background: var(--border-light); }
 .btn-purple {
-    background: linear-gradient(135deg, var(--purple), #7c3aed);
+    background: linear-gradient(135deg, var(--secondary), #7c3aed);
     color: #fff; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
 }
-.btn-purple:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4); }
+.btn-purple:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4); }
 .btn-danger {
     background: linear-gradient(135deg, var(--danger), #dc2626);
     color: #fff; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
-.btn-danger:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4); }
+.btn-danger:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4); }
 
 /* REPORT SECTION */
 #report-section {
     display: none; background: var(--bg-card); border-radius: var(--radius-xl); padding: 28px;
-    box-shadow: var(--shadow); border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);
     margin-bottom: 28px; animation: fadeSlideIn 0.3s ease-out;
 }
-#report-section h2 { font-size: 1.4rem; font-weight: 700; margin: 0 0 20px; display: flex; align-items: center; gap: 10px; }
-#report-section h2 i { color: var(--purple); }
+#report-section h2 { font-size: 1.4rem; font-weight: 700; margin: 0 0 20px; }
 #report-section h3 { font-size: 1rem; font-weight: 600; color: var(--text-secondary); text-align: center; margin-bottom: 12px; }
 @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
 /* TABLE */
-.table-section { animation: fadeInUp 0.6s ease-out 0.35s both; }
 .table-wrapper {
     background: var(--bg-card); border-radius: var(--radius-xl); overflow: hidden;
-    box-shadow: var(--shadow); border: 1px solid var(--border-color);
-}
-.table-header-bar {
-    padding: 18px 24px; display: flex; justify-content: space-between; align-items: center;
-    border-bottom: 1px solid var(--border-color);
-}
-.table-title {
-    font-size: 1.15rem; font-weight: 700; color: var(--text-primary);
-    display: flex; align-items: center; gap: 10px;
-}
-.table-title i { color: var(--primary); font-size: 1.1rem; }
-.table-count {
-    background: var(--primary-light); color: var(--primary-dark);
-    padding: 4px 12px; border-radius: 999px; font-size: 0.85rem; font-weight: 600;
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);
 }
 .table-wrapper .overflow-x-auto { overflow-x: auto; }
 .inv-table { width: 100%; border-collapse: collapse; }
@@ -279,8 +259,8 @@ select.filter-input {
     vertical-align: middle;
 }
 .inv-table tbody tr { transition: all var(--transition-fast); }
-.inv-table tbody tr:hover { background: rgba(34, 197, 94, 0.04); }
-.inv-table tbody tr.selected { background: rgba(34, 197, 94, 0.08) !important; }
+.inv-table tbody tr:hover { background: rgba(59, 130, 246, 0.04); }
+.inv-table tbody tr.selected { background: rgba(59, 130, 246, 0.08) !important; }
 .item-thumbnail {
     width: 48px; height: 48px; object-fit: cover; border-radius: var(--radius-md);
     border: 2px solid var(--border-color); transition: transform var(--transition);
@@ -288,21 +268,6 @@ select.filter-input {
 .inv-table tbody tr:hover .item-thumbnail { transform: scale(1.08); }
 .item-name { font-weight: 600; color: var(--text-primary); }
 .item-id { color: var(--text-muted); font-size: 0.82rem; font-weight: 500; }
-
-/* CATEGORY BADGE */
-.category-badge {
-    background: var(--border-light); padding: 4px 12px; border-radius: 20px;
-    font-size: 0.82rem; font-weight: 500; color: var(--text-secondary);
-    display: inline-block;
-}
-
-/* QUANTITY BADGE */
-.qty-badge {
-    display: inline-flex; align-items: center; justify-content: center;
-    min-width: 36px; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 0.88rem;
-}
-.qty-ok { background: var(--primary-light); color: var(--primary-dark); }
-.qty-low { background: var(--danger-light); color: var(--danger); }
 
 /* ACTION BUTTONS */
 .action-btn {
@@ -314,8 +279,8 @@ select.filter-input {
 .action-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 .barcode-btn { background: #475569; }
 .barcode-btn:hover:not(:disabled) { background: #334155; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(71, 85, 105, 0.3); }
-.edit-btn { background: var(--secondary); }
-.edit-btn:hover { background: var(--secondary-dark); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+.edit-btn { background: var(--primary); }
+.edit-btn:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
 .delete-btn { background: var(--danger); }
 .delete-btn:hover { background: #dc2626; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
 .actions-cell { display: flex; gap: 8px; justify-content: flex-end; }
@@ -333,7 +298,7 @@ select.filter-input {
     transition: all var(--transition); display: flex; align-items: center; justify-content: center;
 }
 .page-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
-.page-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 12px var(--primary-glow); }
+.page-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
 .page-btn:disabled { cursor: not-allowed; opacity: 0.4; background: var(--border-light); }
 
 /* BULK ACTIONS */
@@ -376,19 +341,17 @@ select.filter-input {
     width: 5px; height: 10px; border: solid #fff;
     border-width: 0 2px 2px 0; transform: rotate(45deg);
 }
-.inv-checkbox:focus { box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2); }
+.inv-checkbox:focus { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
 
-/* MODALS — Use ID selectors to override header-styles.css .modal-overlay */
-#itemModal, #confirmModal, #barcodeModal {
-    position: fixed !important; inset: 0 !important; background: rgba(15, 23, 42, 0.6) !important;
-    display: none !important; align-items: center !important; justify-content: center !important;
-    z-index: 99999 !important;
-    backdrop-filter: blur(4px) !important;
-    opacity: 1 !important; visibility: visible !important; pointer-events: auto !important;
+/* MODALS */
+.modal-overlay {
+    position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 2000; opacity: 0; visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    backdrop-filter: blur(4px);
 }
-#itemModal.visible, #confirmModal.visible, #barcodeModal.visible {
-    display: flex !important;
-}
+.modal-overlay.visible { opacity: 1; visibility: visible; }
 .modal-content {
     background: var(--bg-card); border-radius: var(--radius-xl);
     box-shadow: 0 25px 60px rgba(0,0,0,0.25); max-height: 90vh;
@@ -397,15 +360,13 @@ select.filter-input {
     transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     overflow: hidden;
 }
-#itemModal.visible .modal-content,
-#confirmModal.visible .modal-content,
-#barcodeModal.visible .modal-content { transform: translateY(0) scale(1); }
+.modal-overlay.visible .modal-content { transform: translateY(0) scale(1); }
 #itemModal .modal-content { max-width: 850px; width: 95%; }
 #confirmModal .modal-content, #barcodeModal .modal-content { max-width: 480px; width: 95%; text-align: center; }
 .modal-header {
     padding: 20px 28px; border-bottom: 1px solid var(--border-color);
     display: flex; justify-content: space-between; align-items: center;
-    background: linear-gradient(180deg, #f0fdf4, #fff);
+    background: linear-gradient(180deg, #f8fafc, #fff);
 }
 .modal-header h2 { font-size: 1.3rem; font-weight: 700; margin: 0; color: var(--text-primary); }
 .modal-close-btn {
@@ -415,6 +376,13 @@ select.filter-input {
     font-size: 1.1rem; transition: all var(--transition);
 }
 .modal-close-btn:hover { background: var(--danger-light); color: var(--danger); transform: rotate(90deg); }
+.close-btn {
+    background: none; border: none; font-size: 1.3rem; cursor: pointer;
+    color: var(--text-secondary); transition: all var(--transition);
+    width: 36px; height: 36px; border-radius: 10px; display: flex;
+    align-items: center; justify-content: center;
+}
+.close-btn:hover { background: var(--danger-light); color: var(--danger); }
 .modal-body { padding: 24px 28px; overflow-y: auto; }
 .modal-footer {
     padding: 16px 28px; border-top: 1px solid var(--border-color);
@@ -434,10 +402,10 @@ select.filter-input {
     padding: 10px 24px; border: none; border-radius: var(--radius-md);
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
     color: #fff; font-weight: 700; font-size: 0.9rem; cursor: pointer;
-    font-family: 'Inter', sans-serif; box-shadow: 0 4px 12px var(--primary-glow);
+    font-family: 'Inter', sans-serif; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
     transition: all var(--transition);
 }
-.modal-footer .btn-save:hover { transform: translateY(-1px); box-shadow: 0 6px 16px var(--primary-glow); }
+.modal-footer .btn-save:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4); }
 
 /* TABS */
 .tab-nav {
@@ -471,7 +439,7 @@ select.filter-input {
     background: var(--bg-card); outline: none; transition: all var(--transition);
 }
 .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-    border-color: var(--primary); box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+    border-color: var(--primary); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 .form-group select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
 .form-group input[type="file"] { padding: 8px; font-size: 0.85rem; }
@@ -506,22 +474,18 @@ select.filter-input {
 #barcodeModal .modal-body { display: flex; flex-direction: column; align-items: center; padding: 24px; }
 
 /* RESPONSIVE */
-@media (max-width: 1024px) {
-    .stats-grid { grid-template-columns: repeat(3, 1fr); }
-}
 @media (max-width: 768px) {
-    .main-container { padding: 16px 16px 40px; }
-    .page-header h1 { font-size: 1.8rem; }
+    .main-container { padding: 0 16px 40px; }
+    .page-title { font-size: 1.6rem; }
     .stats-grid { grid-template-columns: 1fr; }
     .filter-card { flex-direction: column; }
     .filter-field { min-width: 100%; }
     .form-grid { grid-template-columns: 1fr; }
     .inv-table th, .inv-table td { padding: 10px 12px; font-size: 0.82rem; }
     .tab-button { padding: 8px 12px; font-size: 0.82rem; }
-    .table-header-bar { flex-direction: column; gap: 12px; align-items: flex-start; }
 }
 @media print {
-    .particles-container, #toast-container, #bulk-actions-bar, .filter-card, #pagination-controls, .table-header-bar { display: none !important; }
+    .particles-container, #toast-container, #bulk-actions-bar, .filter-card, #pagination-controls { display: none !important; }
     body { padding-top: 0; background: #fff; }
     .table-wrapper { box-shadow: none; border: 1px solid #ddd; }
 }
@@ -544,31 +508,38 @@ select.filter-input {
     <main class="main-container">
         <!-- Page Header -->
         <div class="page-header">
-            <h1>Panoramica Inventario</h1>
-            <p>Gestione completa dei prodotti e del magazzino</p>
+            <div>
+                <h1 class="page-title">
+                    <div class="page-title-icon">
+                        <svg viewBox="0 0 24 24" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                    </div>
+                    Panoramica Inventario
+                </h1>
+                <p class="page-subtitle">Gestione completa dei prodotti e del magazzino</p>
+            </div>
         </div>
 
         <!-- Dashboard Stats -->
         <div id="dashboard" class="stats-grid">
-            <div class="stat-card card-green">
+            <div class="stat-card blue">
                 <div class="stat-icon-wrap"><i class="fas fa-euro-sign"></i></div>
                 <div>
+                    <div id="totalValue" class="stat-value">&euro; 0.00</div>
                     <div class="stat-label">Valore Totale Inventario</div>
-                    <div id="totalValue" class="stat-value">&euro; 0,00</div>
                 </div>
             </div>
-            <div class="stat-card card-blue">
+            <div class="stat-card green">
                 <div class="stat-icon-wrap"><i class="fas fa-boxes-stacked"></i></div>
                 <div>
-                    <div class="stat-label">Articoli Totali</div>
                     <div id="totalItems" class="stat-value">0</div>
+                    <div class="stat-label">Articoli Totali</div>
                 </div>
             </div>
-            <div class="stat-card card-orange">
-                <div class="stat-icon-wrap"><i class="fas fa-triangle-exclamation"></i></div>
+            <div class="stat-card yellow">
+                <div class="stat-icon-wrap"><i class="fas fa-exclamation-triangle"></i></div>
                 <div>
-                    <div class="stat-label">Articoli in Esaurimento</div>
                     <div id="lowStockItems" class="stat-value">0</div>
+                    <div class="stat-label">Articoli in Esaurimento</div>
                 </div>
             </div>
         </div>
@@ -576,29 +547,30 @@ select.filter-input {
         <!-- Filters -->
         <div class="filter-card">
             <div class="filter-field">
-                <label for="searchInput"><i class="fas fa-search" style="margin-right: 4px;"></i>Cerca articolo</label>
-                <input type="text" id="searchInput" class="filter-input" placeholder="Nome, ID, barcode...">
+                <label for="searchInput">Cerca articolo</label>
+                <input type="text" id="searchInput" class="filter-input" placeholder="Nome, ID...">
             </div>
             <div class="filter-field">
-                <label for="categoryFilter"><i class="fas fa-filter" style="margin-right: 4px;"></i>Categoria</label>
+                <label for="categoryFilter">Filtra per Categoria</label>
                 <select id="categoryFilter" class="filter-input"></select>
             </div>
             <div class="filter-actions">
                 <button id="toggleReportBtn" class="btn btn-purple">
-                    <i class="fas fa-chart-pie"></i> Report
+                    <i class="fas fa-chart-pie"></i> Mostra Report
                 </button>
                 <button id="exportCsvBtn" class="btn btn-secondary">
-                    <i class="fas fa-file-csv"></i> CSV
+                    <i class="fas fa-file-csv"></i> Esporta CSV
                 </button>
                 <button id="addArticleBtn" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Aggiungi Articolo
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Aggiungi Articolo
                 </button>
             </div>
         </div>
 
         <!-- Report Section -->
         <div id="report-section">
-            <h2><i class="fas fa-chart-bar"></i>Analisi Inventario</h2>
+            <h2><i class="fas fa-chart-bar" style="color: var(--secondary); margin-right: 10px;"></i>Analisi Inventario</h2>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
                 <div>
                     <h3>Valore per Categoria</h3>
@@ -612,32 +584,27 @@ select.filter-input {
         </div>
 
         <!-- Table -->
-        <div class="table-section">
-            <div class="table-wrapper">
-                <div class="table-header-bar">
-                    <div class="table-title"><i class="fas fa-table-list"></i> Articoli in Magazzino <span id="tableCountBadge" class="table-count">0</span></div>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="inv-table">
-                        <thead id="tableHeader">
-                            <tr>
-                                <th style="width: 48px; text-align: center;"><input type="checkbox" id="selectAllCheckbox" class="inv-checkbox"></th>
-                                <th style="width: 72px;">Immagine</th>
-                                <th class="sortable" data-sort="id">ID <i class="fas fa-sort sort-icon"></i></th>
-                                <th class="sortable" data-sort="name">Nome <i class="fas fa-sort sort-icon"></i></th>
-                                <th class="sortable" data-sort="quantity">Quantit&agrave; <i class="fas fa-sort sort-icon"></i></th>
-                                <th class="sortable" data-sort="prezzo_vendita1">Prezzo (&euro;) <i class="fas fa-sort sort-icon"></i></th>
-                                <th>Categoria</th>
-                                <th style="text-align: right;">Azioni</th>
-                            </tr>
-                        </thead>
-                        <tbody id="inventoryTableBody"></tbody>
-                    </table>
-                </div>
+        <div class="table-wrapper">
+            <div class="overflow-x-auto">
+                <table class="inv-table">
+                    <thead id="tableHeader">
+                        <tr>
+                            <th style="width: 48px; text-align: center;"><input type="checkbox" id="selectAllCheckbox" class="inv-checkbox"></th>
+                            <th style="width: 72px;">Immagine</th>
+                            <th class="sortable" data-sort="id">ID <i class="fas fa-sort sort-icon"></i></th>
+                            <th class="sortable" data-sort="name">Nome <i class="fas fa-sort sort-icon"></i></th>
+                            <th class="sortable" data-sort="quantity">Quantit&agrave; <i class="fas fa-sort sort-icon"></i></th>
+                            <th class="sortable" data-sort="prezzo_vendita1">Prezzo (&euro;) <i class="fas fa-sort sort-icon"></i></th>
+                            <th>Categoria</th>
+                            <th style="text-align: right;">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryTableBody"></tbody>
+                </table>
             </div>
-
-            <div id="pagination-controls"></div>
         </div>
+
+        <div id="pagination-controls"></div>
     </main>
 
     <!-- Bulk Actions Bar -->
@@ -649,7 +616,7 @@ select.filter-input {
     </div>
 
     <!-- Item Modal (Add/Edit) -->
-    <div id="itemModal">
+    <div id="itemModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="modalTitle"></h2>
@@ -760,7 +727,7 @@ select.filter-input {
     </div>
 
     <!-- Confirm Delete Modal -->
-    <div id="confirmModal">
+    <div id="confirmModal" class="modal-overlay">
         <div class="modal-content" style="padding: 40px 32px; text-align: center;">
             <div class="confirm-icon"><i class="fas fa-exclamation-triangle"></i></div>
             <h2>Conferma Eliminazione</h2>
@@ -773,7 +740,7 @@ select.filter-input {
     </div>
 
     <!-- Barcode Modal -->
-    <div id="barcodeModal">
+    <div id="barcodeModal" class="modal-overlay">
         <div class="modal-content" style="max-width: 480px; width: 95%;">
             <div class="modal-header">
                 <h2 id="barcodeModalTitle"></h2>
@@ -917,9 +884,6 @@ select.filter-input {
             renderTable(paginatedItems);
             renderPagination(filtered.length);
             updateBulkActionsBar();
-            // Update table count badge
-            const badge = document.getElementById('tableCountBadge');
-            if (badge) badge.textContent = filtered.length;
         }
 
         function renderTable(items) {
@@ -935,16 +899,16 @@ select.filter-input {
                     const imageSrc = item.immagine ? `${UPLOADS_DIR}${item.immagine}` : 'https://placehold.co/100x100/e2e8f0/94a3b8?text=N/A';
                     const hasBarcode = item.barcode && String(item.barcode).trim() !== '';
                     const qty = parseInt(item.quantity || 0);
-                    const qtyBadgeClass = qty < LOW_STOCK_THRESHOLD ? 'qty-badge qty-low' : 'qty-badge qty-ok';
+                    const qtyClass = qty < LOW_STOCK_THRESHOLD ? 'color: var(--danger); font-weight: 700;' : 'font-weight: 600;';
 
                     row.innerHTML = `
                         <td style="text-align: center;"><input type="checkbox" data-id="${item.id}" class="row-checkbox inv-checkbox" ${selectedItems.has(String(item.id)) ? 'checked' : ''}></td>
                         <td><img src="${imageSrc}" alt="${itemName}" class="item-thumbnail"></td>
-                        <td class="item-id">#${item.id || 'N/A'}</td>
+                        <td class="item-id">${item.id || 'N/A'}</td>
                         <td class="item-name">${itemName}</td>
-                        <td><span class="${qtyBadgeClass}">${qty}</span></td>
-                        <td style="font-weight: 600;">&euro; ${parseFloat(item.prezzo_vendita1 || 0).toFixed(2)}</td>
-                        <td><span class="category-badge">${item.categoria || 'N/D'}</span></td>
+                        <td style="${qtyClass}">${qty}</td>
+                        <td style="font-weight: 600;">${parseFloat(item.prezzo_vendita1 || 0).toFixed(2)}</td>
+                        <td><span style="background: var(--border-light); padding: 4px 10px; border-radius: 20px; font-size: 0.82rem; font-weight: 500; color: var(--text-secondary);">${item.categoria || 'N/D'}</span></td>
                         <td><div class="actions-cell">
                             <button data-id="${item.id}" data-barcode="${item.barcode || ''}" class="action-btn barcode-btn" ${!hasBarcode ? 'disabled' : ''} title="${hasBarcode ? 'Mostra barcode' : 'Barcode non impostato'}"><i class="fas fa-barcode"></i></button>
                             <button data-id="${item.id}" class="action-btn edit-btn"><i class="fas fa-pencil-alt"></i></button>
@@ -1047,7 +1011,7 @@ select.filter-input {
                     datasets: [{
                         label: 'Valore Inventario',
                         data: Object.values(categoryValues),
-                        backgroundColor: ['#22c55e', '#3b82f6', '#f97316', '#ef4444', '#8b5cf6', '#f59e0b', '#64748b'],
+                        backgroundColor: ['#3b82f6', '#10b981', '#f97316', '#ef4444', '#8b5cf6', '#f59e0b', '#64748b'],
                         borderWidth: 0,
                     }]
                 },
@@ -1066,7 +1030,7 @@ select.filter-input {
                     datasets: [{
                         label: 'Quantit\u00e0 in magazzino',
                         data: sortedByQuantity.map(item => item.quantity || 0),
-                        backgroundColor: '#22c55e',
+                        backgroundColor: '#3b82f6',
                         borderRadius: 8,
                     }]
                 },
@@ -1390,7 +1354,7 @@ select.filter-input {
             const reportSection = document.getElementById('report-section');
             const isVisible = reportSection.style.display === 'block';
             reportSection.style.display = isVisible ? 'none' : 'block';
-            e.currentTarget.innerHTML = isVisible ? '<i class="fas fa-chart-pie" style="margin-right: 6px;"></i>Report' : '<i class="fas fa-eye-slash" style="margin-right: 6px;"></i>Nascondi';
+            e.currentTarget.innerHTML = isVisible ? '<i class="fas fa-chart-pie" style="margin-right: 6px;"></i>Mostra Report' : '<i class="fas fa-eye-slash" style="margin-right: 6px;"></i>Nascondi Report';
         });
         document.getElementById('addArticleBtn').addEventListener('click', openAddModal);
         itemForm.addEventListener('submit', handleFormSubmit);

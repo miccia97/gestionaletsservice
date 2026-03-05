@@ -208,6 +208,20 @@ $prodotti_result = $conn->query($sql);
       --warning-light: #fef3c7;
       --info-color: #3b82f6;
     }
+    /* PARTICLES */
+    .particles-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+    .particle { position: absolute; border-radius: 50%; opacity: 0.12; animation: floatParticle 22s infinite ease-in-out; }
+    .particle:nth-child(1) { width: 320px; height: 320px; background: var(--primary-color); top: -120px; left: -80px; animation-delay: 0s; }
+    .particle:nth-child(2) { width: 220px; height: 220px; background: var(--info-color); top: 50%; right: -60px; animation-delay: -6s; }
+    .particle:nth-child(3) { width: 180px; height: 180px; background: #8b5cf6; bottom: 8%; left: 25%; animation-delay: -12s; }
+    .particle:nth-child(4) { width: 120px; height: 120px; background: var(--warning-color); top: 25%; left: 55%; animation-delay: -17s; }
+    @keyframes floatParticle {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        25% { transform: translate(30px, -30px) scale(1.05); }
+        50% { transform: translate(-20px, 20px) scale(0.95); }
+        75% { transform: translate(15px, 15px) scale(1.02); }
+    }
+
     /* Badge Nuovo sui prodotti recenti */
     .new-badge {
       position: absolute;
@@ -237,7 +251,7 @@ $prodotti_result = $conn->query($sql);
       color: var(--text-dark);
       -webkit-font-smoothing: antialiased;
     }
-    .main-content { display: flex; padding: 30px; gap: 30px; }
+    .main-content { display: flex; padding: 30px; gap: 30px; position: relative; z-index: 1; }
     .sidebar { 
       display: flex; 
       flex-direction: column; 
@@ -1396,6 +1410,14 @@ $prodotti_result = $conn->query($sql);
 </head>
 <body>
   <?php include 'header.php'; ?>
+
+  <!-- Particles -->
+  <div class="particles-container">
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+  </div>
 
   <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
 

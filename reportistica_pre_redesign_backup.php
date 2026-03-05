@@ -137,19 +137,20 @@ try {
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="assets/header-styles.css?v=1">
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+/* ===================== DESIGN SYSTEM ===================== */
 :root {
-    --primary: #22c55e;
-    --primary-dark: #16a34a;
-    --primary-light: #dcfce7;
-    --primary-glow: rgba(34, 197, 94, 0.4);
-    --secondary: #3b82f6;
-    --secondary-dark: #2563eb;
-    --secondary-light: #dbeafe;
-    --purple: #8b5cf6;
-    --purple-light: #ede9fe;
+    --primary: #3b82f6;
+    --primary-dark: #2563eb;
+    --primary-light: #dbeafe;
+    --primary-glow: rgba(59, 130, 246, 0.4);
+    --green: #22c55e;
+    --green-dark: #16a34a;
+    --green-light: #dcfce7;
+    --secondary: #8b5cf6;
+    --secondary-light: #ede9fe;
     --success: #10b981;
     --warning: #f59e0b;
     --warning-light: #fef3c7;
@@ -167,11 +168,9 @@ try {
     --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-    --shadow-glow: 0 0 40px rgba(34, 197, 94, 0.15);
     --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
     --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
     --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
     --radius-sm: 0.375rem;
     --radius: 0.5rem;
     --radius-md: 0.75rem;
@@ -186,12 +185,12 @@ body {
     padding-top: 80px; line-height: 1.6; overflow-x: hidden;
 }
 
-/* PARTICLES */
+/* ===================== PARTICLES ===================== */
 .particles-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
-.particle { position: absolute; border-radius: 50%; opacity: 0.15; animation: floatParticle 22s infinite ease-in-out; }
+.particle { position: absolute; border-radius: 50%; opacity: 0.1; animation: floatParticle 22s infinite ease-in-out; }
 .particle:nth-child(1) { width: 320px; height: 320px; background: var(--primary); top: -120px; left: -80px; animation-delay: 0s; }
-.particle:nth-child(2) { width: 220px; height: 220px; background: var(--secondary); top: 50%; right: -60px; animation-delay: -6s; }
-.particle:nth-child(3) { width: 180px; height: 180px; background: var(--purple); bottom: 8%; left: 25%; animation-delay: -12s; }
+.particle:nth-child(2) { width: 220px; height: 220px; background: var(--green); top: 50%; right: -60px; animation-delay: -6s; }
+.particle:nth-child(3) { width: 180px; height: 180px; background: var(--secondary); bottom: 8%; left: 25%; animation-delay: -12s; }
 .particle:nth-child(4) { width: 120px; height: 120px; background: var(--warning); top: 25%; left: 55%; animation-delay: -17s; }
 @keyframes floatParticle {
     0%, 100% { transform: translate(0, 0) scale(1); }
@@ -200,7 +199,7 @@ body {
     75% { transform: translate(15px, 15px) scale(1.02); }
 }
 
-/* TOAST */
+/* ===================== TOAST ===================== */
 .toast-container {
     position: fixed; top: 100px; right: 24px; z-index: 10000;
     display: flex; flex-direction: column; gap: 12px; pointer-events: none;
@@ -219,149 +218,123 @@ body {
 @keyframes toastIn { to { opacity: 1; transform: translateX(0); } }
 @keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateX(100px); } }
 
-/* LAYOUT */
+/* ===================== LAYOUT ===================== */
 .main-container {
-    max-width: 1500px; margin: 0 auto; padding: 24px 32px 60px;
+    max-width: 1400px; margin: 0 auto; padding: 0 24px 60px;
     position: relative; z-index: 1;
 }
 
-/* PAGE HEADER */
-.page-header {
-    text-align: center; margin-bottom: 32px;
-    animation: fadeInUp 0.6s ease-out;
+/* ===================== PAGE HEADER ===================== */
+.page-header { margin-bottom: 32px; }
+.page-title {
+    font-size: 2.2rem; font-weight: 800; color: var(--text-primary);
+    display: flex; align-items: center; gap: 16px;
+    letter-spacing: -0.5px;
 }
-.page-header h1 {
-    font-size: 2.75rem; font-weight: 800;
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text; margin: 0 0 8px; letter-spacing: -0.02em;
+.page-title-icon {
+    width: 52px; height: 52px; border-radius: 16px;
+    background: linear-gradient(135deg, var(--secondary), #7c3aed);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.35);
 }
-.page-header p { color: var(--text-secondary); font-size: 1.1rem; margin: 0; }
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.page-title-icon i { font-size: 1.4rem; color: #fff; }
+.page-subtitle { color: var(--text-secondary); font-size: 0.95rem; font-weight: 400; margin-top: 6px; }
 
-/* FILTER CARD */
+/* ===================== FILTER CARD ===================== */
 .filter-card {
     background: var(--bg-card); border-radius: var(--radius-xl); padding: 24px 28px;
-    box-shadow: var(--shadow); border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);
     margin-bottom: 28px;
-    animation: fadeInUp 0.6s ease-out 0.1s both;
 }
 .filter-grid {
-    display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px; align-items: end;
 }
-.filter-field { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 160px; }
+.filter-field { display: flex; flex-direction: column; gap: 6px; }
 .filter-field label {
-    font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
+    font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
     letter-spacing: 0.5px; color: var(--text-secondary);
 }
 .filter-input {
-    padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius-md);
-    font-size: 0.95rem; font-family: 'Inter', sans-serif; color: var(--text-primary);
-    background: var(--bg-page); outline: none; transition: all var(--transition); width: 100%;
+    padding: 10px 14px; border: 2px solid var(--border-color); border-radius: var(--radius-md);
+    font-size: 0.9rem; font-family: 'Inter', sans-serif; color: var(--text-primary);
+    background: var(--bg-card); outline: none; transition: all var(--transition); width: 100%;
 }
-.filter-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); background: var(--bg-card); }
+.filter-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12); }
 .quick-date-group { display: flex; gap: 6px; align-items: flex-end; }
 .quick-btn {
-    padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius-md);
-    background: var(--bg-card); cursor: pointer; font-size: 0.88rem;
+    padding: 10px 14px; border: 2px solid var(--border-color); border-radius: var(--radius-md);
+    background: var(--bg-card); cursor: pointer; font-size: 0.82rem;
     font-weight: 600; font-family: 'Inter', sans-serif; color: var(--text-secondary);
     transition: all var(--transition); white-space: nowrap;
 }
 .quick-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
 .filter-actions { display: flex; gap: 10px; align-items: flex-end; }
-
-/* BUTTONS */
 .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    padding: 12px 24px; border: none; border-radius: var(--radius-md);
-    font-size: 0.95rem; font-weight: 600; font-family: 'Inter', sans-serif;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 22px; border: none; border-radius: var(--radius-md);
+    font-size: 0.88rem; font-weight: 700; font-family: 'Inter', sans-serif;
     cursor: pointer; transition: all var(--transition); white-space: nowrap;
-    text-decoration: none; text-align: center;
-    position: relative; overflow: hidden;
+    text-decoration: none; text-align: center; justify-content: center;
 }
-.btn::after {
-    content: ''; position: absolute; width: 100%; height: 100%; top: 0; left: 0;
-    background: linear-gradient(rgba(255,255,255,0.2), rgba(255,255,255,0)); opacity: 0; transition: opacity 0.2s;
-}
-.btn:hover::after { opacity: 1; }
 .btn i { font-size: 0.85rem; }
 .btn-primary {
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    color: #fff; box-shadow: 0 4px 14px var(--primary-glow);
+    color: #fff; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--primary-glow); }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4); }
 .btn-secondary {
-    background: var(--border-light); color: var(--text-secondary);
+    background: linear-gradient(135deg, #475569, #334155);
+    color: #fff; box-shadow: 0 4px 12px rgba(71, 85, 105, 0.3);
 }
-.btn-secondary:hover { background: var(--border-color); color: var(--text-primary); }
+.btn-secondary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(71, 85, 105, 0.4); }
 
-/* STAT CARDS */
+/* ===================== STAT CARDS ===================== */
 .stats-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr);
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 20px; margin-bottom: 32px;
 }
 .stat-card {
-    background: var(--bg-card); border-radius: var(--radius-xl); padding: 24px;
+    background: var(--bg-card); border-radius: var(--radius-xl); padding: 28px 24px;
     border: 1px solid var(--border-color); position: relative; overflow: hidden;
-    display: flex; align-items: center; gap: 20px;
-    cursor: pointer; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    box-shadow: var(--shadow);
-    opacity: 0; transform: translateY(30px);
-    animation: cardSlideIn 0.5s ease-out forwards;
+    text-align: center; cursor: pointer; transition: all var(--transition);
+    box-shadow: var(--shadow-sm);
 }
-.stat-card:nth-child(1) { animation-delay: 0.15s; }
-.stat-card:nth-child(2) { animation-delay: 0.2s; }
-.stat-card:nth-child(3) { animation-delay: 0.25s; }
-.stat-card:nth-child(4) { animation-delay: 0.3s; }
-@keyframes cardSlideIn { to { opacity: 1; transform: translateY(0); } }
 .stat-card::before {
     content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-    background: linear-gradient(90deg, var(--card-accent), var(--card-accent-light, var(--card-accent)));
-    opacity: 0; transition: opacity 0.3s ease;
 }
-.stat-card:hover::before { opacity: 1; }
-.stat-card:hover {
-    transform: translateY(-6px);
-    box-shadow: var(--shadow-lg), 0 0 0 1px var(--card-accent);
+.stat-card:hover { transform: translateY(-5px); }
+.stat-card.blue::before { background: linear-gradient(90deg, var(--primary), #60a5fa); }
+.stat-card.red::before { background: linear-gradient(90deg, var(--danger), #f87171); }
+.stat-card.green::before { background: linear-gradient(90deg, var(--green), #4ade80); }
+.stat-card.purple::before { background: linear-gradient(90deg, var(--secondary), #a78bfa); }
+.stat-card.blue:hover { box-shadow: 0 12px 30px rgba(59, 130, 246, 0.15); }
+.stat-card.red:hover { box-shadow: 0 12px 30px rgba(239, 68, 68, 0.15); }
+.stat-card.green:hover { box-shadow: 0 12px 30px rgba(34, 197, 94, 0.15); }
+.stat-card.purple:hover { box-shadow: 0 12px 30px rgba(139, 92, 246, 0.15); }
+.stat-card-label {
+    font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--text-secondary); margin-bottom: 10px;
 }
-.stat-card.card-green { --card-accent: var(--primary); }
-.stat-card.card-red { --card-accent: var(--danger); }
-.stat-card.card-teal { --card-accent: #14b8a6; }
-.stat-card.card-purple { --card-accent: var(--purple); }
-.stat-icon-wrap {
-    width: 56px; height: 56px; border-radius: var(--radius-lg);
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    transition: transform 0.3s ease;
-}
-.stat-card:hover .stat-icon-wrap { transform: scale(1.1) rotate(-5deg); }
-.stat-card.card-green .stat-icon-wrap { background: var(--primary-light); color: var(--primary-dark); }
-.stat-card.card-red .stat-icon-wrap { background: var(--danger-light); color: var(--danger); }
-.stat-card.card-teal .stat-icon-wrap { background: #ccfbf1; color: #0d9488; }
-.stat-card.card-purple .stat-icon-wrap { background: var(--purple-light); color: var(--purple); }
-.stat-icon-wrap i { font-size: 1.3rem; }
-.stat-label {
-    font-size: 0.85rem; font-weight: 500; color: var(--text-secondary);
-    margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;
-}
-.stat-value { font-size: 1.75rem; font-weight: 700; line-height: 1.1; }
-.stat-card.card-green .stat-value { color: var(--primary-dark); }
-.stat-card.card-red .stat-value { color: var(--danger); }
-.stat-card.card-teal .stat-value { color: #0d9488; }
-.stat-card.card-purple .stat-value { color: var(--purple); }
+.stat-card-value { font-size: 2.4rem; font-weight: 800; letter-spacing: -1px; line-height: 1.1; }
+.stat-card.blue .stat-card-value { color: var(--primary); }
+.stat-card.red .stat-card-value { color: var(--danger); }
+.stat-card.green .stat-card-value { color: var(--green-dark); }
+.stat-card.purple .stat-card-value { color: var(--secondary); }
 
-/* DASHBOARD GRID */
+/* ===================== DASHBOARD GRID ===================== */
 .dashboard-grid {
-    display: grid; grid-template-columns: 5fr 3fr;
+    display: grid; grid-template-columns: 2fr 1fr;
     gap: 24px; margin-bottom: 32px;
-    animation: fadeInUp 0.6s ease-out 0.35s both;
 }
+@media (max-width: 1024px) { .dashboard-grid { grid-template-columns: 1fr; } }
 .charts-column { display: flex; flex-direction: column; gap: 24px; }
 .sidebar-column { display: flex; flex-direction: column; gap: 24px; }
 
-/* CARDS */
+/* ===================== CARDS ===================== */
 .card {
     background: var(--bg-card); border-radius: var(--radius-xl);
-    box-shadow: var(--shadow); border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);
     overflow: hidden; transition: all var(--transition);
 }
 .card:hover { box-shadow: var(--shadow-md); }
@@ -377,12 +350,11 @@ body {
     width: 36px; height: 36px; border-radius: 10px;
     display: flex; align-items: center; justify-content: center; font-size: 0.95rem;
 }
-.card-title-icon.green { background: var(--primary-light); color: var(--primary-dark); }
-.card-title-icon.blue { background: var(--secondary-light); color: var(--secondary); }
-.card-title-icon.purple { background: var(--purple-light); color: var(--purple); }
+.card-title-icon.blue { background: var(--primary-light); color: var(--primary); }
+.card-title-icon.green { background: var(--green-light); color: var(--green-dark); }
+.card-title-icon.purple { background: var(--secondary-light); color: var(--secondary); }
 .card-title-icon.orange { background: #fff7ed; color: #ea580c; }
 .card-title-icon.red { background: var(--danger-light); color: var(--danger); }
-.card-title-icon.teal { background: #ccfbf1; color: #0d9488; }
 .card-body { padding: 24px; }
 .card-body-compact { padding: 16px 24px; }
 .csv-btn {
@@ -393,16 +365,16 @@ body {
 }
 .csv-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
 
-/* ROTAZIONE INFO */
+/* ===================== ROTAZIONE INFO ===================== */
 .turnover-card .turnover-value {
-    font-size: 3.5rem; font-weight: 900; color: var(--purple);
+    font-size: 3.5rem; font-weight: 900; color: var(--secondary);
     text-align: center; letter-spacing: -2px; margin: 16px 0 8px;
 }
 .turnover-card .turnover-label {
     text-align: center; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;
 }
 
-/* MOVEMENTS LIST */
+/* ===================== MOVEMENTS LIST ===================== */
 .movement-item {
     padding: 14px 0; border-bottom: 1px solid var(--border-light);
     display: flex; align-items: center; gap: 14px;
@@ -416,7 +388,7 @@ body {
 .movement-name { font-weight: 600; font-size: 0.88rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .movement-meta { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
 
-/* TABLES */
+/* ===================== TABLES ===================== */
 .table-card { overflow: hidden; }
 .table-scroll { overflow-x: auto; max-height: 400px; overflow-y: auto; }
 .premium-table { width: 100%; border-collapse: collapse; }
@@ -432,13 +404,13 @@ body {
     color: var(--text-primary);
 }
 .premium-table tbody tr { transition: background var(--transition-fast); }
-.premium-table tbody tr:hover { background: rgba(34, 197, 94, 0.04); }
+.premium-table tbody tr:hover { background: rgba(59, 130, 246, 0.04); }
 .qty-badge {
     display: inline-flex; align-items: center; padding: 4px 12px;
     border-radius: 20px; font-weight: 700; font-size: 0.82rem;
 }
 .qty-badge.low { background: var(--danger-light); color: var(--danger); }
-.qty-badge.high { background: var(--primary-light); color: var(--primary-dark); }
+.qty-badge.high { background: var(--green-light); color: var(--green-dark); }
 .category-pill {
     display: inline-block; padding: 4px 12px; border-radius: 20px;
     background: var(--border-light); font-size: 0.82rem;
@@ -449,25 +421,19 @@ body {
 }
 .empty-table-msg i { font-size: 2rem; display: block; margin-bottom: 12px; }
 
-/* DETAIL SECTION */
-.detail-tables-section { animation: fadeInUp 0.6s ease-out 0.45s both; }
-
-/* HIDDEN TABLES */
+/* ===================== HIDDEN TABLES ===================== */
 .hidden-export { display: none; }
 
-/* RESPONSIVE */
-@media (max-width: 1200px) {
-    .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    .dashboard-grid { grid-template-columns: 1fr; }
-}
+/* ===================== RESPONSIVE ===================== */
 @media (max-width: 768px) {
-    .main-container { padding: 16px 16px 40px; }
-    .page-header h1 { font-size: 1.8rem; }
+    .main-container { padding: 0 16px 40px; }
+    .page-title { font-size: 1.6rem; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .filter-grid { grid-template-columns: 1fr; }
+    .stat-card-value { font-size: 1.8rem; }
+}
+@media (max-width: 480px) {
     .stats-grid { grid-template-columns: 1fr; }
-    .filter-grid { flex-direction: column; }
-    .filter-field { min-width: 100%; }
-    .stat-value { font-size: 1.4rem; }
-    .quick-date-group { flex-wrap: wrap; }
 }
 @media print {
     .particles-container, .toast-container, .filter-card { display: none !important; }
@@ -496,8 +462,13 @@ body {
 
         <!-- Page Header -->
         <div class="page-header">
-            <h1>Dashboard Analisi Magazzino</h1>
-            <p>Reportistica avanzata, analisi trend e monitoraggio scorte in tempo reale</p>
+            <h1 class="page-title">
+                <div class="page-title-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                Dashboard Analisi Magazzino
+            </h1>
+            <p class="page-subtitle">Reportistica avanzata, analisi trend e monitoraggio scorte in tempo reale</p>
         </div>
 
         <!-- Filter Card -->
@@ -534,33 +505,21 @@ body {
 
         <!-- Summary Stats -->
         <div class="stats-grid">
-            <div class="stat-card card-green" onclick="scrollToSection('totalValueCard')">
-                <div class="stat-icon-wrap"><i class="fas fa-coins"></i></div>
-                <div>
-                    <div class="stat-label">Valore Totale</div>
-                    <div class="stat-value" id="statTotalValue"><?php echo number_format($total_stock_value, 2, ',', '.') . ' &euro;'; ?></div>
-                </div>
+            <div class="stat-card blue" onclick="scrollToSection('totalValueCard')">
+                <div class="stat-card-label">Valore Totale</div>
+                <div class="stat-card-value" id="statTotalValue"><?php echo number_format($total_stock_value, 2, ',', '.') . ' &euro;'; ?></div>
             </div>
-            <div class="stat-card card-red" onclick="scrollToSection('lowStockCard')">
-                <div class="stat-icon-wrap"><i class="fas fa-arrow-trend-down"></i></div>
-                <div>
-                    <div class="stat-label">Sotto Scorta</div>
-                    <div class="stat-value" id="statLowStock"><?php echo count($low_stock_products); ?></div>
-                </div>
+            <div class="stat-card red" onclick="scrollToSection('lowStockCard')">
+                <div class="stat-card-label">Sotto Scorta</div>
+                <div class="stat-card-value" id="statLowStock"><?php echo count($low_stock_products); ?></div>
             </div>
-            <div class="stat-card card-teal" onclick="scrollToSection('aboveStockCard')">
-                <div class="stat-icon-wrap"><i class="fas fa-arrow-trend-up"></i></div>
-                <div>
-                    <div class="stat-label">Sopra Scorta</div>
-                    <div class="stat-value" id="statAboveStock"><?php echo count($above_stock_products); ?></div>
-                </div>
+            <div class="stat-card green" onclick="scrollToSection('aboveStockCard')">
+                <div class="stat-card-label">Sopra Scorta</div>
+                <div class="stat-card-value" id="statAboveStock"><?php echo count($above_stock_products); ?></div>
             </div>
-            <div class="stat-card card-purple" onclick="scrollToSection('turnoverCard')">
-                <div class="stat-icon-wrap"><i class="fas fa-rotate"></i></div>
-                <div>
-                    <div class="stat-label">Rotazione</div>
-                    <div class="stat-value" id="statTurnover"><?php echo number_format($inventory_turnover, 2, ',', '.'); ?>x</div>
-                </div>
+            <div class="stat-card purple" onclick="scrollToSection('turnoverCard')">
+                <div class="stat-card-label">Rotazione</div>
+                <div class="stat-card-value" id="statTurnover"><?php echo number_format($inventory_turnover, 2, ',', '.'); ?>x</div>
             </div>
         </div>
 
@@ -645,7 +604,7 @@ body {
         </div>
 
         <!-- Detail Tables -->
-        <div class="detail-tables-section" style="display: flex; flex-direction: column; gap: 28px;">
+        <div style="display: flex; flex-direction: column; gap: 28px;">
 
             <!-- Sotto Scorta -->
             <div class="card table-card" id="lowStockCard">
@@ -659,7 +618,7 @@ body {
                 <div class="table-scroll">
                     <?php if (empty($low_stock_products)): ?>
                         <div class="empty-table-msg">
-                            <i class="fas fa-check-circle" style="color: var(--primary);"></i>
+                            <i class="fas fa-check-circle" style="color: var(--green);"></i>
                             Nessun prodotto sotto scorta
                         </div>
                     <?php else: ?>
@@ -759,8 +718,8 @@ body {
         // === Trend Acquisti Chart ===
         const trendCtx = document.getElementById('purchaseTrendChart').getContext('2d');
         const trendGradient = trendCtx.createLinearGradient(0, 0, 0, 400);
-        trendGradient.addColorStop(0, 'rgba(34, 197, 94, 0.25)');
-        trendGradient.addColorStop(1, 'rgba(34, 197, 94, 0.02)');
+        trendGradient.addColorStop(0, 'rgba(59, 130, 246, 0.25)');
+        trendGradient.addColorStop(1, 'rgba(59, 130, 246, 0.02)');
 
         new Chart(trendCtx, {
             type: 'line',
@@ -769,13 +728,13 @@ body {
                 datasets: [{
                     label: 'Valore Acquistato (\u20ac)',
                     data: purchaseTrendData.map(d => d.total_value_net),
-                    borderColor: '#22c55e',
+                    borderColor: '#3b82f6',
                     backgroundColor: trendGradient,
                     fill: true,
                     tension: 0.4,
                     borderWidth: 3,
                     pointBackgroundColor: '#fff',
-                    pointBorderColor: '#22c55e',
+                    pointBorderColor: '#3b82f6',
                     pointBorderWidth: 2,
                     pointRadius: 5,
                     pointHoverRadius: 8,
@@ -810,11 +769,11 @@ body {
                     label: 'Quantit\u00e0 Acquistata',
                     data: topProductsData.map(p => p.total_quantity_purchased),
                     backgroundColor: [
-                        'rgba(34, 197, 94, 0.8)',
                         'rgba(59, 130, 246, 0.8)',
+                        'rgba(34, 197, 94, 0.8)',
                         'rgba(139, 92, 246, 0.8)',
                         'rgba(245, 158, 11, 0.8)',
-                        'rgba(6, 182, 212, 0.8)'
+                        'rgba(239, 68, 68, 0.8)'
                     ],
                     borderRadius: 8,
                     borderSkipped: false,
@@ -838,7 +797,20 @@ body {
             }
         });
 
-        // === Animations handled by CSS cardSlideIn ===
+        // === Animate stat values on load ===
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+        });
+        setTimeout(() => {
+            document.querySelectorAll('.stat-card').forEach((card, i) => {
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, i * 100);
+            });
+        }, 100);
     });
 
     // === Smooth Scroll ===
