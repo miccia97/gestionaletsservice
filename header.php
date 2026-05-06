@@ -413,6 +413,7 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
 
   <nav class="mobile-nav">
     <ul>
+      <li><a href="dashboard.php"><i class="fas fa-gauge-high"></i> Dashboard</a></li>
       <li><a href="#"><i class="fas fa-cash-register"></i> Vendita</a></li>
 
       <li class="has-dropdown">
@@ -456,6 +457,8 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         <ul class="dropdown">
           <li><a href="inventario.php">Inventario</a></li>
           <li><a href="reportistica.php">Report e Analisi</a></li>
+          <li><a href="gestione_fornitori.php">Fornitori</a></li>
+          <li><a href="gestione_resi.php">Resi e Rimborsi</a></li>
           <li class="has-submenu">
             <a href="#">Fatture</a>
             <ul class="submenu">
@@ -472,6 +475,7 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
           <li><a href="gestione_categorie.php">Categorie/Sottocategorie</a></li>
           <li><a href="settings.php">Impostazioni</a></li>
           <li><a href="gestione_utenti.php">Gestione Utenti</a></li>
+          <li><a href="audit_log.php">Registro Attivit&agrave;</a></li>
         </ul>
       </li>
     </ul>

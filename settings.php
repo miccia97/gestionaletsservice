@@ -564,6 +564,16 @@ input:checked + .slider:before { transform: translateX(24px); }
 
                     <div class="setting-row">
                         <div class="setting-row-info">
+                            <h3><i class="fas fa-database"></i> Backup Database <span class="badge badge-green">SQL</span></h3>
+                            <p>Scarica un backup completo del database in formato SQL. Conservalo in un luogo sicuro.</p>
+                        </div>
+                        <button id="backupDbBtn" class="btn btn-primary btn-sm" onclick="backupDatabase()">
+                            <i class="fas fa-download"></i> Backup Ora
+                        </button>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-row-info">
                             <h3><i class="fas fa-file-csv"></i> Esporta Prodotti <span class="badge badge-green">CSV</span></h3>
                             <p>Scarica un file CSV con tutti i tuoi prodotti e le giacenze.</p>
                         </div>
@@ -737,6 +747,30 @@ function saveDisplayPreferences() {
 
 function exportData() {
     showNotification("Esportazione dati in corso...", "info");
+}
+
+// ========== BACKUP DATABASE ==========
+function backupDatabase() {
+    var btn = document.getElementById('backupDbBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> In corso...';
+    showNotification("Backup in corso, attendere...", "info");
+    
+    // Usa un iframe nascosto per il download
+    var iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = 'backup_database.php';
+    document.body.appendChild(iframe);
+    
+    // Check se il download inizia
+    setTimeout(function() {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-download"></i> Backup Ora';
+        showNotification("Se il download non si avvia, verifica i permessi admin.", "warning");
+    }, 5000);
+    
+    // Cleanup iframe dopo un po'
+    setTimeout(function() { document.body.removeChild(iframe); }, 30000);
 }
 
 // ========== SECURITY ACTIONS ==========

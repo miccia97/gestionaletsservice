@@ -268,7 +268,7 @@ if (isset($_SESSION['login_error'])) {
 <body>
     <div class="login-container">
         <!-- Logo del Gestionale -->
-        <img src="images/logo.png" alt="Logo Gestionale" class="login-logo">
+        <img src="images/LOGO PNG2.png" alt="Logo Gestionale" class="login-logo">
         
         <h2>Accedi al Gestionale</h2>
 

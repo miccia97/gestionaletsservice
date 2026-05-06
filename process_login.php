@@ -60,6 +60,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['user_name'] = $user['nome'];       // Il nome del dipendente per i saluti
             $_SESSION['user_email'] = $user['email'];     // L'email del dipendente
             $_SESSION['role'] = $user['ruolo'];           // Il ruolo per i permessi
+            $_SESSION['ruolo'] = $user['ruolo'];          // Alias per RBAC
+            $_SESSION['nome'] = $user['nome'];            // Alias per dashboard
+            $_SESSION['nome_utente'] = $user['nome_utente']; // Alias per audit log
 
             // Aggiorna la data dell'ultimo accesso nel database (opzionale, se hai il campo 'ultimo_accesso')
             $update_last_login_sql = "UPDATE utenti SET ultimo_accesso = NOW() WHERE id = ?";
