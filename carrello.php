@@ -352,7 +352,7 @@ foreach ($carrello as $item) {
         right: -50%;
         width: 100%;
         height: 100%;
-        background: background: #f4f6f8;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
         pointer-events: none;
     }
     .total-vendita-box .total-label {
