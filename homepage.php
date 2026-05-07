@@ -1826,7 +1826,7 @@ $prodotti_result = $conn->query($sql);
               stock = parseInt(card.dataset.stock), key = `${id}_${price.toFixed(2)}`;
         
         let totalInCart = Object.values(cart).filter(i => i.id === id).reduce((sum, i) => sum + i.qty, 0);
-        if (totalInCart - (cart[key]?.qty || 0) + qty > stock) { showToast(`Giacenza non sufficiente (${stock} pz)!`, "error"); return; }
+        if (totalInCart + qty > stock) { showToast(`Giacenza non sufficiente (${stock} pz)!`, "error"); return; }
         
         btn.classList.add('success');
         btn.querySelector('.cart-icon').style.display = 'none'; btn.querySelector('.check-icon').style.display = 'inline-block';
