@@ -15,7 +15,7 @@ error_reporting(E_ALL);
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="assets/header-styles.css?v=1">
+  <link rel="stylesheet" href="assets/header-styles.css?v=2">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
                     <style>
 /* ======================================= */
@@ -669,13 +669,16 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('saveDisplayPrefsBtn').addEventListener('click', saveDisplayPreferences);
     document.getElementById('exportDataBtn').addEventListener('click', exportData);
     document.getElementById('darkModeToggle').addEventListener('change', function() {
-        applyDarkMode(this.checked);
+        this.checked = false;
+        applyDarkMode(false);
     });
 });
 
 // ========== DARK MODE ==========
 function applyDarkMode(isDark) {
-    document.body.classList.toggle('dark-mode', isDark);
+    document.body.classList.remove('dark-mode');
+    document.documentElement.classList.remove('dark-mode');
+    localStorage.setItem('darkMode', 'false');
 }
 
 // ========== LOAD SETTINGS ==========
@@ -687,9 +690,8 @@ function loadSettings() {
         document.getElementById('shopPhone').value = settings.shopPhone || '';
         document.getElementById('shopEmail').value = settings.shopEmail || '';
         document.getElementById('shopVAT').value = settings.shopVAT || '';
-        var darkMode = settings.darkMode === true;
-        document.getElementById('darkModeToggle').checked = darkMode;
-        applyDarkMode(darkMode);
+        document.getElementById('darkModeToggle').checked = false;
+        applyDarkMode(false);
         document.getElementById('itemsPerPage').value = settings.itemsPerPage || '10';
     } catch (e) {
         console.error("Errore caricamento impostazioni:", e);
@@ -740,7 +742,7 @@ function saveShopInfo() {
 
 function saveDisplayPreferences() {
     saveData({
-        darkMode: document.getElementById('darkModeToggle').checked,
+        darkMode: false,
         itemsPerPage: parseInt(document.getElementById('itemsPerPage').value)
     }, document.getElementById('saveDisplayPrefsBtn'));
 }

@@ -60,7 +60,7 @@ if ($q) { while ($r = $q->fetch_assoc()) { $azioni_uniche[] = $r['azione']; } }
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-<link rel="stylesheet" href="assets/header-styles.css?v=1">
+<link rel="stylesheet" href="assets/header-styles.css?v=2">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <style>
 :root{--primary:#22c55e;--primary-dark:#16a34a;--primary-light:#dcfce7;--primary-glow:rgba(34,197,94,0.4);--secondary:#3b82f6;--secondary-light:#dbeafe;--purple:#8b5cf6;--purple-light:#ede9fe;--orange:#f59e0b;--orange-light:#fef3c7;--danger:#ef4444;--danger-light:#fee2e2;--bg-page:#f8fafc;--bg-card:#ffffff;--text-primary:#0f172a;--text-secondary:#64748b;--text-muted:#94a3b8;--border-color:#e2e8f0;--border-light:#f1f5f9;--shadow:0 4px 6px -1px rgb(0 0 0/0.1),0 2px 4px -2px rgb(0 0 0/0.1);--shadow-md:0 10px 15px -3px rgb(0 0 0/0.1),0 4px 6px -4px rgb(0 0 0/0.1);--radius-md:0.75rem;--radius-lg:1rem;--radius-xl:1.5rem;--transition:200ms cubic-bezier(0.4,0,0.2,1)}

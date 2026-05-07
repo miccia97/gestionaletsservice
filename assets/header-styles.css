@@ -3108,16 +3108,7 @@
     .breadcrumb-item a:hover { color: var(--brand-dark); text-decoration: underline; }
     .breadcrumb-separator { color: var(--text-light); opacity: 0.5; }
 
-    /* ===== DARK MODE ===== */
-    @media (prefers-color-scheme: dark) {
-        :root.dark-mode { --text-dark: #e8e8e8; --text-light: #b0b0b0; --bg-light: #1a1a1a; --bg-white: #242424; --border-color: #333333; }
-        body.dark-mode { background-color: #0d0d0d; color: var(--text-dark); }
-        .dark-mode table { background-color: var(--bg-white); }
-        .dark-mode table tbody tr:nth-child(even) { background-color: #2a2a2a; }
-        .dark-mode table tbody tr:hover { background-color: #333333; }
-        .dark-mode .toast { background-color: var(--bg-white); border-color: var(--border-color); }
-        .dark-mode .confirm-modal { background-color: var(--bg-white); }
-    }
+    /* ===== DARK MODE DISABILITATA: il gestionale usa sempre il tema chiaro ===== */
     .dark-mode-toggle { background: none; border: none; cursor: pointer; font-size: 1.4rem; color: white; transition: transform 0.2s ease; padding: 8px; }
     .dark-mode-toggle:hover { transform: scale(1.2); }
 
@@ -3165,4 +3156,3 @@
         .card { padding: 1rem; }
         .empty-state-icon { font-size: 3rem; }
     }
-

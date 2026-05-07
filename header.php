@@ -2939,18 +2939,25 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
     // ===== DARK MODE =====
     window.initDarkMode = function() {
         const darkModeToggle = document.getElementById('dark-mode-toggle');
-        const savedMode = localStorage.getItem('darkMode');
-        if (savedMode === 'true' || (!savedMode && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark-mode');
-            document.body.classList.add('dark-mode');
-            if (darkModeToggle) darkModeToggle.setAttribute('aria-pressed', 'true');
+        localStorage.setItem('darkMode', 'false');
+        try {
+            const appSettings = JSON.parse(localStorage.getItem('appSettings') || '{}');
+            if (appSettings.darkMode === true) {
+                appSettings.darkMode = false;
+                localStorage.setItem('appSettings', JSON.stringify(appSettings));
+            }
+        } catch (e) {
+            localStorage.removeItem('appSettings');
         }
+        document.documentElement.classList.remove('dark-mode');
+        document.body.classList.remove('dark-mode');
+        if (darkModeToggle) darkModeToggle.setAttribute('aria-pressed', 'false');
         if (darkModeToggle) {
             darkModeToggle.addEventListener('click', () => {
-                const isDark = document.documentElement.classList.toggle('dark-mode');
-                document.body.classList.toggle('dark-mode');
-                localStorage.setItem('darkMode', isDark);
-                darkModeToggle.setAttribute('aria-pressed', isDark);
+                localStorage.setItem('darkMode', 'false');
+                document.documentElement.classList.remove('dark-mode');
+                document.body.classList.remove('dark-mode');
+                darkModeToggle.setAttribute('aria-pressed', 'false');
             });
         }
     };
@@ -2997,5 +3004,3 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
     window.initDarkMode();
 
 </script>
-
-
