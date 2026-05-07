@@ -112,6 +112,9 @@ if ($method === 'POST') {
     if (isset($_POST['_method']) && $_POST['_method'] === 'PUT') {
         $method = 'PUT';
         $requestData = $_POST; // Dati dal FormData sono in $_POST
+    } elseif (isset($_POST['_method']) && $_POST['_method'] === 'DELETE') {
+        $method = 'DELETE';
+        $requestData = $_POST;
     } else {
         // Per POST normale (es. aggiunta), controlla sia $_POST che php://input
         // Preferiamo $_POST se il Content-Type è form-data o url-encoded
@@ -122,8 +125,14 @@ if ($method === 'POST') {
             $requestData = json_decode(file_get_contents('php://input'), true);
         }
     }
-} elseif ($method === 'GET' || $method === 'DELETE') {
-    $requestData = $_GET; // Per GET e DELETE, i parametri sono nella query string
+} elseif ($method === 'GET') {
+    $requestData = $_GET;
+} elseif ($method === 'DELETE') {
+    $requestData = $_GET;
+    $jsonBody = json_decode(file_get_contents('php://input'), true);
+    if (is_array($jsonBody)) {
+        $requestData = array_merge($requestData, $jsonBody);
+    }
 } else {
     // Per altri metodi come PUT (se non simulati via POST), i dati potrebbero arrivare via php://input
     $requestData = json_decode(file_get_contents('php://input'), true);
@@ -404,8 +413,46 @@ switch ($method) {
         break;
 
     case 'DELETE':
+        $ids = $requestData['ids'] ?? null;
+        if (is_string($ids)) {
+            $decodedIds = json_decode($ids, true);
+            $ids = is_array($decodedIds) ? $decodedIds : explode(',', $ids);
+        }
+        if (is_array($ids)) {
+            $ids = array_values(array_filter(array_map('intval', $ids), fn($value) => $value > 0));
+            if (empty($ids)) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'Nessun ID valido per eliminazione multipla.']);
+                break;
+            }
+
+            try {
+                $placeholders = implode(',', array_fill(0, count($ids), '?'));
+                $stmt = $pdo->prepare("SELECT immagine FROM prodotti WHERE id IN ($placeholders)");
+                $stmt->execute($ids);
+                $itemsToDelete = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                $stmt = $pdo->prepare("DELETE FROM prodotti WHERE id IN ($placeholders)");
+                $stmt->execute($ids);
+                $deletedCount = $stmt->rowCount();
+
+                foreach ($itemsToDelete as $itemToDelete) {
+                    if (!empty($itemToDelete['immagine'])) {
+                        deleteImage($itemToDelete['immagine']);
+                    }
+                }
+
+                echo json_encode(['success' => true, 'message' => "$deletedCount articoli eliminati con successo.", 'deleted' => $deletedCount]);
+            } catch (PDOException $e) {
+                http_response_code(500);
+                error_log("Errore DELETE multiplo articoli: " . $e->getMessage());
+                echo json_encode(['success' => false, 'message' => 'Errore nell\'eliminazione multipla: ' . $e->getMessage()]);
+            }
+            break;
+        }
+
         // Elimina un articolo
-        $id = $_GET['id'] ?? null; 
+        $id = $requestData['id'] ?? null; 
         
         if (isset($id)) {
             $id = intval($id); 

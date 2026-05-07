@@ -1143,11 +1143,10 @@ select.filter-input {
             const onConfirm = async () => {
                 const count = selectedItems.size;
                 try {
-                    const res = await fetch(API_URL, {
-                        method: 'DELETE',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ ids: Array.from(selectedItems) })
-                    });
+                    const fd = new FormData();
+                    fd.append('_method', 'DELETE');
+                    fd.append('ids', JSON.stringify(Array.from(selectedItems)));
+                    const res = await fetch(API_URL, { method: 'POST', body: fd });
                     if (!res.ok) throw new Error('Errore server');
                     const result = await res.json();
                     if (!result.success) throw new Error(result.message);
