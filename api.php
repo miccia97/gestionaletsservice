@@ -17,11 +17,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// Configurazione del database MySQL
-$dbHost = 'localhost'; // Indirizzo del server del database
-$dbName = 'gestionale_tsservice'; // Nome del tuo database
-$dbUser = 'root'; // Utente del database
-$dbPass = ''; // Password del database
+// Configurazione del database MySQL condivisa con il resto del gestionale
+require_once __DIR__ . '/db.php';
+$dbHost = $host ?? 'localhost';
+$dbName = $dbname ?? '';
+$dbUser = $user ?? '';
+$dbPass = $password ?? '';
 
 $dsn = "mysql:host=$dbHost;dbname=$dbName;charset=utf8mb4";
 $pdo = null;

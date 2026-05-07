@@ -1085,14 +1085,19 @@ $prodotti_result = $conn->query($sql);
       transform: scale(1.1);
     }
     .cart-qty-input { 
-      width: 32px; 
+      width: 38px;
+      min-width: 38px;
       text-align: center; 
       border: none; 
       background: transparent; 
       font-size: 13px; 
       font-weight: 700; 
-      color: var(--text-dark);
+      color: var(--text-dark) !important;
+      opacity: 1;
+      -moz-appearance: textfield;
     }
+    .cart-qty-input::-webkit-inner-spin-button,
+    .cart-qty-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     .remove-btn { 
       position: absolute; 
       top: -6px; 

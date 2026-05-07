@@ -891,7 +891,8 @@ select.filter-input {
                 const category = item.categoria || "";
                 const matchesSearch = searchTerm === '' ||
                     name.toLowerCase().includes(searchTerm) ||
-                    String(id).toLowerCase().includes(searchTerm);
+                    String(id).toLowerCase().includes(searchTerm) ||
+                    String(item.barcode || '').toLowerCase().includes(searchTerm);
                 const matchesCategory = selectedCategory === '' || category === selectedCategory;
                 return matchesSearch && matchesCategory;
             });
@@ -1292,6 +1293,7 @@ select.filter-input {
             populateDropdowns();
             showTab('principale');
             itemModal.classList.add('visible');
+            setTimeout(() => formFields.barcode.focus(), 100);
         }
 
         function closeItemModal() { itemModal.classList.remove('visible'); }
@@ -1405,6 +1407,43 @@ select.filter-input {
         document.getElementById('clearImageBtn').addEventListener('click', resetImagePreview);
         formFields.categoria.addEventListener('change', () => handleCategoryChange());
         formFields.sottocategoria.addEventListener('change', () => handleSubcategoryChange());
+        formFields.barcode.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                formFields.name.focus();
+            }
+        });
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                currentPage = 1;
+                processAndRenderData();
+            }
+        });
+        let inventoryScannerBuffer = '';
+        let inventoryScannerTimer = null;
+        document.addEventListener('keydown', (e) => {
+            const target = e.target;
+            const isEditable = target && (target.matches('input, textarea, select') || target.isContentEditable);
+            if (isEditable) return;
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+            if (e.key === 'Enter') {
+                if (inventoryScannerBuffer.length >= 4) {
+                    e.preventDefault();
+                    searchInput.value = inventoryScannerBuffer;
+                    currentPage = 1;
+                    processAndRenderData();
+                }
+                inventoryScannerBuffer = '';
+                return;
+            }
+
+            if (e.key.length !== 1) return;
+            inventoryScannerBuffer += e.key;
+            clearTimeout(inventoryScannerTimer);
+            inventoryScannerTimer = setTimeout(() => { inventoryScannerBuffer = ''; }, 120);
+        });
         document.getElementById('cancelDeleteBtn').addEventListener('click', closeConfirmDeleteModal);
         inventoryTableBody.addEventListener('click', (e) => {
             const editBtn = e.target.closest('.edit-btn');
