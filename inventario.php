@@ -853,6 +853,21 @@ select.filter-input {
             toast.addEventListener('animationend', (e) => { if (e.animationName === 'toastOut') toast.remove(); });
         }
 
+        async function readApiResponse(res) {
+            const text = await res.text();
+            let payload = {};
+            try {
+                payload = text ? JSON.parse(text) : {};
+            } catch (error) {
+                payload = { success: false, message: text || 'Risposta non valida dal server.' };
+            }
+
+            if (!res.ok || payload.success === false) {
+                throw new Error(payload.message || `Errore server (${res.status})`);
+            }
+            return payload;
+        }
+
         async function fetchData() {
             showLoadingState();
             try {
@@ -1147,9 +1162,7 @@ select.filter-input {
                     fd.append('_method', 'DELETE');
                     fd.append('ids', JSON.stringify(Array.from(selectedItems)));
                     const res = await fetch(API_URL, { method: 'POST', body: fd });
-                    if (!res.ok) throw new Error('Errore server');
-                    const result = await res.json();
-                    if (!result.success) throw new Error(result.message);
+                    await readApiResponse(res);
                     showToast(`${count} articoli eliminati con successo!`, 'success');
                     selectedItems.clear();
                 } catch (error) {
@@ -1272,9 +1285,7 @@ select.filter-input {
         async function handleDelete(id) {
             try {
                 const res = await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
-                if (!res.ok) throw new Error("Errore dal server.");
-                const result = await res.json();
-                if (!result.success) throw new Error(result.message || "Eliminazione fallita.");
+                await readApiResponse(res);
                 showToast("Articolo eliminato!", "success");
             } catch (e) {
                 showToast(`Eliminazione fallita: ${e.message}`, "error");

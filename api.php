@@ -101,6 +101,64 @@ function deleteImage($imageName) {
 }
 // --- Fine funzioni gestione immagini ---
 
+function tableColumnExists(PDO $pdo, string $table, string $column): bool {
+    static $cache = [];
+    $cacheKey = $table . '.' . $column;
+    if (array_key_exists($cacheKey, $cache)) {
+        return $cache[$cacheKey];
+    }
+
+    $stmt = $pdo->prepare(
+        "SELECT COUNT(*) FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?"
+    );
+    $stmt->execute([$table, $column]);
+    $cache[$cacheKey] = (int)$stmt->fetchColumn() > 0;
+    return $cache[$cacheKey];
+}
+
+function deleteProductReferences(PDO $pdo, array $ids): void {
+    if (empty($ids)) {
+        return;
+    }
+
+    $references = [];
+    $fkStmt = $pdo->prepare(
+        "SELECT TABLE_NAME, COLUMN_NAME
+         FROM information_schema.KEY_COLUMN_USAGE
+         WHERE TABLE_SCHEMA = DATABASE()
+           AND REFERENCED_TABLE_NAME = 'prodotti'
+           AND REFERENCED_COLUMN_NAME = 'id'"
+    );
+    $fkStmt->execute();
+    foreach ($fkStmt->fetchAll(PDO::FETCH_ASSOC) as $fkReference) {
+        $references[] = [$fkReference['TABLE_NAME'], $fkReference['COLUMN_NAME']];
+    }
+
+    $references = array_merge($references, [
+        ['vendite_dettagli', 'id_prodotto'],
+        ['resi_dettagli', 'id_prodotto'],
+        ['dettagli_fattura', 'prodotto_id'],
+        ['prenotazioni_articoli_movimenti', 'prodotto_id'],
+        ['riparazioni_articoli_movimenti', 'prodotto_id'],
+    ]);
+    $placeholders = implode(',', array_fill(0, count($ids), '?'));
+    $processed = [];
+
+    foreach ($references as [$table, $column]) {
+        $referenceKey = $table . '.' . $column;
+        if (isset($processed[$referenceKey])) {
+            continue;
+        }
+        $processed[$referenceKey] = true;
+        if (!tableColumnExists($pdo, $table, $column)) {
+            continue;
+        }
+        $stmt = $pdo->prepare("DELETE FROM `$table` WHERE `$column` IN ($placeholders)");
+        $stmt->execute($ids);
+    }
+}
+
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -427,14 +485,18 @@ switch ($method) {
             }
 
             try {
+                $pdo->beginTransaction();
                 $placeholders = implode(',', array_fill(0, count($ids), '?'));
                 $stmt = $pdo->prepare("SELECT immagine FROM prodotti WHERE id IN ($placeholders)");
                 $stmt->execute($ids);
                 $itemsToDelete = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+                deleteProductReferences($pdo, $ids);
+
                 $stmt = $pdo->prepare("DELETE FROM prodotti WHERE id IN ($placeholders)");
                 $stmt->execute($ids);
                 $deletedCount = $stmt->rowCount();
+                $pdo->commit();
 
                 foreach ($itemsToDelete as $itemToDelete) {
                     if (!empty($itemToDelete['immagine'])) {
@@ -444,6 +506,9 @@ switch ($method) {
 
                 echo json_encode(['success' => true, 'message' => "$deletedCount articoli eliminati con successo.", 'deleted' => $deletedCount]);
             } catch (PDOException $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
                 http_response_code(500);
                 error_log("Errore DELETE multiplo articoli: " . $e->getMessage());
                 echo json_encode(['success' => false, 'message' => 'Errore nell\'eliminazione multipla: ' . $e->getMessage()]);
@@ -463,9 +528,13 @@ switch ($method) {
             $itemToDelete = $stmt->fetch(PDO::FETCH_ASSOC);
 
             try {
+                $pdo->beginTransaction();
+                deleteProductReferences($pdo, [$id]);
+
                 $stmt = $pdo->prepare("DELETE FROM prodotti WHERE id = :id");
                 $stmt->execute(['id' => $id]);
                 if ($stmt->rowCount() > 0) {
+                    $pdo->commit();
                     // Elimina il file immagine dal server
                     if ($itemToDelete && $itemToDelete['immagine']) {
                         deleteImage($itemToDelete['immagine']);
@@ -473,10 +542,14 @@ switch ($method) {
                     http_response_code(200); // OK
                     echo json_encode(['success' => true, 'message' => 'Articolo eliminato con successo.']);
                 } else {
+                    $pdo->rollBack();
                     http_response_code(404); // Not Found
                     echo json_encode(['success' => false, 'message' => 'Articolo non trovato per l\'eliminazione.']);
                 }
             } catch (PDOException $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
                 http_response_code(500);
                 error_log("Errore DELETE articolo: " . $e->getMessage());
                 echo json_encode(['success' => false, 'message' => 'Errore nell\'eliminazione dell\'articolo: ' . $e->getMessage()]);
