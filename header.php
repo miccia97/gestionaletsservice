@@ -1960,6 +1960,12 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         window.openNewClientModal = openModal;
         closeBtn.addEventListener('click', closeModal);
         cancelBtn.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) closeModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modalOverlay.style.display !== 'none') closeModal();
+        });
         tabButtons.forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
 
         saveBtn.addEventListener('click', async () => {
@@ -2048,6 +2054,7 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         };
         const closePopup = () => {
             popup.classList.remove('visible');
+            popup.classList.remove('active');
             popup.addEventListener('transitionend', () => popup.style.display = 'none', { once: true });
             // Fallback se transitionend non scatta
             setTimeout(() => { if (popup.style.display !== 'none') popup.style.display = 'none'; }, 400);
@@ -2072,6 +2079,13 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
     const buonoRegaloPopup = initializePopup('buonoRegaloPopup', 'openBuonoRegaloPopupBtn');
     const permutaPopup = initializePopup('permutaPopup', 'openNuovaPermutaPopupBtn');
     const prenotazionePopup = initializePopup('prenotazioneProdottoPopup', 'openPrenotazioneProdottoPopupBtn');
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        [riparazionePopup, buonoRegaloPopup, permutaPopup, prenotazionePopup].forEach(controller => {
+            if (controller && typeof controller.closePopup === 'function') controller.closePopup();
+        });
+    });
 
     // --- Logica Specifica per Wizard Riparazione ---
     (() => {

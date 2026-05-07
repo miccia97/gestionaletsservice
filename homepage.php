@@ -516,6 +516,10 @@ $prodotti_result = $conn->query($sql);
       box-shadow: var(--shadow-lg), var(--shadow-glow);
       border-color: var(--primary-light);
     }
+    .product-card.scanned-match .card-front {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.18), var(--shadow-lg);
+    }
     .card-inner {
       position: relative;
       width: 100%;
@@ -1696,6 +1700,20 @@ $prodotti_result = $conn->query($sql);
     function salvaCarrello() { localStorage.setItem('cart', JSON.stringify(cart)); }
     function modificaQuantita(btn, d) { const i = btn.parentElement.querySelector('.qty-input'); i.value = Math.min(Math.max(parseInt(i.value) + d, 1), parseInt(i.max)); }
     function formatPrice(p) { return '€' + parseFloat(p).toFixed(2).replace('.',','); }
+    function normalizeBarcode(value) { return String(value || '').trim().toLowerCase(); }
+
+    function getCardsByExactBarcode(barcodeValue) {
+        const normalized = normalizeBarcode(barcodeValue);
+        if (!normalized) return [];
+        return Array.from(document.querySelectorAll('.product-card')).filter(card => normalizeBarcode(card.dataset.barcode) === normalized);
+    }
+
+    function highlightScannedProduct(card) {
+        document.querySelectorAll('.product-card.scanned-match').forEach(el => el.classList.remove('scanned-match'));
+        card.classList.add('scanned-match');
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => card.classList.remove('scanned-match'), 1800);
+    }
 
     function modificaQuantitaCart(key, delta) {
         if (!cart[key]) return;
@@ -1819,23 +1837,58 @@ $prodotti_result = $conn->query($sql);
         card.classList.toggle('is-flipped');
     }
 
-    function aggiungiAlCarrello(e, btn) {
-        e.stopPropagation();
-        const card = btn.closest('.product-card'), id = card.dataset.id, name = card.querySelector('.product-name').textContent, img = card.querySelector('img').src,
-              price = parseFloat(card.querySelector('input[type=radio]:checked').value), qty = parseInt(card.querySelector('.qty-input').value),
+    function aggiungiCardAlCarrello(card, qtyOverride = null, btn = null) {
+        const id = card.dataset.id, name = card.querySelector('.product-name').textContent, img = card.querySelector('img').src,
+              price = parseFloat(card.querySelector('input[type=radio]:checked').value),
+              qty = qtyOverride !== null ? qtyOverride : parseInt(card.querySelector('.qty-input').value),
               stock = parseInt(card.dataset.stock), key = `${id}_${price.toFixed(2)}`;
         
         let totalInCart = Object.values(cart).filter(i => i.id === id).reduce((sum, i) => sum + i.qty, 0);
         if (totalInCart + qty > stock) { showToast(`Giacenza non sufficiente (${stock} pz)!`, "error"); return; }
         
-        btn.classList.add('success');
-        btn.querySelector('.cart-icon').style.display = 'none'; btn.querySelector('.check-icon').style.display = 'inline-block';
-        setTimeout(() => { btn.classList.remove('success'); btn.querySelector('.cart-icon').style.display = 'inline-block'; btn.querySelector('.check-icon').style.display = 'none'; }, 1500);
+        if (btn) {
+            btn.classList.add('success');
+            btn.querySelector('.cart-icon').style.display = 'none'; btn.querySelector('.check-icon').style.display = 'inline-block';
+            setTimeout(() => { btn.classList.remove('success'); btn.querySelector('.cart-icon').style.display = 'inline-block'; btn.querySelector('.check-icon').style.display = 'none'; }, 1500);
+        }
 
         const isNew = !cart[key];
         if (cart[key]) { cart[key].qty += qty; showToast(`Quantità di "${name}" aggiornata.`, "success"); } 
         else { cart[key] = { id, name, price, qty, img, giacenza: stock }; showToast(`"${name}" aggiunto al carrello.`, "success"); }
         aggiornaAnteprima(isNew);
+    }
+
+    function aggiungiAlCarrello(e, btn) {
+        e.stopPropagation();
+        aggiungiCardAlCarrello(btn.closest('.product-card'), null, btn);
+    }
+
+    function handleBarcodeScan(barcodeValue) {
+        const barcode = normalizeBarcode(barcodeValue);
+        if (!barcode) return;
+
+        const barcodeInput = document.getElementById('input-barcode');
+        barcodeInput.value = barcode;
+        document.getElementById('input-nome').value = '';
+        document.getElementById('input-imei').value = '';
+        filtroCategoria = null;
+        filtroSottocategoria = null;
+        filtroSottoSottocategoria = null;
+        document.querySelector('.reset-btn')?.classList.add('active');
+        document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+        aggiornaSottocategorie();
+        aggiornaSottoSottocategorie();
+        filtraProdotti();
+
+        const matches = getCardsByExactBarcode(barcode);
+        if (matches.length === 1) {
+            highlightScannedProduct(matches[0]);
+            aggiungiCardAlCarrello(matches[0], 1);
+        } else if (matches.length === 0) {
+            showToast(`Nessun prodotto con barcode ${barcode}`, 'warning');
+        } else {
+            showToast(`Trovati ${matches.length} prodotti con lo stesso barcode`, 'warning');
+        }
     }
     
     function svuotaCarrello() { cart = {}; aggiornaAnteprima(); showToast("Carrello svuotato.", "warning"); }
@@ -1875,6 +1928,37 @@ $prodotti_result = $conn->query($sql);
             document.querySelector('.reset-btn').click();
         }
     }
+
+    document.getElementById('input-barcode').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        e.stopPropagation();
+        handleBarcodeScan(e.currentTarget.value);
+      }
+    });
+
+    let scannerBuffer = '';
+    let scannerTimer = null;
+    document.addEventListener('keydown', (e) => {
+      const target = e.target;
+      const isEditable = target && (target.matches('input, textarea, select') || target.isContentEditable);
+      if (isEditable) return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+      if (e.key === 'Enter') {
+        if (scannerBuffer.length >= 4) {
+          e.preventDefault();
+          handleBarcodeScan(scannerBuffer);
+        }
+        scannerBuffer = '';
+        return;
+      }
+
+      if (e.key.length !== 1) return;
+      scannerBuffer += e.key;
+      clearTimeout(scannerTimer);
+      scannerTimer = setTimeout(() => { scannerBuffer = ''; }, 120);
+    });
 
     window.addEventListener('DOMContentLoaded', () => {
       if (new URLSearchParams(window.location.search).get('venditaSuccesso') === 'true') {
