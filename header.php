@@ -2087,6 +2087,18 @@ $current_user_role = $_SESSION['role'] ?? 'N/D'; // Ruolo utente, default 'N/D'
         });
     });
 
+    document.addEventListener('click', (e) => {
+        const closeTrigger = e.target.closest('.modal-close-button, .modal-close-btn, .modal-close, .close-btn, .ncm-close, .prenotazione-close-btn, [data-close-modal]');
+        if (!closeTrigger) return;
+        const container = closeTrigger.closest('.modal-overlay, .popup-overlay, #itemModal, #confirmModal, #barcodeModal, #mainModal, #new_client_modal_overlay');
+        if (container) {
+            container.classList.remove('show', 'visible', 'active');
+            if (container.classList.contains('popup-overlay') || container.id === 'new_client_modal_overlay') {
+                setTimeout(() => { container.style.display = 'none'; }, 350);
+            }
+        }
+    });
+
     // --- Logica Specifica per Wizard Riparazione ---
     (() => {
         const popup = document.getElementById('riparazionePopup');

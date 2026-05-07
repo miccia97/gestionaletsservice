@@ -858,11 +858,12 @@ select.filter-input {
             try {
                 const [inventoryRes, categoriesRes] = await Promise.all([
                     fetch(API_URL),
-                    fetch(`${API_URL}?get=categories`)
+                    fetch('api/get_categories_data.php')
                 ]);
                 if (!inventoryRes.ok || !categoriesRes.ok) throw new Error('Errore di rete');
                 allInventoryItems = await inventoryRes.json();
-                fetchedCategories = await categoriesRes.json();
+                const categoriesPayload = await categoriesRes.json();
+                fetchedCategories = normalizeCategoryTree(categoriesPayload.data || []);
                 
                 if (!Array.isArray(allInventoryItems)) {
                     console.error("L'API dell'inventario non ha restituito un array:", allInventoryItems);
@@ -1291,7 +1292,7 @@ select.filter-input {
             formFields.data_creazione.value = new Date().toISOString().slice(0, 10);
             resetImagePreview();
             populateDropdowns();
-            showTab('principale');
+            showTab('dettagli');
             itemModal.classList.add('visible');
             setTimeout(() => formFields.barcode.focus(), 100);
         }
@@ -1330,6 +1331,26 @@ select.filter-input {
                 opt.textContent = cat;
                 categoryFilter.appendChild(opt);
             });
+        }
+
+        function normalizeCategoryTree(categories) {
+            const rows = [];
+            categories.forEach(category => {
+                const categoryName = category.nome || '';
+                rows.push({ categoria: categoryName, sottocategoria: '', sottosottocategoria: '' });
+                (category.children || []).forEach(subcategory => {
+                    const subcategoryName = subcategory.nome || '';
+                    rows.push({ categoria: categoryName, sottocategoria: subcategoryName, sottosottocategoria: '' });
+                    (subcategory.children || []).forEach(subsubcategory => {
+                        rows.push({
+                            categoria: categoryName,
+                            sottocategoria: subcategoryName,
+                            sottosottocategoria: subsubcategory.nome || ''
+                        });
+                    });
+                });
+            });
+            return rows;
         }
         
         async function populateDropdowns(selectedCategory = "", selectedSubcategory = "", selectedSubSubcategory = "") {
@@ -1425,21 +1446,27 @@ select.filter-input {
         document.addEventListener('keydown', (e) => {
             const target = e.target;
             const isEditable = target && (target.matches('input, textarea, select') || target.isContentEditable);
-            if (isEditable) return;
+            if (isEditable && target !== formFields.barcode) return;
             if (e.ctrlKey || e.metaKey || e.altKey) return;
 
             if (e.key === 'Enter') {
                 if (inventoryScannerBuffer.length >= 4) {
                     e.preventDefault();
-                    searchInput.value = inventoryScannerBuffer;
-                    currentPage = 1;
-                    processAndRenderData();
+                    if (itemModal.classList.contains('visible') && document.activeElement === formFields.barcode) {
+                        formFields.barcode.value = inventoryScannerBuffer;
+                        formFields.name.focus();
+                    } else {
+                        searchInput.value = inventoryScannerBuffer;
+                        currentPage = 1;
+                        processAndRenderData();
+                    }
                 }
                 inventoryScannerBuffer = '';
                 return;
             }
 
             if (e.key.length !== 1) return;
+            if (target === formFields.barcode) return;
             inventoryScannerBuffer += e.key;
             clearTimeout(inventoryScannerTimer);
             inventoryScannerTimer = setTimeout(() => { inventoryScannerBuffer = ''; }, 120);
